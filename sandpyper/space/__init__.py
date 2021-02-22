@@ -1,0 +1,25 @@
+from .space import (
+grid_from_pts,
+add_grid_loc_coords,
+grid_from_shore,
+dissolve_shores,
+tiles_from_grid,
+check_overlay,
+getAngle,
+getPoint1,
+getPoint2,
+split_transects,
+
+# nmad, needs ASTROPY
+create_transects,
+correct_multi_detections,
+extract_shore_pts,
+shore_shift,
+rawdate_from_timestamp_str,
+corr_baseline_distance,
+error_from_gt,
+toes_from_slopes,
+toes_candidates,
+consecutive_ids,
+tidal_correction,
+save_slope_corr_files)
