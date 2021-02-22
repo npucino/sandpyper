@@ -21,6 +21,7 @@
     <img src="images/sandpiper1-01.png" alt="Logo" width="50%" height="50%">
   </a>
 
+
   <h3 align="center">- Tools for automatic UAV-SfM beach volumetric and behavioural analysis -</h3>
 
   <p align="justify">
@@ -32,13 +33,13 @@
     <li>Vegetation: both dune vegetation and beach wracks (macroalgae, woody debris) should be removed or filetered as can compromise sediment volumetric computation.</li>
     <li>File size: a few km long beach surveyed with a Phantom 4-Advanced at 100m altitude create roughly 10 Gb (uncompressed) of data, which can be cumbersome for some GIS to handle.</li>
   </ol>
-  
+
   From user-defined cross-shore transects, you can clean profiles from unwanted non-sand points, detect significant hotspots/coldspots (cluster) of beach change, compute       volumetric dynamics at the site and transect levels, plot alongshore change and model beachface behaviour using the Beachface Cluster Dynamics indices.
-  
+
   Plus, some outils functions that can come at hand, like automatic transect creation from a vector line, grid creation along a line and subsequent tiles extraction and others.
-  
+
   Follow the Jupyter Notebook tutorials (IN PREPARATION) to understand how it works!
-  
+
   >**This code has supported the analysis and publication of the article ["Citizen science for monitoring seasonal-scale beach erosion and behaviour with aerial drones"](https://rdcu.be/cfgvu  "link to paper"), in the open access Nature Scientific Report journal.**
 
 
@@ -80,7 +81,7 @@
     <li><a href="#contact">Contact</a></li>
     <li><a href="#publications">Publications</a></li>
     <li><a href="#acknowledgements">Acknowledgements</a></li>
-   
+
   </ol>
 </details>
 
@@ -131,7 +132,7 @@ To get a local copy up and running follow these simple steps.
 ### Installation (temporary - will be a package in PyPI)
 
 1. Locate the **site-package** folder inside the sandpiper_env folder created by Conda and clone the repo inside that.
-  
+
   >**Example**: C:\conda3\envs\sandpiper_env\Lib\site-packages
   >
    Type in conda prompt:
@@ -216,7 +217,7 @@ Project Link: [https://github.com/npucino/sandpiper](https://github.com/npucino/
 [issues-shield]: https://img.shields.io/github/issues/npucino/sandpiper.svg?style=for-the-badge
 [issues-url]: https://github.com/npucino/sandpiper/issues
 [license-shield]: https://img.shields.io/github/license/npucino/sandpiper.svg?style=for-the-badge
-[license-url]: https://github.com/npucino/sandpiper/blob/master/LICENSE 
+[license-url]: https://github.com/npucino/sandpiper/blob/master/LICENSE
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
 [linkedin-url]: https://www.linkedin.com/in/nicolaspucino/
 
