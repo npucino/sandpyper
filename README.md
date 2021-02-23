@@ -10,22 +10,22 @@
 [![Forks][forks-shield]][forks-url]
 [![Stargazers][stars-shield]][stars-url]
 [![Issues][issues-shield]][issues-url]
-![GitHub](https://img.shields.io/github/license/npucino/sandpiper?style=for-the-badge)
+![GitHub](https://img.shields.io/github/license/npucino/sandpyper?style=for-the-badge)
 [![LinkedIn][linkedin-shield]][linkedin-url]
 
 
 <!-- PROJECT logo -->
 <br />
 <p align="center">
-  <a href="https://github.com/npucino/sandpiper">
-    <img src="images/sandpiper1-01.png" alt="Logo" width="50%" height="50%">
+  <a href="https://github.com/npucino/sandpyper">
+    <img src="images/sandpyper-01.png" alt="Logo" width="50%" height="50%">
   </a>
 
 
   <h3 align="center">- Tools for automatic UAV-SfM beach volumetric and behavioural analysis -</h3>
 
   <p align="justify">
-    Sandpiper performs an organised and automatic extraction of elevation profiles from as many DSM and orthophotos as you like. It is thought to be used when a considerable number of DSMs and orthohpotos from many different locations and coordinate reference systems need to be processed.
+    Sandpyper performs an organised and automatic extraction of elevation profiles from as many DSM and orthophotos as you like. It is thought to be used when a considerable number of DSMs and orthohpotos from many different locations and coordinate reference systems need to be processed.
     Then, computes volumetric and behavioural analysis of beachfaces, speeding up an otherwise long and difficult to handle (big rasters) job.
     It has some specialised functions to deal with the common limitations found in beach environments:
   <ol>
@@ -44,13 +44,13 @@
 
 
   <br />
-  <a href="https://github.com/npucino/sandpiper"><strong>Explore the docs »</strong></a>
+  <a href="https://github.com/npucino/sandpyper"><strong>Explore the docs »</strong></a>
   <br />
-  <a href="https://github.com/npucino/sandpiper">View Demo</a>
+  <a href="https://github.com/npucino/sandpyper">View Demo</a>
   ·
-  <a href="https://github.com/npucino/sandpiper/issues">Report Bug</a>
+  <a href="https://github.com/npucino/sandpyper/issues">Report Bug</a>
   ·
-  <a href="https://github.com/npucino/sandpiper/issues">Request Feature</a>
+  <a href="https://github.com/npucino/sandpyper/issues">Request Feature</a>
   </p>
 </p>
 
@@ -121,9 +121,9 @@ To get a local copy up and running follow these simple steps.
 * then, if you do not have it already, install **Visual Studio C++ build tools** in your local machine, which is needed to install the [richdem](https://pypi.org/project/richdem/ "richdem pypi page") package. You can download it [here](https://visualstudio.microsoft.com/visual-cpp-build-tools/ "standalone VS c++ build tools").
 * now, in the Anaconda Prompt terminal, create the environment **sandpyper_env** and install the required packages by typing:
   ```sh
-  conda create --name sandpiper_env geopandas tqdm pysal=2.1 scikit-learn scikit-image rasterio scipy seaborn matplotlib
+  conda create --name sandpyper_env geopandas tqdm pysal=2.1 scikit-learn scikit-image rasterio scipy seaborn matplotlib
   ```
-* now, let's PIP install richdem in the newly created environment **sandpyper_env** (ps.: remember to `conda activate sandpiper_env` ). Type:
+* now, let's PIP install richdem in the newly created environment **sandpyper_env** (ps.: remember to `conda activate sandpyper_env` ). Type:
  ```sh
  pip install richdem
  ```
@@ -155,7 +155,7 @@ _For more examples, please refer to the [Documentation](https://example.com)_
 <!-- ROADMAP -->
 ## Roadmap
 
-See the [open issues](https://github.com/npucino/sandpiper/issues) for a list of proposed features (and known issues).
+See the [open issues](https://github.com/npucino/sandpyper/issues) for a list of proposed features (and known issues).
 
 
 
@@ -184,7 +184,7 @@ Distributed under the MIT License. See `LICENSE` for more information.
 
 Nicolas Pucino - [@NicolasPucino](https://twitter.com/@NicolasPucino) - npucino@deakin.edu.au
 
-Project Link: [https://github.com/npucino/sandpiper](https://github.com/npucino/sandpiper)
+Project Link: [https://github.com/npucino/sandpyper](https://github.com/npucino/sandpyper)
 
 
 <!-- Publications -->
@@ -206,16 +206,16 @@ Project Link: [https://github.com/npucino/sandpiper](https://github.com/npucino/
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
-[contributors-shield]: https://img.shields.io/github/contributors/npucino/sandpiper.svg?style=for-the-badge
-[contributors-url]: https://github.com/npucino/sandpiper/graphs/contributors
-[forks-shield]: https://img.shields.io/github/forks/npucino/sandpiper.svg?style=for-the-badge
-[forks-url]: https://github.com/npucino/sandpiper/network/members
-[stars-shield]: https://img.shields.io/github/stars/npucino/sandpiper.svg?style=for-the-badge
-[stars-url]: https://github.com/npucino/sandpiper/stargazers
-[issues-shield]: https://img.shields.io/github/issues/npucino/sandpiper.svg?style=for-the-badge
-[issues-url]: https://github.com/npucino/sandpiper/issues
-[license-shield]: https://img.shields.io/github/license/npucino/sandpiper.svg?style=for-the-badge
-[license-url]: https://github.com/npucino/sandpiper/blob/master/LICENSE
+[contributors-shield]: https://img.shields.io/github/contributors/npucino/sandpyper.svg?style=for-the-badge
+[contributors-url]: https://github.com/npucino/sandpyper/graphs/contributors
+[forks-shield]: https://img.shields.io/github/forks/npucino/sandpyper.svg?style=for-the-badge
+[forks-url]: https://github.com/npucino/sandpyper/network/members
+[stars-shield]: https://img.shields.io/github/stars/npucino/sandpyper.svg?style=for-the-badge
+[stars-url]: https://github.com/npucino/sandpyper/stargazers
+[issues-shield]: https://img.shields.io/github/issues/npucino/sandpyper.svg?style=for-the-badge
+[issues-url]: https://github.com/npucino/sandpyper/issues
+[license-shield]: https://img.shields.io/github/license/npucino/sandpyper.svg?style=for-the-badge
+[license-url]: https://github.com/npucino/sandpyper/blob/master/LICENSE
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
 [linkedin-url]: https://www.linkedin.com/in/nicolaspucino/
 
