@@ -190,7 +190,7 @@ Project Link: [https://github.com/npucino/sandpyper](https://github.com/npucino/
 <!-- Publications -->
 ## Publications
 
-* [Pucino, N. et al. Citizen science for monitoring seasonal-scale beach erosion and behaviour with aerial drones. Sci. Rep. 11, 1-19 (2021)](https://rdcu.be/cfgvu)
+* [Pucino, N., Kennedy, D. M., Carvalho, R. C., Allan, B. & Ierodiaconou, D. Citizen science for monitoring seasonal-scale beach erosion and behaviour with aerial drones. Sci. Rep. 11, 3935 (2021)](https://rdcu.be/cfgvu)
 
 <!-- ACKNOWLEDGEMENTS -->
 ## Acknowledgements
