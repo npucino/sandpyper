@@ -18,7 +18,7 @@
 <br />
 <p align="center">
   <a href="https://github.com/npucino/sandpyper">
-    <img src="images/sandpyper-01.png" alt="Logo" width="50%" height="50%">
+    <img src="images/sandpiper-01.png" alt="Logo" width="50%" height="50%">
   </a>
 
 
