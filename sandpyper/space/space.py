@@ -1,5 +1,5 @@
-from sandpiper.outils import cross_ref,getListOfFiles, getDate, getLoc,getCrs_from_raster_path
-from sandpiper.profile import extract_from_folder,get_profiles
+from sandpyper.outils import cross_ref,getListOfFiles, getDate, getLoc,getCrs_from_raster_path
+from sandpyper.profile import extract_from_folder,get_profiles
 
 import rasterio as ras
 import rasterio.mask as rasmask
