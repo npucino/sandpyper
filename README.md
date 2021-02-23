@@ -117,32 +117,30 @@ Each survey creates Digital Surface Models and orthophotos of considerable size 
 To get a local copy up and running follow these simple steps.
 
 ### Prerequisites
-* [Install Conda] in your local machine. We need it to create the **"sandpiper_env"** virtual environment.
+* [Install Conda] in your local machine. We need it to create the **"sandpyper_env"** virtual environment.
 * then, if you do not have it already, install **Visual Studio C++ build tools** in your local machine, which is needed to install the [richdem](https://pypi.org/project/richdem/ "richdem pypi page") package. You can download it [here](https://visualstudio.microsoft.com/visual-cpp-build-tools/ "standalone VS c++ build tools").
-* now, in the Anaconda Prompt terminal, create the environment **sandpiper_env** and install the required packages by typing:
+* now, in the Anaconda Prompt terminal, create the environment **sandpyper_env** and install the required packages by typing:
   ```sh
   conda create --name sandpiper_env geopandas tqdm pysal=2.1 scikit-learn scikit-image rasterio scipy seaborn matplotlib
   ```
-* now, let's PIP install richdem in the newly created environment **sandpiper_env** (ps.: remember to `conda activate sandpiper_env` ). Type:
+* now, let's PIP install richdem in the newly created environment **sandpyper_env** (ps.: remember to `conda activate sandpiper_env` ). Type:
  ```sh
  pip install richdem
  ```
- For the exact packages versions, consult the [sandpiper_env.yml file](https://github.com/npucino/sandpiper/blob/master/sandpiper_env.yml).
+ For the exact packages versions, consult the [sandpyper_env.yml file](https://github.com/npucino/sandpyper/blob/master/sandpyper_env.yml).
 
-### Installation (temporary - will be a package in PyPI)
+### Installation
 
-1. Locate the **site-package** folder inside the sandpiper_env folder created by Conda and clone the repo inside that.
-
-  >**Example**: C:\conda3\envs\sandpiper_env\Lib\site-packages
-  >
-   Type in conda prompt:
-   ```sh
-   cd C:\conda3\envs\sandpiper_env\Lib\site-packages
-   git clone https://github.com/npucino/sandpiper.git
+1. ```sh
+   pip install sandpyper
    ```
-2. Once you open a Jupyter Notebook with the sandpiper_env, import it to test it works.
+2. If you use Jupyter Notebooks:
    ```sh
-   import sandpiper
+   conda install jupyter notebook
+   ```
+3. Once you open a Jupyter Notebook with the sandpyper_env, import it to test it works.
+   ```sh
+   import sandpyper
    ```
 
 <!-- USAGE EXAMPLES -->
