@@ -12,7 +12,7 @@ import os
 import time
 import warnings
 
-from sandpiper.outils import create_id,filter_filename_list,getListOfFiles,getDate,getLoc
+from sandpyper.outils import create_id,filter_filename_list,getListOfFiles,getDate,getLoc
 
 
 
