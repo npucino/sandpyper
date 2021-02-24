@@ -12,13 +12,13 @@ jobs:
         runs-on: ${{ matrix.config.os }}
         name: ${{ matrix.config.os }} (${{ matrix.config.py }})
         strategy:
-            fail-fast: false
+            fail-fast: true
             matrix:
                 config:
-                    - { os: windows-latest, py: "3.7" }
-                    # - { os: macOS-latest, py: "3.7" }
+                    - { os: windows-latest, py: "3.7.9" }
+                    # - { os: macOS-latest, py: "3.7.9" }
                     #- { os: ubuntu-latest, py: "3.6" }
-                    #- { os: ubuntu-latest, py: "3.7" }
+                    #- { os: ubuntu-latest, py: "3.7.9" }
 
         env:
             SDKROOT: /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk
