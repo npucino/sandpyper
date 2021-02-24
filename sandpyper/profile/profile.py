@@ -1,6 +1,6 @@
 
 import numpy as np
-import gdal
+from osgeo import gdal
 import richdem as rd
 from gdalconst import GA_ReadOnly
 from shapely.geometry import Point
