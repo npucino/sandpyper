@@ -5,7 +5,13 @@
 
 import unittest
 
-from sandpyper import sandpyper
+from sandpyper.dynamics import *
+from sandpyper.hotspot import *
+from sandpyper.labels import *
+from sandpyper.outils import *
+from sandpyper.profile import *
+from sandpyper.volumetrics import *
+
 
 
 #class TestSandpyper(unittest.TestCase):
