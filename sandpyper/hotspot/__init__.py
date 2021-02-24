@@ -1,4 +1,4 @@
-__version__='0.0.1'
 from .hotspot import (
-LISA_site_level
+    LISA_site_level
 )
+__version__ = '0.0.1'

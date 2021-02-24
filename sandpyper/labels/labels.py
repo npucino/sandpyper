@@ -15,9 +15,9 @@ from tqdm import tqdm_notebook as tqdm
 # MODULE____labels
 
 
-def get_sil_location(merged_df, ks=(2,21),
-                     feature_set=["band1","band2","band3","slope"],
-                    random_state=10,n_jobs=-1):
+def get_sil_location(merged_df, ks=(2, 21),
+                     feature_set=["band1", "band2", "band3", "slope"],
+                     random_state=10, n_jobs=-1):
     """
     Function to obtain average Silhouette scores for a list of number of clusters (k) in all surveys.
     It uses KMeans as a clusteres and parallel processing for improved speed.
@@ -37,41 +37,42 @@ def get_sil_location(merged_df, ks=(2,21),
     """
 
     # Creates the range of k to be used for Silhouette Analysis
-    k_rng=range(*ks)
+    k_rng = range(*ks)
 
     # Get list of locations
-    list_locs=merged_df.location.unique()
+    list_locs = merged_df.location.unique()
 
-    #Setting up the estimator to scale and translate each feature individually to a 0 to 1 range.
+    # Setting up the estimator to scale and translate each feature
+    # individually to a 0 to 1 range.
     scaler = MinMaxScaler()
 
-    location_series=[]
-    dates_series=[]
-    n_clusters_series=[]
-    silhouette_avg_series=[]
+    location_series = []
+    dates_series = []
+    n_clusters_series = []
+    silhouette_avg_series = []
 
     for location in tqdm(list_locs):
 
-        list_dates= merged_df.query(f"location=='{location}'").survey_date.unique()
+        list_dates = merged_df.query(f"location=='{location}'").survey_date.unique()
 
         for survey_date in tqdm(list_dates):
             print(f"Working on : {location}, {survey_date}.")
 
-            data_in=merged_df.query(f"location=='{location}' & survey_date== '{survey_date}'")
-            data_in=data_in[feature_set]
+            data_in = merged_df.query(
+                f"location=='{location}' & survey_date== '{survey_date}'")
+            data_in = data_in[feature_set]
             data_in.dropna(inplace=True)
-
 
             for n_clusters in tqdm(k_rng):
 
                 minmax_scaled_df = scaler.fit_transform(data_in)
                 minmax_scaled_df = np.nan_to_num(minmax_scaled_df)
 
-                clusterer=KMeans(n_clusters=n_clusters, init='k-means++',
-                         algorithm='elkan', tol=0.0001,
-                         random_state=random_state, n_jobs=-1)
+                clusterer = KMeans(n_clusters=n_clusters, init='k-means++',
+                                   algorithm='elkan', tol=0.0001,
+                                   random_state=random_state, n_jobs=-1)
 
-                cluster_labels=clusterer.fit_predict(np.nan_to_num(minmax_scaled_df))
+                cluster_labels = clusterer.fit_predict(np.nan_to_num(minmax_scaled_df))
 
                 # The silhouette_score gives the average value for all the samples.
                 # This gives a perspective into the density and separation of the formed
@@ -85,13 +86,12 @@ def get_sil_location(merged_df, ks=(2,21),
                 n_clusters_series.append(n_clusters)
                 silhouette_avg_series.append(silhouette_avg)
 
-
-    items_dict = {'location' : pd.Series(data=location_series),
+    items_dict = {'location': pd.Series(data=location_series),
                   'survey_date': pd.Series(data=dates_series),
-             'k' : pd.Series(data=n_clusters_series),
-                'silhouette_mean': pd.Series(data=silhouette_avg_series)}
+                  'k': pd.Series(data=n_clusters_series),
+                  'silhouette_mean': pd.Series(data=silhouette_avg_series)}
 
-    sil_df=pd.DataFrame(items_dict)
+    sil_df = pd.DataFrame(items_dict)
 
     return sil_df
 
@@ -119,10 +119,10 @@ def plot_sil(array, k_rng, feat1=0, feat2=1, random_state=10):
         # used to insert blank space between silohette plots of separate clusters
         ax1.set_ylim([0, len(array) + (n_clusters + 1) * 10])
 
-        clusterer=KMeans(n_clusters=n_clusters, init='k-means++',
-                         algorithm='elkan', tol=0.0001,
-                         random_state=random_state,n_jobs=-1)
-        cluster_labels=clusterer.fit_predict(array)
+        clusterer = KMeans(n_clusters=n_clusters, init='k-means++',
+                           algorithm='elkan', tol=0.0001,
+                           random_state=random_state, n_jobs=-1)
+        cluster_labels = clusterer.fit_predict(array)
 
         # The silhouette_score gives the average value for all the samples.
         # This gives a perspective into the density and separation of the formed
@@ -140,9 +140,8 @@ def plot_sil(array, k_rng, feat1=0, feat2=1, random_state=10):
             # Aggregate the silhouette scores for samples belonging to
             # cluster i, and sort them
             ith_cluster_silhouette_values = \
-                sample_silhouette_values[cluster_labels == i]
+                sorted(sample_silhouette_values[cluster_labels == i])
 
-            ith_cluster_silhouette_values.sort()
             size_cluster_i = ith_cluster_silhouette_values.shape[0]
 
             y_upper = y_lower + size_cluster_i
@@ -162,7 +161,7 @@ def plot_sil(array, k_rng, feat1=0, feat2=1, random_state=10):
         ax1.set_xlabel("The silhouette coefficient values")
         ax1.set_ylabel("Cluster label")
 
-         # The vertical line for average silhouette score of all the values
+        # The vertical line for average silhouette score of all the values
         ax1.axvline(x=silhouette_avg, color="red", linestyle="--")
 
         # 2nd Plot showing the actual clusters formed
@@ -191,7 +190,7 @@ def plot_sil(array, k_rng, feat1=0, feat2=1, random_state=10):
     plt.show()
 
 
-def get_opt_k (sil_df, sigma=1):
+def get_opt_k(sil_df, sigma=1):
     """
     Function to create a dictionary with optimal number of clusters (k) for all surveys.
     It search for the inflexion points where an additional cluster do not degrade the overall clustering performance.
@@ -209,58 +208,67 @@ def get_opt_k (sil_df, sigma=1):
         Dictionary with optimal k for each survey.
     """
 
-    si_arr=sil_df.groupby(['location',"survey_date"])["silhouette_mean"].apply(np.array)
-    k_arr=sil_df.groupby(['location',"survey_date"])["k"].apply(np.array)
+    si_arr = sil_df.groupby(['location', "survey_date"])[
+        "silhouette_mean"].apply(np.array)
+    k_arr = sil_df.groupby(['location', "survey_date"])["k"].apply(np.array)
 
-    dict_data={"k_numbers":k_arr,"silhouette_mean":si_arr}
-    sil_group_df=pd.DataFrame(dict_data)
-    sil_group_df=sil_group_df.reset_index()
+    dict_data = {"k_numbers": k_arr, "silhouette_mean": si_arr}
+    sil_group_df = pd.DataFrame(dict_data)
+    sil_group_df = sil_group_df.reset_index()
 
+    opt_k = dict()
 
-    opt_k=dict()
+    for i in range(0, sil_group_df.shape[0]):
 
-
-    for i in range(0,sil_group_df.shape[0]):
-
-        location=sil_group_df.iloc[i].location
-        survey_date=sil_group_df.iloc[i].survey_date
-        sub=sil_group_df.loc[i,["k_numbers","silhouette_mean"]]
+        location = sil_group_df.iloc[i].location
+        survey_date = sil_group_df.iloc[i].survey_date
+        sub = sil_group_df.loc[i, ["k_numbers", "silhouette_mean"]]
 
         # Passing a gaussian filter to smooth the curve for 1 std sigma
-        gauss=gaussian_filter(sub.silhouette_mean, sigma=sigma)
+        gauss = gaussian_filter(sub.silhouette_mean, sigma=sigma)
 
         # obtaining relative minima for the smoothed line (gauss)
-        mina=sig.argrelmin(gauss, axis=0, order=1, mode='clip')
+        mina = sig.argrelmin(gauss, axis=0, order=1, mode='clip')
 
         if len(mina[0]) == 0:
-        # if no relative minima are found, compute the second order accurate central differences in the interior points
-        # as optimal k
+            # if no relative minima are found, compute the second order accurate central differences in the interior points
+            # as optimal k
 
-            der=np.gradient(gauss)
-            peak=sig.find_peaks(der)
+            der = np.gradient(gauss)
+            peak = sig.find_peaks(der)
 
-            if len(peak)>1:  # if multiple plateu values are found, obtain the mean k of those values
+            if len(
+                    peak) > 1:  # if multiple plateu values are found, obtain the mean k of those values
 
-                peak=int(np.mean(peak[0])) +2
+                peak = int(np.mean(peak[0])) + 2
                 # +2: the peaks of mina values are 0-based index. As k started at 2, adding 2 returns k instead of index
-                opt_k[f"{location}_{survey_date}"]=peak
+                opt_k[f"{location}_{survey_date}"] = peak
 
             else:
-                opt_k[f"{location}_{survey_date}"]=peak[0][0]+2
+                opt_k[f"{location}_{survey_date}"] = peak[0][0] + 2
 
         elif len(mina[0]) == 1:
 
-            opt_k[f"{location}_{survey_date}"]=mina[0][0]+2
+            opt_k[f"{location}_{survey_date}"] = mina[0][0] + 2
 
         else:
             # if multiple relative minimas are found, use the first one as optimal k
-            opt_k[f"{location}_{survey_date}"]=mina[0][0] +2
+            opt_k[f"{location}_{survey_date}"] = mina[0][0] + 2
 
     return opt_k
 
 
-def kmeans_sa(merged_df,opt_k_dict,thresh_k=5, feature_set=['band1','band2','band3','slope'],
-              random_state=10,n_jobs=-1):
+def kmeans_sa(
+        merged_df,
+        opt_k_dict,
+        thresh_k=5,
+        feature_set=[
+            'band1',
+            'band2',
+            'band3',
+            'slope'],
+    random_state=10,
+        n_jobs=-1):
     """
     Function to use KMeans on all surveys with the optimal k obtained from the Silhouette Analysis.
     It uses KMeans as a clusterer with parallel processing for improved speed.
@@ -276,53 +284,58 @@ def kmeans_sa(merged_df,opt_k_dict,thresh_k=5, feature_set=['band1','band2','ban
         A dataframe containing the label_k column, with point_id, location, survey_date and the features used to cluster the data.
     """
 
-    data_merged=merged_df[["point_id","location","survey_date","z","slope","curve","distance","band1","band2","band3"]]
+    data_merged = merged_df[["point_id", "location", "survey_date",
+                             "z", "slope", "curve", "distance", "band1", "band2", "band3"]]
     data_merged.dropna(inplace=True)
-    list_locs=data_merged.location.unique()
+    list_locs = data_merged.location.unique()
 
     scaler = MinMaxScaler()
-    data_classified=pd.DataFrame()
+    data_classified = pd.DataFrame()
 
-    # Set a threshold k, in case a k is lower than 5, use the mean optimal k of the other surveys above threshold
-    threshold=5
+    # Set a threshold k, in case a k is lower than 5, use the mean optimal k
+    # of the other surveys above threshold
+    threshold = 5
 
     # # Compute the mean optimal k of above threshold ks
-    arr_k=np.array([i for i in opt_k_dict.values() if i > threshold])
-    threshold_k=np.int(np.round(np.mean(arr_k),0))
+    arr_k = np.array([i for i in opt_k_dict.values() if i > threshold])
+    threshold_k = np.int(np.round(np.mean(arr_k), 0))
 
     for location in tqdm(list_locs):
 
-        list_dates= data_merged.query(f"location=='{location}'").survey_date.unique()
+        list_dates = data_merged.query(f"location=='{location}'").survey_date.unique()
 
         for survey_date in tqdm(list_dates):
 
-            data_in=data_merged.query(f"location=='{location}'& survey_date=='{survey_date}'")
-            data_clean=data_in[feature_set].apply(pd.to_numeric)
+            data_in = data_merged.query(
+                f"location=='{location}'& survey_date=='{survey_date}'")
+            data_clean = data_in[feature_set].apply(pd.to_numeric)
 
-            k=opt_k_dict[f"{location}_{survey_date}"]
+            k = opt_k_dict[f"{location}_{survey_date}"]
 
             if k > threshold:
 
                 minmax_scaled_df = scaler.fit_transform(np.nan_to_num(data_clean))
 
-                clusterer=KMeans(n_clusters=k, init='k-means++',
-                         algorithm='elkan', tol=0.0001,
-                         random_state=random_state,n_jobs=n_jobs)
+                clusterer = KMeans(n_clusters=k, init='k-means++',
+                                   algorithm='elkan', tol=0.0001,
+                                   random_state=random_state, n_jobs=n_jobs)
 
-                data_in["label_k"]=clusterer.fit_predict(minmax_scaled_df)
+                data_in["label_k"] = clusterer.fit_predict(minmax_scaled_df)
 
-                data_classified=pd.concat([data_in,data_classified],ignore_index=True)
+                data_classified = pd.concat(
+                    [data_in, data_classified], ignore_index=True)
 
             else:
 
                 minmax_scaled_df = scaler.fit_transform(np.nan_to_num(data_clean))
 
-                clusterer=clusterer=KMeans(n_clusters=k, init='k-means++',
-                         algorithm='elkan', tol=0.0001,
-                         random_state=random_state,n_jobs=n_jobs)
+                clusterer = clusterer = KMeans(n_clusters=k, init='k-means++',
+                                               algorithm='elkan', tol=0.0001,
+                                               random_state=random_state, n_jobs=n_jobs)
 
-                data_in["label_k"]=clusterer.fit_predict(minmax_scaled_df)
+                data_in["label_k"] = clusterer.fit_predict(minmax_scaled_df)
 
-                data_classified=pd.concat([data_in,data_classified],ignore_index=True)
+                data_classified = pd.concat(
+                    [data_in, data_classified], ignore_index=True)
 
     return data_classified

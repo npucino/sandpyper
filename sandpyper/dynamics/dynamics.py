@@ -8,8 +8,7 @@ import matplotlib.pyplot as plt
 import seaborn as sb
 
 
-
-def attach_trs_geometry (markov_transects_df,dirNameTrans):
+def attach_trs_geometry(markov_transects_df, dirNameTrans):
     """ Attach transect geometries to the transect-specific BCDs.
     Args:
         markov_transects_df (Pandas dataframe): Dataframe storing BCDs at the transect level.
@@ -18,20 +17,24 @@ def attach_trs_geometry (markov_transects_df,dirNameTrans):
     Returns:
         Dataframe with the geometries attached, ready to be mapped.
     """
-    return_df=pd.DataFrame()
+    return_df = pd.DataFrame()
 
-    list_trans=getListOfFiles(dirNameTrans)
+    list_trans = getListOfFiles(dirNameTrans)
     for i in list_trans:
 
-        transect_in=gpd.read_file(i)
-        transect_in.rename({'TR_ID':'tr_id'},axis=1, inplace=True)
-        loc=getLoc(i)
+        transect_in = gpd.read_file(i)
+        transect_in.rename({'TR_ID': 'tr_id'}, axis=1, inplace=True)
+        loc = getLoc(i)
 
         print(f" Attaching {loc} ...")
-        sub_markovs_trs=markov_transects_df.query(f"location=='{loc}'")
-        sub_markovs_trs["geometry"]=pd.merge(sub_markovs_trs,transect_in, how="left", on='tr_id')["geometry"].values
+        sub_markovs_trs = markov_transects_df.query(f"location=='{loc}'")
+        sub_markovs_trs["geometry"] = pd.merge(
+            sub_markovs_trs,
+            transect_in,
+            how="left",
+            on='tr_id')["geometry"].values
 
-        return_df=pd.concat([return_df,sub_markovs_trs], ignore_index=True)
+        return_df = pd.concat([return_df, sub_markovs_trs], ignore_index=True)
     print(f" Done!")
     return return_df
 
@@ -48,57 +51,57 @@ def infer_weights(data, markov_tag_field='markov_tag'):
         dict, containing the markov tags and associated weights.
     """
 
-    dict_medians={}
+    dict_medians = {}
 
-    mags=[]
+    mags = []
     for i in range(data.shape[0]):
 
-        letter=data.loc[i,markov_tag_field][0]
-        if letter =='u':
-            mag='undefined'
-        elif letter =='s':
-            mag='slight'
-        elif letter =='m':
-            mag='medium'
-        elif letter =='h':
-            mag='high'
-        elif letter =='e':
-            mag='extreme'
+        letter = data.loc[i, markov_tag_field][0]
+        if letter == 'u':
+            mag = 'undefined'
+        elif letter == 's':
+            mag = 'slight'
+        elif letter == 'm':
+            mag = 'medium'
+        elif letter == 'h':
+            mag = 'high'
+        elif letter == 'e':
+            mag = 'extreme'
         mags.append(mag)
 
-    data["magnitude_class"]=mags
+    data["magnitude_class"] = mags
 
     # create a dictionary with all the medians of the classes
-    dict_medians={}
+    dict_medians = {}
     for classe in data.magnitude_class.unique():
-        class_in=data.query(f"magnitude_class=='{classe}'")
-        class_median=np.median(np.abs(class_in.dh))
+        class_in = data.query(f"magnitude_class=='{classe}'")
+        class_median = np.median(np.abs(class_in.dh))
         if classe == 'undefined':
 
-            dict_medians.update({"ue": np.round(class_median,2),
-                                "ud":np.round(class_median,2)})
+            dict_medians.update({"ue": np.round(class_median, 2),
+                                 "ud": np.round(class_median, 2)})
         elif classe == 'slight':
 
-            dict_medians.update({"se": np.round(class_median,2),
-                                "sd":np.round(class_median,2)})
+            dict_medians.update({"se": np.round(class_median, 2),
+                                 "sd": np.round(class_median, 2)})
 
         elif classe == 'medium':
 
-            dict_medians.update({"me": np.round(class_median,2),
-                                "md":np.round(class_median,2)})
+            dict_medians.update({"me": np.round(class_median, 2),
+                                 "md": np.round(class_median, 2)})
         elif classe == 'high':
 
-            dict_medians.update({"he": np.round(class_median,2),
-                                "hd":np.round(class_median,2)})
+            dict_medians.update({"he": np.round(class_median, 2),
+                                 "hd": np.round(class_median, 2)})
         elif classe == 'extreme':
 
-            dict_medians.update({"ee": np.round(class_median,2),
-                                "ed":np.round(class_median,2)})
+            dict_medians.update({"ee": np.round(class_median, 2),
+                                 "ed": np.round(class_median, 2)})
 
     return dict_medians
 
 
-def get_coastal_Markov (arr_markov,weights_dict,store_neg=True):
+def get_coastal_Markov(arr_markov, weights_dict, store_neg=True):
     """ Compute BCDs from first-order transition matrices of dh magnitude classes (as states).
 
     Args:
@@ -110,60 +113,79 @@ def get_coastal_Markov (arr_markov,weights_dict,store_neg=True):
         BCD index, value of the trend, the sign ('-' or '+') for plotting purposes.
     """
 
-    combs=pd.Series(product(arr_markov.index, (arr_markov.columns)))
+    combs = pd.Series(product(arr_markov.index, (arr_markov.columns)))
 
-    value_trans=0
-    value_trend=0
+    value_trans = 0
+    value_trend = 0
 
-    for state1,state2 in combs:
+    for state1, state2 in combs:
 
-        state_1_w=weights_dict[state1] #extract the weights
-        state_2_w=weights_dict[state2]
-        value=arr_markov.at[state1,state2]
+        state_1_w = weights_dict[state1]  # extract the weights
+        state_2_w = weights_dict[state2]
+        value = arr_markov.at[state1, state2]
 
-        if state_1_w > state_2_w:      #check if the change is decr
+        if state_1_w > state_2_w:  # check if the change is decr
 
-            if bool(store_neg)==True:
-                weigth_adhoc=state_1_w *  state_2_w
-                weigth_adhoc_trend=state_1_w * (- (state_2_w))
+            if bool(store_neg):
+                weigth_adhoc = state_1_w * state_2_w
+                weigth_adhoc_trend = state_1_w * (- (state_2_w))
 
             else:
-                weigth_adhoc=state_1_w * ( (state_2_w))
+                weigth_adhoc = state_1_w * ((state_2_w))
 
-            value_trans +=value
-            value_trend +=(value * weigth_adhoc_trend)
-
+            value_trans += value
+            value_trend += (value * weigth_adhoc_trend)
 
         elif state_1_w < state_2_w:
-            weigth_adhoc_trend=state_1_w * state_2_w
+            weigth_adhoc_trend = state_1_w * state_2_w
 
-            value_trans+=value
-            value_trend +=(value * weigth_adhoc_trend)
+            value_trans += value
+            value_trend += (value * weigth_adhoc_trend)
 
         else:
-            weigth_adhoc_trend=state_1_w* state_2_w
+            weigth_adhoc_trend = state_1_w * state_2_w
 
-            value_trans +=value
-            value_trend +=(value * weigth_adhoc_trend)
+            value_trans += value
+            value_trend += (value * weigth_adhoc_trend)
 
     if value_trend > 0:
-        sign='+'
+        sign = '+'
     elif value_trend < 0:
-        sign='-'
-    elif value_trend==0:
-        sign='0'
+        sign = '-'
+    elif value_trend == 0:
+        sign = '0'
     else:
-        sign=np.nan
+        sign = np.nan
 
-    return np.round(value_trans,3),np.round(value_trend,3),sign
+    return np.round(value_trans, 3), np.round(value_trend, 3), sign
 
 
-def BCDs_compute(dataset,weights_dict,mode, unique_field="geometry",
-                label_order=['ed','hd','md','sd','ud','nnn','ue','se','me','he','ee'],
-                 store_neg=True,
-                 plot_it=False, fig_size=(6,4), font_scale=0.75, dpi=300,
-                 save_it=False, save_output="C:\\jupyter\\tables\\final_tables\\"):
-
+def BCDs_compute(
+        dataset,
+        weights_dict,
+        mode,
+        unique_field="geometry",
+        label_order=[
+            'ed',
+            'hd',
+            'md',
+            'sd',
+            'ud',
+            'nnn',
+            'ue',
+            'se',
+            'me',
+            'he',
+            'ee'],
+    store_neg=True,
+    plot_it=False,
+    fig_size=(
+            6,
+            4),
+        font_scale=0.75,
+        dpi=300,
+        save_it=False,
+        save_output="C:\\jupyter\\tables\\final_tables\\"):
     """ It computes all the transition matrices, based on the sand-only hotspots
     of elevation change across beachface dataset, at the site level.
 
@@ -194,129 +216,141 @@ def BCDs_compute(dataset,weights_dict,mode, unique_field="geometry",
 
     sb.set_context(font_scale=font_scale)
 
-
-    steady_state_victoria=pd.DataFrame()
-    markov_indexes_victoria=pd.DataFrame()
+    steady_state_victoria = pd.DataFrame()
+    markov_indexes_victoria = pd.DataFrame()
 
     for loc in dataset.location.unique():
 
-        dataset_piv=dataset.query(f"location=='{loc}'").pivot(values="markov_tag", index=unique_field, columns="dt")
+        dataset_piv = dataset.query(f"location=='{loc}'").pivot(
+            values="markov_tag", index=unique_field, columns="dt")
 
-        if mode=="all":
+        if mode == "all":
             dataset_piv.fillna('nnn', inplace=True)
 
-        elif mode=="drop":
+        elif mode == "drop":
             dataset_piv.dropna(axis="index", how="any", inplace=True)
 
         elif isinstance(mode, float):
 
-            dts=len(dataset_piv.columns)
-            thrsh=int(mode*dts)
+            dts = len(dataset_piv.columns)
+            thrsh = int(mode * dts)
 
-            dataset_piv.dropna(axis=0,how='any', thresh=7, inplace=True)
+            dataset_piv.dropna(axis=0, how='any', thresh=7, inplace=True)
             dataset_piv.fillna('nnn', inplace=True)
 
-
         else:
-            raise NameError(" Specify the mode ('drop', 'all', or a float number (0.5,1.0,0.95)")
+            raise NameError(
+                " Specify the mode ('drop', 'all', or a float number (0.5,1.0,0.95)")
 
+        n = dataset_piv.shape[0]
+        t = dataset_piv.shape[1]
 
-        n=dataset_piv.shape[0]
-        t=dataset_piv.shape[1]
+        arr = np.array(dataset_piv)
 
-        arr=np.array(dataset_piv)
+        m = Markov(arr)
+        n_transitions = m.transitions.sum().sum()
 
-        m=Markov(arr)
-        n_transitions=m.transitions.sum().sum()
+        steady_state = pd.DataFrame(m.steady_state, index=m.classes, columns=[loc])
+        steady_state_victoria = pd.concat([steady_state, steady_state_victoria], axis=1)
 
-        steady_state=pd.DataFrame(m.steady_state,index=m.classes, columns=[loc])
-        steady_state_victoria=pd.concat([steady_state,steady_state_victoria], axis=1)
+        markov_df = pd.DataFrame(np.round(m.p, 3), index=m.classes, columns=m.classes)
 
-
-        markov_df=pd.DataFrame(np.round(m.p,3), index=m.classes, columns=m.classes)
-
-        # if any column is missing from label_order, then add both row and column and populate with zeroes
-        if markov_df.columns.all != 11: # must be 11, 5 for process plus nnn
-            missing_states=[state for state in label_order if state not in markov_df.columns] # which one is missing?
+        # if any column is missing from label_order, then add both row and column
+        # and populate with zeroes
+        if markov_df.columns.all != 11:  # must be 11, 5 for process plus nnn
+            # which one is missing?
+            missing_states = [
+                state for state in label_order if state not in markov_df.columns]
             for miss in missing_states:                 # for all missing states, add columns with zeroes
-                markov_df[f"{miss}"]=float(0)
-                last_idx=markov_df.shape[0]           # # at the end of the (squared) dataframe
-                markov_df.loc[last_idx+1]=[float(0) for i in markov_df.columns]
+                markov_df[f"{miss}"] = float(0)
+                # # at the end of the (squared) dataframe
+                last_idx = markov_df.shape[0]
+                markov_df.loc[last_idx + 1] = [float(0) for i in markov_df.columns]
 
-            to_rename=markov_df.index.to_list()[-len(missing_states):] # get a list of str of the missing states
-            for i,j in zip(to_rename,missing_states):
+            # get a list of str of the missing states
+            to_rename = markov_df.index.to_list()[-len(missing_states):]
+            for i, j in zip(to_rename, missing_states):
                 markov_df.rename({i: j}, inplace=True)
 
+        markov_ordered = markov_df.loc[label_order, label_order]
 
-        markov_ordered=markov_df.loc[label_order,label_order]
-
-        markov_ordered.fillna(0, inplace=True) # When no transition occurred, replace NaN with a 0.
-
+        # When no transition occurred, replace NaN with a 0.
+        markov_ordered.fillna(0, inplace=True)
 
         # reverted orders for extremes, to increase readibility
-        dd=markov_ordered.iloc[:5,:5]
-        dd=dd[dd.columns[::-1]]
+        dd = markov_ordered.iloc[:5, :5]
+        dd = dd[dd.columns[::-1]]
 
-        ee=markov_ordered.iloc[6:,6:]
-        ee=ee.reindex(index=ee.index[::-1])
-        de=markov_ordered.iloc[:5,6:]
+        ee = markov_ordered.iloc[6:, 6:]
+        ee = ee.reindex(index=ee.index[::-1])
+        de = markov_ordered.iloc[:5, 6:]
 
-        ed=markov_ordered.iloc[6:,:5]
-        ed=ed.reindex(index=ed.index[::-1])
-        ed=ed[ed.columns[::-1]]
+        ed = markov_ordered.iloc[6:, :5]
+        ed = ed.reindex(index=ed.index[::-1])
+        ed = ed[ed.columns[::-1]]
 
-        list_markovs=[ee,ed,dd,de]
-        dict_markovs={"ee":ee,"ed":ed,"dd":dd,"de":de}
-
+        list_markovs = [ee, ed, dd, de]
+        dict_markovs = {"ee": ee, "ed": ed, "dd": dd, "de": de}
 
         # create index dataframe
 
         for arr_markov in dict_markovs.keys():
 
-            idx,trend,sign=get_coastal_Markov(dict_markovs[arr_markov],weights_dict=weights_dict,store_neg=store_neg)
+            idx, trend, sign = get_coastal_Markov(
+                dict_markovs[arr_markov], weights_dict=weights_dict, store_neg=store_neg)
 
-            idx_coastal_markov_dict={"location":loc,
-                                     "sub_matrix":arr_markov,
-                                    "coastal_markov_idx":idx,
-                                    "trend":trend,
-                                    "sign":sign}
+            idx_coastal_markov_dict = {"location": loc,
+                                       "sub_matrix": arr_markov,
+                                       "coastal_markov_idx": idx,
+                                       "trend": trend,
+                                       "sign": sign}
 
-            idx_coastal_markov_df=pd.DataFrame(idx_coastal_markov_dict, index=[0])
-            markov_indexes_victoria=pd.concat([idx_coastal_markov_df,markov_indexes_victoria], ignore_index=True)
+            idx_coastal_markov_df = pd.DataFrame(idx_coastal_markov_dict, index=[0])
+            markov_indexes_victoria = pd.concat(
+                [idx_coastal_markov_df, markov_indexes_victoria], ignore_index=True)
 
+        if bool(plot_it):
 
-        if bool(plot_it)==True:
+            titles = ["Erosional", "Recovery", "Depositional", "Vulnerability"]
+            cmaps = ["Reds", "Greens", "Blues", "PuRd"]
 
-            titles=["Erosional", "Recovery", "Depositional","Vulnerability"]
-            cmaps=["Reds","Greens","Blues","PuRd"]
+            std_excluding_nnn = markov_ordered.loc[markov_ordered.index !=
+                                                   "nnn", markov_ordered.columns != "nnn"].values.flatten().std()
+            exclude_outliers = np.round(3 * std_excluding_nnn, 1)
 
-            std_excluding_nnn=markov_ordered.loc[markov_ordered.index != "nnn",markov_ordered.columns != "nnn"].values.flatten().std()
-            exclude_outliers=np.round(3*std_excluding_nnn,1)
+            f2, axs = plt.subplots(nrows=2, ncols=2, figsize=fig_size)
 
-            f2,axs=plt.subplots(nrows=2,ncols=2,figsize=fig_size)
-
-            for ax_i,heat,title,cmap_i in zip(axs.flatten(),list_markovs,titles,cmaps):
-                sb.heatmap(heat, cmap=cmap_i,annot=True,linewidths=1,linecolor="white",
-                           vmin=0,vmax=exclude_outliers,annot_kws={'size':6}, ax=ax_i)
+            for ax_i, heat, title, cmap_i in zip(
+                    axs.flatten(), list_markovs, titles, cmaps):
+                sb.heatmap(
+                    heat,
+                    cmap=cmap_i,
+                    annot=True,
+                    linewidths=1,
+                    linecolor="white",
+                    vmin=0,
+                    vmax=exclude_outliers,
+                    annot_kws={
+                        'size': 6},
+                    ax=ax_i)
                 ax_i.set_title(f"{title}", size=9)
-                title=f2.suptitle(f"{loc} (n={n},t={t}, trans:{int(n_transitions)}) ")
+                title = f2.suptitle(f"{loc} (n={n},t={t}, trans:{int(n_transitions)}) ")
                 title.set_position([.5, 1.03])
                 f2.tight_layout(pad=1)
 
-            if bool(save_it)==True:
-                f2.savefig(f"{save_output}{loc}_sub_matrices_.png",dpi=dpi)
+            if bool(save_it):
+                f2.savefig(f"{save_output}{loc}_sub_matrices_.png", dpi=dpi)
             else:
                 pass
         else:
             pass
 
-    return markov_indexes_victoria,steady_state_victoria
+    return markov_indexes_victoria, steady_state_victoria
 
 
-def steady_state_transect(dataset,mode="nnn",unreal='drop',thresh=8,min_points=20,
-                   field_markov_tags="markov_tag",field_unique_id="geometry",
-                   field_discrete_time="dt",use_neg=True):
-
+def steady_state_transect(dataset, mode="nnn", unreal='drop', thresh=8, min_points=20,
+                          field_markov_tags="markov_tag", field_unique_id="geometry",
+                          field_discrete_time="dt", use_neg=True):
     """ It computes the r-BCDs at the transect level, based on the sand-only hotspots
     of elevation change transect dataset.
 
@@ -337,82 +371,104 @@ def steady_state_transect(dataset,mode="nnn",unreal='drop',thresh=8,min_points=2
        A dataframes containing the steady-state distribution of each transect.
     """
 
-
-    steady_state_tr=pd.DataFrame()
-    markov_indexes_tr=pd.DataFrame()
+    steady_state_tr = pd.DataFrame()
+    markov_indexes_tr = pd.DataFrame()
 
     # in mode, insert "drop" to remove cluster to no-cluster transitions or "nnn" to retain them and label them "nnn"
-    # If drop, only cluster to cluster points that happend during all the surveys are retained
-
+    # If drop, only cluster to cluster points that happend during all the
+    # surveys are retained
 
     for loc in tqdm(dataset.location.unique()):
-        data_loc=dataset.query(f"location=='{loc}'")
+        data_loc = dataset.query(f"location=='{loc}'")
 
-        unreliable_trs=[]
+        unreliable_trs = []
 
         for tr_id in data_loc.tr_id.unique():
 
-            data_tr=data_loc.query(f"tr_id=='{tr_id}'")
-            data_piv=data_tr.pivot(values= field_markov_tags, index=field_unique_id, columns=field_discrete_time)
+            data_tr = data_loc.query(f"tr_id=='{tr_id}'")
+            data_piv = data_tr.pivot(
+                values=field_markov_tags,
+                index=field_unique_id,
+                columns=field_discrete_time)
 
-            if mode=="nnn":
-                data_piv.dropna(axis=0,thresh=thresh,inplace=True) # drop all rows with less than specified cluster transitions
-                data_piv.fillna('nnn', inplace=True) # all the remaining NaN will be named 'nnn'
+            if mode == "nnn":
+                # drop all rows with less than specified cluster transitions
+                data_piv.dropna(axis=0, thresh=thresh, inplace=True)
+                # all the remaining NaN will be named 'nnn'
+                data_piv.fillna('nnn', inplace=True)
 
                 if data_piv.shape[0] < min_points:
-                    print(f"Threshold of points per transect {tr_id} not reached. It has {data_piv.shape[0]} points.")
+                    print(
+                        f"Threshold of points per transect {tr_id} not reached. It has {data_piv.shape[0]} points.")
                     unreliable_trs.append(tr_id)
 
                 else:
                     pass
 
-            elif mode=="drop":
+            elif mode == "drop":
                 data_piv.dropna(axis="index", how="any", inplace=True)
             else:
                 raise NameError(" Specify the mode ('drop' or 'nnn')")
 
-            n=data_piv.shape[0]
-            arr=np.array(data_piv)
-            m=Markov(arr)
+            n = data_piv.shape[0]
+            arr = np.array(data_piv)
+            m = Markov(arr)
 
             try:
-                steady_state=m.steady_state
-                steady_state=pd.DataFrame(m.steady_state,index=m.classes, columns=[tr_id])
+                steady_state = m.steady_state
+                steady_state = pd.DataFrame(
+                    m.steady_state, index=m.classes, columns=[tr_id])
 
                 steady_state.reset_index(inplace=True)
-                steady_state.rename({"index":"markov_tag"},axis=1, inplace=True)
-                steady_state=steady_state.melt(id_vars="markov_tag",value_name="p", var_name="tr_id")
-                steady_state["location"]=loc
-                steady_state["thresh"]=thresh
-                steady_state["min_pts"]=min_points
-                steady_state["valid_pts"]=n
+                steady_state.rename({"index": "markov_tag"}, axis=1, inplace=True)
+                steady_state = steady_state.melt(
+                    id_vars="markov_tag", value_name="p", var_name="tr_id")
+                steady_state["location"] = loc
+                steady_state["thresh"] = thresh
+                steady_state["min_pts"] = min_points
+                steady_state["valid_pts"] = n
 
-                steady_state_tr=pd.concat([steady_state,steady_state_tr], ignore_index=True )
+                steady_state_tr = pd.concat(
+                    [steady_state, steady_state_tr], ignore_index=True)
 
-
-            except:
+            except BaseException:
                 print(f"tr_id {tr_id} has not enough points. Go ahead...")
                 pass
 
-        if unreal=='drop':
+        if unreal == 'drop':
 
             print("eliminating unreliable transects . . . ")
             for i in unreliable_trs:
 
                 indexa = steady_state_tr.query(f"tr_id =={i}").index
-                steady_state_tr.drop(indexa , inplace=True)
-        elif unreal=='keep':
+                steady_state_tr.drop(indexa, inplace=True)
+        elif unreal == 'keep':
             pass
         else:
-            raise NameError(" Specify what to do with unreliable transects ('drop' or 'keep' ?)")
-
+            raise NameError(
+                " Specify what to do with unreliable transects ('drop' or 'keep' ?)")
 
     return steady_state_tr
 
 
-def compute_rBCD_transects (dirNameTrans, steady_state_tr,loc,weights_dict,
-                            label_order=['ed','hd','md','sd','ud','nnn','ue','se','me','he','ee'],
-                            geo=True):
+def compute_rBCD_transects(
+        dirNameTrans,
+        steady_state_tr,
+        loc,
+        weights_dict,
+        label_order=[
+            'ed',
+            'hd',
+            'md',
+            'sd',
+            'ud',
+            'nnn',
+            'ue',
+            'se',
+            'me',
+            'he',
+            'ee'],
+        geo=True):
     """ It computes transect-level r-BCDs, based on the steady-state dataframe returned by steady_state_transect function.
 
     Warning: changing label order is not supported as submatrix partitioning is hard-coded (TO UPDATe)
@@ -429,69 +485,72 @@ def compute_rBCD_transects (dirNameTrans, steady_state_tr,loc,weights_dict,
     Returns:
        Two dataframes. The first is the transect-level r-BCDs (geo)dataframe and the second is a dataframe, useful for plotting purposes (TO UPDATe).
     """
-    weigths_series=pd.Series(weights_dict,weights_dict.keys(), name="weight" )
+    weigths_series = pd.Series(weights_dict, weights_dict.keys(), name="weight")
 
-    ss_transects_idx=pd.DataFrame()
-    loc_codes=[loc]
+    ss_transects_idx = pd.DataFrame()
+    loc_codes = [loc]
 
     for loc in loc_codes:
 
-        sub=steady_state_tr.query(f"location=='{loc}'")
-        sub=sub.pivot(index="markov_tag", columns="tr_id", values=("p"))
+        sub = steady_state_tr.query(f"location=='{loc}'")
+        sub = sub.pivot(index="markov_tag", columns="tr_id", values=("p"))
         try:
-            sub.drop("nnn",inplace=True)
-        except:
+            sub.drop("nnn", inplace=True)
+        except BaseException:
             pass
 
         # Apply the weights
-        sub_w=sub.join(weigths_series, how="inner")
-        weighted_matrix=sub_w.iloc[:,:-1].multiply(sub_w.weight, axis="index")
-        weighted_matrix=weighted_matrix.loc[label_order,:]
+        sub_w = sub.join(weigths_series, how="inner")
+        weighted_matrix = sub_w.iloc[:, :-1].multiply(sub_w.weight, axis="index")
+        weighted_matrix = weighted_matrix.loc[label_order, :]
 
         try:
-            weighted_matrix.drop("nnn",inplace=True)
-        except:
+            weighted_matrix.drop("nnn", inplace=True)
+        except BaseException:
             pass
 
         # Create erosion and deposition sub-matrix
-        erosion=weighted_matrix.iloc[5:,:].transpose()
-        erosion["erosion"]=erosion.sum(axis=1)
+        erosion = weighted_matrix.iloc[5:, :].transpose()
+        erosion["erosion"] = erosion.sum(axis=1)
 
-        deposition=weighted_matrix.iloc[:-5,:].transpose()
-        deposition["deposition"]=deposition.sum(axis=1)
+        deposition = weighted_matrix.iloc[:-5, :].transpose()
+        deposition["deposition"] = deposition.sum(axis=1)
 
         # Compute erosion residuals
-        indexes_vic=abs(deposition.deposition) - abs(erosion.erosion)
-        indexes_vic=pd.DataFrame(pd.Series(indexes_vic, name="residual"))
+        indexes_vic = abs(deposition.deposition) - abs(erosion.erosion)
+        indexes_vic = pd.DataFrame(pd.Series(indexes_vic, name="residual"))
         indexes_vic.reset_index(inplace=True)
-        indexes_vic.rename({"index":"tr_id"},axis=1, inplace=True)
+        indexes_vic.rename({"index": "tr_id"}, axis=1, inplace=True)
 
         # Put all into one table
-        deposition["erosion"]=erosion.erosion
-        to_plot=deposition.reset_index()[["index","deposition","erosion"]].rename({"index":"tr_id"},axis=1)
+        deposition["erosion"] = erosion.erosion
+        to_plot = deposition.reset_index()[["index", "deposition", "erosion"]].rename({
+            "index": "tr_id"}, axis=1)
 
-        to_print_table=to_plot.merge(indexes_vic, on="tr_id", how="left")
-        to_plot=to_print_table.melt(id_vars=["tr_id"],var_name="process",value_name="coastal_index")
+        to_print_table = to_plot.merge(indexes_vic, on="tr_id", how="left")
+        to_plot = to_print_table.melt(
+            id_vars=["tr_id"],
+            var_name="process",
+            value_name="coastal_index")
 
-        to_plot["location"]=loc
+        to_plot["location"] = loc
 
+        coastal_markov_trs_steady = attach_trs_geometry(to_plot, dirNameTrans)
 
-        coastal_markov_trs_steady= attach_trs_geometry(to_plot,dirNameTrans)
-
-        piv_markov_trs=pd.pivot_table(
-            coastal_markov_trs_steady,index=["location","tr_id"],
-            columns="process",values=["coastal_index"]).reset_index(col_level=1)
+        piv_markov_trs = pd.pivot_table(
+            coastal_markov_trs_steady, index=["location", "tr_id"],
+            columns="process", values=["coastal_index"]).reset_index(col_level=1)
 
         piv_markov_trs.columns = piv_markov_trs.columns.droplevel(0)
-        trs_markov_idx=attach_trs_geometry(piv_markov_trs,dirNameTrans)
+        trs_markov_idx = attach_trs_geometry(piv_markov_trs, dirNameTrans)
 
+        ss_transects_idx = pd.concat(
+            [trs_markov_idx, ss_transects_idx], ignore_index=True)
 
-        ss_transects_idx=pd.concat([trs_markov_idx,ss_transects_idx], ignore_index=True)
-
-        if bool(geo)==True:
-            ss_transects_idx=gpd.GeoDataFrame(ss_transects_idx,
-                                              geometry='geometry',crs=crs_dict_string[loc])
+        if bool(geo):
+            ss_transects_idx = gpd.GeoDataFrame(
+                ss_transects_idx, geometry='geometry', crs=crs_dict_string[loc])
         else:
             pass
 
-    return ss_transects_idx,to_plot
+    return ss_transects_idx, to_plot
