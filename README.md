@@ -6,6 +6,7 @@
 [![Forks][forks-shield]][forks-url]
 [![Stargazers][stars-shield]][stars-url]
 [![Issues][issues-shield]][issues-url]
+[![License][license-shield]][license-url]
 ![GitHub](https://img.shields.io/github/license/npucino/sandpyper?style=for-the-badge)
 [![LinkedIn][linkedin-shield]][linkedin-url]
 
