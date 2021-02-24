@@ -1,5 +1,5 @@
-__version__='__version__ = "__version__ = 0.0.3"'
-__author__ = """Nicolas Pucino"""
+__version__== "0.0.3"
+__author__ = "Nicolas Pucino"
 __email__ = 'npucino@deakin.edu.au'
 
 from . import dynamics
