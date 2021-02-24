@@ -61,7 +61,7 @@ def get_profiles(dsm, transect_file, transect_index, step, location, date_string
 
     ds =  ras.open(dsm,'r')
     bands = ds.count                      # get raster bands. One, in a classic DEM
-    transform = ds.transform()            # get geotransform info
+    transform = ds.transform            # get geotransform info
 
     line = transect_file.loc[transect_index]    # index each transect and store it a "line" object
     length_m = line.geometry.length
