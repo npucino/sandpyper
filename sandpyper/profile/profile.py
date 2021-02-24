@@ -1,8 +1,8 @@
-
+from rasterio.windows import Window, from_bounds
+from rasterio.transform import rowcol
+import rasterio as ras
 import numpy as np
-from osgeo import gdal
 import richdem as rd
-from gdalconst import GA_ReadOnly
 from shapely.geometry import Point
 import pandas as pd
 import geopandas as gpd
@@ -35,30 +35,18 @@ def get_terrain_info(x_coord, y_coord, rdarray):
 
 def get_elevation(x_coord, y_coord, raster, bands, gt):
 
-    # Let's create an empty list where we will store the elevation (z) from points
-    # With GDAL, we extract 4 components of the geotransform (gt) of our north-up image.
-
     elevation = []
-    xOrigin = gt[0]                         # top-left X
-    yOrigin = gt[3]                         # top-left y
-    pixelWidth = gt[1]                      # horizontal pixel resolution
-    pixelHeight = gt[5]                     # vertical pixel resolution
-    px = int((x_coord-xOrigin)/pixelWidth)  # transform geographic to image coords
-    py= int((y_coord-yOrigin)/pixelHeight)  # transform geographic to image coords
-
+    row,col=rowcol(transform,x_coord,y_coord,round)
 
     for j in np.arange(bands):                  # we could iterate thru multiple bands
 
-
-        band=raster.GetRasterBand(1)        # but we stick with classic 1-band DEM image
         try:
-            data=band.ReadAsArray(px,py,1,1)    # transform the DEM into an array of one value giving offset
-            elevation.append(data[0][0])
+            data_z=ds.read(1,window=Window(col, row, 1, 1))
+            elevation.append(data_z[0][0])
         except:
             elevation.append(np.nan)
 
     return elevation
-
 
 def get_profiles(dsm, transect_file, transect_index, step, location, date_string, add_xy=False, add_terrain=False):
 
@@ -71,11 +59,9 @@ def get_profiles(dsm, transect_file, transect_index, step, location, date_string
     # transforming image coordinates to geographic ones.
 
 
-    ds = gdal.Open(dsm,GA_ReadOnly)             # Let's open the dataset with GDAL
-
-    bands = ds.RasterCount                      # get raster bands. One, in a classic DEM
-
-    transform = ds.GetGeoTransform()            # get geotransform info
+    ds =  ras.open(dsm,'r')
+    bands = ds.count                      # get raster bands. One, in a classic DEM
+    transform = ds.transform()            # get geotransform info
 
     line = transect_file.loc[transect_index]    # index each transect and store it a "line" object
     length_m = line.geometry.length
