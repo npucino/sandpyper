@@ -4,7 +4,7 @@ pandas
 geopandas
 rasterio
 tqdm
-pysal=2.1
+pysal==2.1
 scikit-learn
 scikit-image
 scipy
