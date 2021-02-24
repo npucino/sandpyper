@@ -1,5 +1,5 @@
 
-[![image](https://img.shields.io/pypi/v/geodemo.svg)](https://pypi.python.org/pypi/geodemo)
+[![image](https://img.shields.io/pypi/v/sandpyper.svg)](https://pypi.python.org/pypi/sandpyper)
 [![Contributors][contributors-shield]][contributors-url]
 [![image](https://github.com/npucino/sandpyper/workflows/docs/badge.svg)](https://geodemo.gishub.org)
 [![image](https://github.com/npucino/sandpyper/workflows/build/badge.svg)](https://github.com/npucino/sandpyper/actions?query=workflow%3Abuild)
