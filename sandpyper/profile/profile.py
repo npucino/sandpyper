@@ -33,7 +33,7 @@ def get_terrain_info(x_coord, y_coord, rdarray):
         return np.nan
 
 
-def get_elevation(x_coord, y_coord, raster, bands, gt):
+def get_elevation(x_coord, y_coord, raster, bands, transform):
 
     elevation = []
     row,col=rowcol(transform,x_coord,y_coord,round)
