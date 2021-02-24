@@ -25,7 +25,7 @@ def prep_heatmap(df,lod,outliers=False,sigma_n=3):
     Each column is a transect and each row is a distance value along transect. Values are elevation differences.
 
     Warning:
-        This function is to be used on a site-period specific slices of the dh_table.
+        This function is to be used on site-period specific slices of the dh_table.
 
     Args:
         df (Pandas dataframe): Location-period specific slice of dh_table.
