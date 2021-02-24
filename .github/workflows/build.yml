@@ -2,11 +2,11 @@ on:
     push:
         branches:
             - master
-            - rasterio_version
+            - new_module_structure
     pull_request:
         branches:
             - master
-            - rasterio_version
+            - new_module_structure
 
 name: build
 jobs:
