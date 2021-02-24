@@ -1,4 +1,5 @@
 matplotlib
+tqdm
 numpy
 pandas
 geopandas
@@ -9,3 +10,6 @@ scikit-learn
 scikit-image
 scipy
 seaborn
+shapely
+richdem
+gdal
