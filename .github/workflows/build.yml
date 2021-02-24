@@ -38,7 +38,7 @@ jobs:
               run: |
                   python -m pip install --upgrade pip
                   # pip install --user --no-cache-dir Cython
-                  pip install gdal==3.1.4
+                  conda install -c conda-forge gdal==3.1.4
                   pip install richdem
                   # pip install --user -r requirements_dev.txt
             - name: PKG-TEST
