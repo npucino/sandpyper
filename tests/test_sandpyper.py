@@ -6,6 +6,7 @@
 import unittest
 
 from sandpyper import sandpyper
+import pandas 
 
 
 #class TestSandpyper(unittest.TestCase):
