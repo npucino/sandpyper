@@ -4,9 +4,7 @@
 
 
 import unittest
-
-from sandpyper import sandpyper
-import pandas 
+from sandpyper import *
 
 
 #class TestSandpyper(unittest.TestCase):
