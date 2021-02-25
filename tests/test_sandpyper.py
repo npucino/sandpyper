@@ -5,6 +5,8 @@
 
 import unittest
 
+import pandas
+
 from sandpyper.dynamics import *
 from sandpyper.hotspot import *
 from sandpyper.labels import *
