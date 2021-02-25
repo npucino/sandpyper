@@ -4,7 +4,7 @@
 
 
 import unittest
-from sandpyper import *
+import sandpyper
 
 
 #class TestSandpyper(unittest.TestCase):
