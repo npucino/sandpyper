@@ -46,3 +46,7 @@ nav:
     - Report Issues: https://github.com/npucino/sandpyper/issues
     - API Reference:
           - sandpyper module: sandpyper.md
+    - Notebooks:
+        - notebooks/Sandpiper -1- Profile Extraction.ipynb
+        - notebooks/Sandpiper -2- Sand KMeans labeling.ipynb
+        - notebooks/Sandpiper -3- Sand vs No-Sand classification, beachface clipping and multitemporal extraction.ipynb
