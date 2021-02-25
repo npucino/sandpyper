@@ -4,17 +4,7 @@
 
 
 import unittest
-
-import pandas
-
-from sandpyper.dynamics import *
-from sandpyper.hotspot import *
-from sandpyper.labels import *
-from sandpyper.outils import *
-from sandpyper.profile import *
-from sandpyper.volumetrics import *
-
-
+from sandpyper import *
 
 #class TestSandpyper(unittest.TestCase):
 #    """Tests for `sandpyper` package."""
