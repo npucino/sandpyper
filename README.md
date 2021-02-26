@@ -1,8 +1,9 @@
 
 [![image](https://img.shields.io/pypi/v/sandpyper.svg)](https://pypi.python.org/pypi/sandpyper)
 [![Contributors][contributors-shield]][contributors-url]
-[![image](https://github.com/npucino/sandpyper/workflows/docs/badge.svg)](https://geodemo.gishub.org)
-[![image](https://github.com/npucino/sandpyper/workflows/build/badge.svg)](https://github.com/npucino/sandpyper/actions?query=workflow%3Abuild)
+[![image](https://github.com/npucino/sandpyper/workflows/build/badge.svg)](https://github.com/npucino/sandpyper/actions/workflows/build.yml/badge.svg)
+[![image](https://github.com/npucino/sandpyper/workflows/docs/badge.svg)](https://github.com/npucino/sandpyper/actions/workflows/docs.yml/badge.svg)
+[![image](https://github.com/npucino/sandpyper/workflows/pypi/badge.svg)](https://github.com/npucino/sandpyper/actions/workflows/pypi.yml/badge.svg)
 [![Forks][forks-shield]][forks-url]
 [![Stargazers][stars-shield]][stars-url]
 [![Issues][issues-shield]][issues-url]
