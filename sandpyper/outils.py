@@ -1,16 +1,16 @@
-import os
-import re
-import random
-
-import numpy as np
-import rasterio as ras
-from rasterio import features
-
-import geopandas as gpd
-import pandas as pd
-
-from shapely.geometry import Point, Polygon
-# from astropy.stats import median_absolute_deviation
+# import os
+# import re
+# import random
+#
+# import numpy as np
+# import rasterio as ras
+# from rasterio import features
+#
+# import geopandas as gpd
+# import pandas as pd
+#
+# from shapely.geometry import Point, Polygon
+# # from astropy.stats import median_absolute_deviation
 
 
 def filter_filename_list(filenames_list, fmt=[".tif", ".tiff"]):

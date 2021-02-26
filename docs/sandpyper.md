@@ -1,4 +1,0 @@
- 
-# sandpyper module
-
-::: sandpyper.sandpyper

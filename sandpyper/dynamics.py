@@ -1,11 +1,11 @@
-import numpy as np
-from tqdm import tqdm_notebook as tqdm
-import pandas as pd
-import geopandas as gpd
-
-from pysal.explore.giddy.markov import Markov
-import matplotlib.pyplot as plt
-import seaborn as sb
+# import numpy as np
+# from tqdm import tqdm_notebook as tqdm
+# import pandas as pd
+# import geopandas as gpd
+#
+# from pysal.explore.giddy.markov import Markov
+# import matplotlib.pyplot as plt
+# import seaborn as sb
 
 
 def attach_trs_geometry(markov_transects_df, dirNameTrans):
