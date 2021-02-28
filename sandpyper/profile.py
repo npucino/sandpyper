@@ -510,9 +510,7 @@ def extract_from_folder(dataset_folder, transect_folder, list_loc_codes,
     timepassed = end - start
 
     print(
-        f"Number of points extracted:{gdf.shape[0]}\n
-        Time for processing={timepassed} seconds\n
-        First 10 rows are printed below")
+        f"Number of points extracted:{gdf.shape[0]}\nTime for processing={timepassed} seconds\nFirst 10 rows are printed below")
 
     if mode == 'dsm':
         nan_out = np.count_nonzero(np.isnan(np.array(gdf.z).astype('f')))
@@ -530,7 +528,6 @@ def extract_from_folder(dataset_folder, transect_folder, list_loc_codes,
     print(
         f"Number of points outside the raster extents: {nan_out}\nThe extraction assigns NaN.")
     print(
-        f"Number of points in NoData areas within the raster extents: {nan_raster}\n
-        The extraction assigns NaN.")
+        f"Number of points in NoData areas within the raster extents: {nan_raster}\nThe extraction assigns NaN.")
 
     return gdf
