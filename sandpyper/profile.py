@@ -16,13 +16,24 @@
 
 
 def get_terrain_info(x_coord, y_coord, rdarray):
+    """
+    Returns the value of the rdarray rasters.
 
-    gt = rdarray.geotransform
+    Args:
+        x_coord, y_coord (float): Projected coordinates of pixel to extract value.
+        rdarray (rdarray): rdarray dataset.
 
-    xOrigin = gt[0]                         # top-left X
-    yOrigin = gt[3]                         # top-left y
-    pixelWidth = gt[1]                      # horizontal pixel resolution
-    pixelHeight = gt[5]                     # vertical pixel resolution
+    Returns:
+        rdarray pixel value.
+    """
+
+
+    geotransform = rdarray.geotransform
+
+    xOrigin = geotransform[0]                         # top-left X
+    yOrigin = geotransform[3]                         # top-left y
+    pixelWidth = geotransform[1]                      # horizontal pixel resolution
+    pixelHeight = geotransform[5]                     # vertical pixel resolution
     px = int((x_coord - xOrigin) / pixelWidth)  # transform geographic to image coords
     py = int((y_coord - yOrigin) / pixelHeight)  # transform geographic to image coords
 
@@ -33,14 +44,24 @@ def get_terrain_info(x_coord, y_coord, rdarray):
 
 
 def get_elevation(x_coord, y_coord, raster, bands, transform):
+    """
+    Returns the value of the raster at a specified location and band.
 
+    Args:
+        x_coord, y_coord (float): Projected coordinates of pixel to extract value.
+        raster (rasterio open file): Open raster object, from rasterio.open(raster_filepath).
+        bands (int): number of bands.
+        transform (Shapely Affine obj): Geotransform of the raster.
+    Returns:
+        raster pixel value.
+    """
     elevation = []
     row, col = rowcol(transform, x_coord, y_coord, round)
 
     for j in np.arange(bands):                  # we could iterate thru multiple bands
 
         try:
-            data_z = ds.read(1, window=Window(col, row, 1, 1))
+            data_z = raster.read(1, window=Window(col, row, 1, 1))
             elevation.append(data_z[0][0])
         except BaseException:
             elevation.append(np.nan)
@@ -57,13 +78,23 @@ def get_profiles(
         date_string,
         add_xy=False,
         add_terrain=False):
+    """
+    Returns a tidy GeoDataFrame of profile data, extracting raster information
+    at a user-defined (step) meters gap along each transect.
 
-    # NOT EFFICIENT: This function is within a loop in the EXTRACT FROM FOLDER FUnction. This function open the DSM at each transect index iteration. Waste of times
-    # I should ope the raster and get the geotransform only once
+    Args:
+        dsm ():
+        transect_file:
+        transect_index:
+        step
+        location
+        date_string
+        add_xy (bool): True to add X and Y fields.
+        add_terrain (bool): True to add slope in degrees. Default to False.
 
-    # First, we define a function that simply extract z values from coordinates (x_coord, y_coord) from a DEM (raster)
-    # Also, as we open the raster as a GDALDataset, thanks to GDAL we can gather the geotransform (gt) of the elevation raster as it holds useful info for
-    # transforming image coordinates to geographic ones.
+    Returns:
+        gdf (GeoDataFrame) : Profile data extracted from the raster.
+    """
 
     ds = ras.open(dsm, 'r')
     bands = ds.count                      # get raster bands. One, in a classic DEM
@@ -166,8 +197,6 @@ def get_profiles(
     # Transforming non-hashable Shapely coordinates to hashable strings and
     # store them into a variable
 
-    geometries = gdf['coordinates'].apply(lambda x: x.wkt).values
-
     # Let's create unique IDs from the coordinates values, so that the Ids
     # follows the coordinates
     gdf["point_id"] = [create_id(gdf.iloc[i]) for i in range(0, gdf.shape[0])]
@@ -183,7 +212,17 @@ def get_profiles(
 
 
 def get_dn(x_coord, y_coord, raster, bands, gt):
+    """
+    Returns the value of the raster at a specified location and band.
 
+    Args:
+        x_coord, y_coord (float): Projected coordinates of pixel to extract value.
+        raster (rasterio open file): Open raster object, from rasterio.open(raster_filepath).
+        bands (int): number of bands.
+        transform (Shapely Affine obj): Geotransform of the raster.
+    Returns:
+        raster pixel value.
+    """
     # Let's create an empty list where we will store the elevation (z) from points
     # With GDAL, we extract 4 components of the geotransform (gt) of our north-up image.
 
@@ -228,9 +267,6 @@ def get_profile_dn(
     y = []
     dn = []
     distance = []
-    tr_id = transect_index
-    tr_count = 0
-
     for currentdistance in np.arange(0, int(length_m), step):
         # creation of the point on the line
         point = line.geometry.interpolate(currentdistance)
@@ -244,11 +280,6 @@ def get_profile_dn(
     dn1 = pd.Series((v[0] for v in dn))
     dn2 = pd.Series((v[1] for v in dn))
     dn3 = pd.Series((v[2] for v in dn))
-
-    tr_id_list = []
-    date_list = []
-    tr_counter = 0  # same mechanism as previous FOR loop
-
     df = pd.DataFrame({"distance": distance, "band1": dn1, "band2": dn2, "band3": dn3})
     df['coordinates'] = list(zip(x, y))
     df['coordinates'] = df['coordinates'].apply(Point)
@@ -268,7 +299,7 @@ def get_profile_dn(
     # Transforming non-hashable Shapely coordinates to hashable strings and
     # store them into a variable
 
-    geometries = gdf_rgb['coordinates'].apply(lambda x: x.wkt).values
+    #geometries = gdf_rgb['coordinates'].apply(lambda x: x.wkt).values
 
     # Let's create unique IDs from the coordinates values, so that the Ids
     # follows the coordinates
@@ -287,17 +318,18 @@ def get_profile_dn(
 
 def get_merged_table(rgb_table_path, z_table_path, add_xy=False):
     """
-    Function to merge rgb and z tables, creating unique IDs and adding slope and curvature information.
-    Optionally, is adds longitude and latitude columns in the input CRS, in case it was not specified during the
+    Function to merge rgb and z tables, creating IDs and adding slope and curvature information.
+    Optionally, is adds long and lat columns in the input CRS, if not specified during the
     extraction process.
 
     Warning:
-        Not optimised for large dataset. It might take up to 1h for tables of 2,000,000 observations each.
+        Not optimised for large dataset.
+        It might take up to 1h for 2 MIO observations tables.
 
     Args:
         rgb_table_path (str): Full path to the rgb_table, in CSV format.
         z_table_path (str): Full path to the z_table, in CSV format.
-        add_xy (bool): If True, add longitude and latitude columns in the inut CRS. Default is False.
+        add_xy (bool): If True, add long and lat columns in the inut CRS. Default is False.
 
     Returns:
         A merged and ready to process dataframe containing z and rgb informations.
@@ -392,9 +424,11 @@ def extract_from_folder(dataset_folder, transect_folder, list_loc_codes,
         transect_folder (str): Path of the directory containing the transects (geopackages, .gpkg).
         mode (str): If 'dsm', extract from DSMs. If 'ortho', extracts from orthophotos.
         sampling_step (float): Distance along-transect to sample points at. In meters.
-        add_xy (bool): If True, adds extra columns with Longitude and Latitude coordinates in the input CRS.
-        add_slope (bool): If True, computes slope raster in degrees (increased procesing time) and extract slope values across transects.
-        nan_values (int): Value used for NoData in the raster format. In Pix4D, this is -10000 (Default).
+        add_xy (bool): If True, adds extra columns with long and lat coordinates in the input CRS.
+        add_slope (bool): If True, computes slope raster in degrees (increased procesing time)
+        and extract slope values across transects.
+        nan_values (int): Value used for NoData in the raster format.
+        In Pix4D, this is -10000 (Default).
 
     Returns:
         A geodataframe with survey and topographical or color information extracted.
@@ -422,7 +456,7 @@ def extract_from_folder(dataset_folder, transect_folder, list_loc_codes,
 
     if bool(add_slope):
         warnings.warn(
-            f'WARNING: add_terrain will increase running time to up to {len(list_files)*3} minutes.')
+            f'WARNING: add_terrain increases running time to up to {len(list_files)*3} minutes.')
 
     for dsm in tqdm(list_files):
 
@@ -467,7 +501,7 @@ def extract_from_folder(dataset_folder, transect_folder, list_loc_codes,
 
         counter += 1
 
-    if (counter == len(list_files)):
+    if counter == len(list_files):
         print('Extraction succesfull')
     else:
         print(f"There is something wrong with this dataset: {list_files[counter]}")
@@ -476,7 +510,9 @@ def extract_from_folder(dataset_folder, transect_folder, list_loc_codes,
     timepassed = end - start
 
     print(
-        f"Number of points extracted:{gdf.shape[0]}\nTime for processing={timepassed} seconds\nFirst 10 rows are printed below")
+        f"Number of points extracted:{gdf.shape[0]}\n
+        Time for processing={timepassed} seconds\n
+        First 10 rows are printed below")
 
     if mode == 'dsm':
         nan_out = np.count_nonzero(np.isnan(np.array(gdf.z).astype('f')))
@@ -494,6 +530,7 @@ def extract_from_folder(dataset_folder, transect_folder, list_loc_codes,
     print(
         f"Number of points outside the raster extents: {nan_out}\nThe extraction assigns NaN.")
     print(
-        f"Number of points in NoData areas within the raster extents: {nan_raster}\nThe extraction assigns NaN.")
+        f"Number of points in NoData areas within the raster extents: {nan_raster}\n
+        The extraction assigns NaN.")
 
     return gdf

@@ -15,13 +15,13 @@
 
 def filter_filename_list(filenames_list, fmt=[".tif", ".tiff"]):
     """
-    It returns only specific file formats from list of filenames
+    It returns a list of only specific file formats from a list of filenames.
 
     Args:
         filenames_list (list): list of filenames.
         fmt (list): list of formats to be filtered (DEFAULT = [".tif",".tiff"])
     Returns:
-        A series od unique spatial IDs.
+        A filtered list of filenames.
     """
     return [name for name in filenames_list if os.path.splitext(name)[1] in fmt]
 
@@ -33,7 +33,8 @@ def round_special(a, thr):
 
 def coords_to_points(string_of_coords):
     """
-    Function to create Shapely Point geometries from strings of Shapely Point geometries resulting from CSV creation and loading.
+    Function to create Shapely Point geometries from strings representing Shapely Point geometries.
+    Used when loading CSV with point geometries in string type.
 
     Args:
         string_of_coords (str): the string version of Shapely Point geometry
@@ -52,30 +53,25 @@ def coords_to_points(string_of_coords):
     return pt_geom
 
 
-def create_id(Series, random_state=42):
+def create_id(Series, tr_id_field="tr_id", loc_field="location", dist_field="distance", random_state=42):
     """
     Function to create unique IDs from random permutations of integers and letters from the distance, tr_id, location,
     coordinates and survey_date fields of the rgb and z table.
 
-    Warning:
-        To be used on rgb and z tables exclusevly as, for now, the fields are hardcoded.
-
     Args:
-        Series (Pandas series): series of merged table.
-        random_state (int): List of integers representing the number of clusters k to partition the dataset.
+        Series (Pandas series): series having the selected fields.
+        tr_id_field (str)= Field name holding the transect ID (Default="tr_id").
+        loc_field (str)= Field name holding the location of the survey (Default="location").
+        dist_field (str)= Field name holding the distance from start of the transect (Default="distance").
+        random_state (int): Random seed.
 
     Returns:
         A series od unique IDs.
     """
 
-    # if type(Series.survey_date) != str:
-    #     ids=str(np.round(float(Series.distance),2)) + '0'+ str(Series.tr_id) + str(Series.location) + str(Series.coordinates.split()[1][-3:]) + str(Series.survey_date.date())
-    # else:
-    #     ids=str(np.round(float(Series.distance),2)) + '0'+ str(Series.tr_id) + str(Series.location) + str(Series.coordinates.split()[1][-3:])  + str(Series.survey_date)
-
-    dist_c = str(np.round(float(Series.distance), 2))
-    tr_id_c = str(Series.tr_id)
-    loc_d = str(Series.location)
+    dist_c = str(np.round(float(Series.loc[dist_field]), 2))
+    tr_id_c = str(Series.loc[tr_id_field])
+    loc_d = str(Series.loc[loc_field])
 
     if type(Series.coordinates) != str:
         coord_c = Series.coordinates.wkt.split()[1][-3:]
@@ -150,14 +146,14 @@ def getListOfFiles(dirName):
 
 def getLoc(filename, list_loc_codes):
     """
-    Function that returns the location code from already formatted filenames.
+    Function that returns the location code from properly formatted (see documentation) filenames.
 
     Args:
-        filename (str): filename (i.e. apo_20180912_dsm_ahd.tiff)
-        list_loc_codes (list): list of strings containing location codes
+        filename (str): filename (i.e. apo_20180912_dsm_ahd.tiff).
+        list_loc_codes (list): list of strings containing location codes.
 
     Returns:
-        str : location codes
+        str : location codes.
     """
 
     return next((x for x in list_loc_codes if x in filename), False)
@@ -168,10 +164,10 @@ def getDate(filename):
     Returns the date in raw form (i.e 20180912) from already formatted filenames.
 
     Args:
-        filename (str): filename (i.e. apo_20180912_dsm_ahd.tiff)
+        filename (str): filename (i.e. apo_20180912_dsm_ahd.tiff).
 
     Returns:
-        str : raw date
+        str : raw date.
     """
     # get the date out of a file input
 
@@ -200,7 +196,7 @@ def getListOfDate(list_dsm):
         list_dsm (list): list of filenames of DSM or rothophotos datasets.
 
     Returns:
-        list : raw dates
+        list : raw dates.
     """
     dates = []
     for i in list_dsm:
@@ -214,9 +210,9 @@ def extract_loc_date(name, loc_search_dict, split_by="_"):
     Get the location code (e.g. wbl, por) and raw dates (e.g. 20180902) from filenames.
 
     Args:
-        name (str): the filenames ('C:\\jupyter\\data_in_gcp\\20180601_mar_gcps.csv').
+        name (str): full filenames ('C:\\jupyter\\data_in_gcp\\20180601_mar_gcps.csv').
 
-        loc_search_dict (dict): a dict where keys are the location codes and values are lists containing the expected full location string (["Warrnambool", "warrnambool","warrny"]).
+        loc_search_dict (dict): a dictionary where keys are the location codes and values are lists containing the expected full location string (["Warrnambool", "warrnambool","warrny"]).
 
         split_by (str): the character used to split the name (default= '_').
 
@@ -259,7 +255,7 @@ def extract_loc_date(name, loc_search_dict, split_by="_"):
 
 def polygonize_valid(
         raster_path_in,
-        output_location,
+        output_masks_dir,
         name,
         valid_value=255.0,
         out_format='GPKG'):
@@ -270,10 +266,12 @@ def polygonize_valid(
         output_location (str): Path to the output folder.
         name (str): Name of the output polygon.
         valid_value (float): Value of valid data of the input raster mask. Default is 255.0.
-        out_format ('str'): If 'GPKG' (default), the polygon is a geopackage. Alternatively, 'ESRI Shapefile' returns .shp files.
+        out_format ('str'): If 'GPKG' (default), the polygon is a geopackage.
+        Alternatively, 'ESRI Shapefile' returns .shp files.
 
     Returns:
-        Polygons at the specified location in the specified format. Geopackages are reccomended (default).
+        Polygons at the specified location in the specified format.
+        Geopackages are reccommended (default).
 
     """
 
@@ -289,7 +287,7 @@ def polygonize_valid(
     with ras.open(raster_path_in) as img:
 
         epsg = img.crs.to_dict()
-        t = img.transform
+        trans = img.transform
 
         print(f"Computing valid data mask from dataset {img.name}.")
         msk = img.read_masks(1)
@@ -297,7 +295,7 @@ def polygonize_valid(
         savetxt = output_masks_dir + "\\" + name + file_ext
 
         print("Polygonizing valid data.")
-        for shape in features.shapes(msk, transform=t):
+        for shape in features.shapes(msk, transform=trans):
             value = shape[1]
             if value == valid_value:
                 polygon_geom = Polygon(shape[0]['coordinates'][0])
@@ -309,20 +307,19 @@ def polygonize_valid(
                 print("...")
 
     print(f"File {name} saved at location {savetxt}")
-    # ___________ compute Voronoi from GCP files and clip Vornoi extent with
-    # valid data________#
 
     return polygon
 
 
-def matchup_folders(dir1, dir2, fmts=([".tif", ".tif"], [".tif", ".tif"])):
-    """ Matches files from two folders (e.g. DSMs and orthos or GCPs) and store filenames in DataFrame.
+def matchup_folders(dir1, dir2, loc_search_dict, fmts=([".tif", ".tif"], [".tif", ".tif"])):
+    """ Matches files from two folders (e.g. DSMs, orthos or GCPs) and store filenames in DataFrame.
 
     Args:
         dir1 (str): local path of a folder where the files are stored.
         dir2 (str): local path of the second folder to match with dir1.
-        fmts (tuple): a tuple containing dir1 list of format files to retain (e.g. [".tif",."tiff"]) and dir2 (e.g. [".cvs"]).
-                    Default=([".tif",".tif"],[".tif",".tif"]).
+        loc_search_dict (dict): a dictionary where keys are the location codes and values are lists containing the expected full location string (["Warrnambool", "warrnambool","warrny"]).
+        fmts (tuple): a tuple containing dir1 list of format files to retain (e.g. [".tif",."tiff"])
+        and dir2 (e.g. [".cvs"]). Default=([".tif",".tif"],[".tif",".tif"]).
     Returns:
         Dataframe containing location, raw_date and dir1 and dir2 filenames (paths).
     """
@@ -333,11 +330,11 @@ def matchup_folders(dir1, dir2, fmts=([".tif", ".tif"], [".tif", ".tif"])):
     loc_date_labels_dir1 = [
         extract_loc_date(
             file1,
-            dictionary_full=loc_search_dict) for file1 in list_dir1]
+            loc_search_dict=loc_search_dict) for file1 in list_dir1]
     loc_date_labels_dir2 = [
         extract_loc_date(
             file2,
-            dictionary_full=loc_search_dict) for file2 in list_dir2]
+            loc_search_dict=loc_search_dict) for file2 in list_dir2]
 
     df_1 = pd.DataFrame(loc_date_labels_dir1, columns=["location", "raw_date"])
     df_1['filename_dsm'] = list_dir1
@@ -360,8 +357,8 @@ def find_skiprows(filename, keyword="Easting"):
     """
 
     skiprows = 0
-    with open(filename, 'r+') as f:
-        for line in f:
+    with open(filename, 'r+') as file:
+        for line in file:
             if keyword not in line:
                 skiprows += 1
             else:
@@ -375,7 +372,7 @@ def open_gcp_file(csv_file, crs):
 
     Args:
         csv_file (str): Local path of .CSV file.
-        crs (str): Coordinate Reference System in the dictionary format (example: {'init' :'epsg:4326'})
+        crs (str): Coordinate Reference System in the dict format (example: {'init' :'epsg:4326'})
 
     Returns:
         Geodataframe of GCPs.
@@ -390,10 +387,10 @@ def open_gcp_file(csv_file, crs):
 
 
 def timeseries_to_gdf(path_timeseries_folder):
-    """ Returns a Geodataframe of geometries, location and survey_dates from a folder containing the timeseries files.
+    """ Returns a Geodataframe of geometries, location and survey_dates from a folder of timeseries files.
 
     Args:
-        path_timeseries_folder (str): Local path of the timeseries files, as returned by the multitemporal extraction.
+        path_timeseries_folder (str): Local path of the timeseries files.
 
     Returns:
         Geodataframe.
@@ -463,13 +460,13 @@ def cross_ref(
         list_loc_codes,
         print_info=False):
     """
-    Returns a dataframe with location, raw_date, filenames (paths) and CRS of each raster and its associated transect files.
-    Used to double-check.
+    Returns a dataframe with location, raw_date, filenames (paths)
+    and CRS of each raster and associated transect files. Used to double-check.
 
     Args:
         dirNameDSM (str): Path of the directory containing the geotiffs datasets (.tiff or .tif).
         dirNameTrans (str): Path of the directory containing the transects (geopackages, .gpkg).
-        print_info (bool): If True, prints out number of datasets per location and total. Deafualt is False.
+        print_info (bool): If True, prints count of datasets/location and total. Default = False.
         loc_search_dict (list): Dictionary used to match filename with right location code.
 
     Returns:
