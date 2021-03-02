@@ -16,13 +16,36 @@
 **- Tools for automatic UAV-SfM beach volumetric and behavioural analysis -**
 
 
+-   GitHub repo: <https://github.com/npucino/sandpyper/tree/master/sandpyper>
+-   Documentation: <https://npucino.github.io/sandpyper/>
+-   PyPi: <https://pypi.org/project/sandpyper/>
+-   Notebook examples: <https://github.com/npucino/sandpyper/tree/master/examples>
 -   Free software: MIT license
--   Source code: <https://npucino.github.io/sandpyper>
+
+## Introduction
+
+**Sandpyper** is an open-source Python package that allows a user to perform UAV-SfM volumetric and behavioural monitoring of sandy beaches in an automated and efficient way.
 
 
-## Features
+## Key Features
 
--   TODO
+-  create user-defined georeferenced cross-shore transects along a line
+-  extract elevation (from DSMs) and color (from orthophotos) information from folders containing hundreds of rasters
+-  use unsupervised machine learning and user-provided polygon masks to clean the profiles from unwanted non-sand points and swash zone
+-  compute altimetric and volumetric timeseries analysis
+-  use spatial autocorrelation measures to discard spatial outliers and obtain statistically significant Hotspots/Coldspots areas of beach change at the site scale
+- compute Beachface Cluster Dynamics indices (Pucino et al., 2021) at the site and transect scales
+- compute limits of detections
+- plot and visualise beach change and dynamics
+
+Additionally, a new module called **space** is being developed to groudtruth satellite-derived shorelines with UAV-derived shorelines.
+Currently, it allows:
+
+- spatial grid generation along a line (waterline, shoreline)
+- extraction and export of tiles (from the grid) of multispectral satellite imagery
+- waterline to shoreline simple tidal correction
+- waterline /shoreline error assessments
+
 
 ## Credits
 
