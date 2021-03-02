@@ -69,6 +69,45 @@ def get_elevation(x_coord, y_coord, raster, bands, transform):
     return elevation
 
 
+def get_raster_px (x_coord, y_coord, raster, bands=None, transform=None):
+
+    if isinstance(raster, richdem.rdarray):
+        transform = rdarray.geotransform
+
+        xOrigin = transform[0]                         # top-left X
+        yOrigin = transform[3]                         # top-left y
+        pixelWidth = transform[1]                      # horizontal pixel resolution
+        pixelHeight = transform[5]                     # vertical pixel resolution
+        px = int((x_coord - xOrigin) / pixelWidth)  # transform geographic to image coords
+        py = int((y_coord - yOrigin) / pixelHeight)  # transform geographic to image coords
+
+        try:
+            return rdarray[py, px]
+        except BaseException:
+            return np.nan
+
+    else:
+        if bands == None:
+            bands=raster.count()
+
+        if bands==1:
+            try:
+                px_data = raster.read(1, window=Window(col, row, 1, 1))
+                return px_data[0][0]
+            except BaseException:
+                return np.nan
+        elif bands > 1:
+            px_data=[]
+            for band in range(1,bands+1):
+                try:
+                    px_data_band = raster.read(band, window=Window(col, row, 1, 1))
+                    px_data.append(px_data_band[0][0])
+                except BaseException:
+                    px_data.append(np.nan)
+
+            return px_data
+
+
 def get_profiles(
         dsm,
         transect_file,

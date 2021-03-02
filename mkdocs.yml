@@ -23,6 +23,10 @@ plugins:
 
     - search
     - mkdocstrings
+    - git-revision-date
+    - mkdocs-jupyter:
+        include_source: True
+        execute: False
 
 
 markdown_extensions:
@@ -34,11 +38,6 @@ markdown_extensions:
           linenums: true
     - toc:
           permalink: true
-
-
-
-
-
 
 # google_analytics:
 #     - UA-XXXXXXXXX-X
@@ -52,13 +51,17 @@ nav:
     - FAQ: faq.md
     - Report Issues: https://github.com//npucino//sandpyper//issues
     - API Reference:
-          - hotspot module: hotspot.md
-          - outils module: outils.md
-          - volumetrics module: volumetrics.md
-          - profile module: profile.md
-          - labels module: labels.md
-          - dynamics module: dynamics.md
-          - space module: space.md
+      - hotspot module: hotspot.md
+      - outils module: outils.md
+      - volumetrics module: volumetrics.md
+      - profile module: profile.md
+      - labels module: labels.md
+      - dynamics module: dynamics.md
+      - space module: space.md
+    - Notebooks:
+        - notebooks/Profile_Extraction.ipynb
+        - notebooks/Sand_KMeans_labeling.ipynb
+        - notebooks/Sand_No_Sand_classification_beachface.ipynb
 
 
     #- Notebooks:
