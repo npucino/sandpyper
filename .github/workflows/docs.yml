@@ -16,6 +16,7 @@ jobs:
               run: |
                   pip install --user --no-cache-dir Cython
                   pip install --user -r requirements.txt
+                  pip install --user .
             - name: PKG-TEST
               run: |
                   python -m unittest discover tests/
