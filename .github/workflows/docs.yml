@@ -10,12 +10,15 @@ jobs:
         steps:
             - uses: actions/checkout@v2
             - uses: actions/setup-python@v2
+            
+            - uses: actions/checkout@v2
+            - uses: s-weigand/setup-conda@v1            
+            
               with:
                   python-version: 3.7.9
             - name: Install dependencies
               run: |
-                  pip install --user --no-cache-dir Cython
-                  pip install --user -r requirements.txt
+                  conda install -f requirements.txt
                   pip install --user .
             - name: PKG-TEST
               run: |
