@@ -1623,3 +1623,32 @@ def save_slope_corr_files(
 
         print("Ready to correct shorelines.")
     return gdf
+
+
+def s2_to_rgb(imin, scaler_range=(0,255), re_size=False, dtype=False):
+    scaler=MinMaxScaler(scaler_range)
+
+    imo=ras.open(imin, "r")
+    if dtype!=False:
+        im=imo.read(out_dtype=dtype)
+    else:
+        im=imo.read()
+
+    if isinstance(re_size,(tuple)):
+        im=resize(im, (re_size[0], re_size[1], re_size[2]),
+                      mode='constant', preserve_range=True) # resize image
+    else:
+        pass
+
+    if imo.count > 1:
+        im_rgb=np.stack((im[0], im[1], im[2]), axis=-1)
+        rgb_array_1=b = im_rgb.reshape(-1, 1)
+        scaled_1=scaler.fit_transform(rgb_array_1).astype(int)
+        img_array_rgb= scaled_1.reshape(im_rgb.shape)
+    else:
+        img_array_rgb=im
+
+    if isinstance(re_size,(tuple)):
+        img_array_rgb=resize(im, (re_size[0], re_size[1], re_size[2]), mode='constant', preserve_range=True) # resize image
+
+    return img_array_rgb
