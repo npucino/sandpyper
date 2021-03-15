@@ -1,8 +1,12 @@
 # from sandpyper.outils import cross_ref, getListOfFiles, getDate, getLoc, getCrs_from_raster_path
 # from sandpyper.profile import extract_from_folder, get_profiles
 #
-# import rasterio as ras
-# import rasterio.mask as rasmask
+#import rasterio as ras
+#import rasterio.mask as rasmask
+#from rasterio.merge import merge
+#from rasterio.transform import from_origin
+#from rasterio.features import  geometry_window
+#from rasterio.io import MemoryFile
 #
 # import os
 # import glob
@@ -13,15 +17,16 @@
 # import numpy as np
 # import matplotlib.pyplot as plt
 # import seaborn as sb
-# from shapely.geometry import MultiLineString, LineString, Point, Polygon, MultiPolygon, mapping
+# from shapely.geometry import MultiLineString, LineString, Point, Polygon, MultiPolygon, mapping,box
 # from shapely.ops import split, snap, unary_union
 #
 #
 # import math
-# from math import tan, radians, sqrt
+# from math import tan, radians, sqrt, ceil, floor
 # from scipy.ndimage import gaussian_filter
 # import scipy.signal as sig
 # from skimage.filters import threshold_multiotsu
+# from skimage.transform import resize
 # from sklearn.metrics import mean_squared_error
 #
 #
@@ -241,172 +246,6 @@ def dissolve_shores(gdf_shores, field='date'):
         dissolved.drop("diss", axis=1, inplace=True)
 
     return dissolved
-
-
-def tiles_from_grid(
-        grid,
-        img_path,
-        output_path,
-        list_loc_codes,
-        mode='rgb',
-        geotransform=True,
-        sel_bands=None,
-        driver="PNG"):
-    """
-    Returns a dataframe with location, raw_date, filenames (paths) or geopackage index and CRS of each raster and its associated vector files.
-    If the directory containing the vector files has ony one file, it is assumed that this file stores vectors
-    with location and raw_date columns.
-
-    Args:
-        grid (GeoDataFrame): GeoDataFrame of the grid of only tiles containing the line. Output of grid_from_shore function.
-        img_path (str): Path of the directory containing the geotiffs datasets (.tiff or .tif).
-        output_path (str): Path of the directory where to save the images tiles.
-        list_loc_codes (list): list of strings containing location codes.
-        mode (str,'rgb','mask','multi','custom'): 'rgb', the output images are 3-channels RGB tiles. 'mask', 1-band output tiles.
-        'multi', multibands output tiles (with all input bands).
-        'custom', use selected band indices (with sel_bands parameter) to only extract those bands from input multiband images
-        (NOTE: in 'custom' mode, output tile bands indices are reindexd, so do not corresponds with the original band indices, but restart from 1).
-        geotransform (bool or 'only'): If True, save tiles and also return a dictionary with the geotransform of each grid.
-        If False, save tiles without geotransform dictionary. If "only", do not save tiles but return the geotransform dictionary only.
-        sel_bands (list): list of integers (minimum is 1, not zero-indexed) corresponding to the bands to be used to create the tiles. Only used with mode='custom'.
-        Default is None.
-        driver (str, "GTiff" or "PNG"): tiles image file type. Default is "PNG".
-
-    Returns:
-        Saves tiles to the specified output folder and optionally return the tiles geotransform dictionary.
-    """
-
-    if geotransform == 'only':
-        geo_dict = dict()
-        export_image = False
-        export_geo_dict = True
-
-    elif bool(geotransform):
-        geo_dict = dict()
-        export_image = True
-        export_geo_dict = True
-    elif bool(geotransform) == False:
-        export_image = True
-        export_geo_dict = False
-
-    with ras.open(img_path, 'r') as dataset:
-
-        if mode == 'rgb':
-
-            count = 3
-            source_idx = [1, 2, 3]  # the band indices of the source image
-            out_idx = source_idx
-            sel_bands = None
-
-            height_idx = 1
-            width_idx = 2
-
-        elif mode == 'multi':
-
-            if driver == "PNG":
-                print("NOTE: PNG format doesn't support multibands. Returning GeoTiffs instead.")
-                driver = "GTiff"
-            else:
-                pass
-
-            sel_bands = None
-            count = dataset.count
-            source_idx = list(dataset.indexes)
-            out_idx = None
-            height_idx = 1
-            width_idx = 2
-
-        elif mode == 'mask':
-
-            count = 1
-            source_idx = 1
-            out_idx = 1
-            height_idx = 0
-            width_idx = 1
-
-        elif mode == 'custom':
-            if len(sel_bands) > 3 and driver == "PNG":
-                print("NOTE: More than 3 bands selected for the creation of PNG images. PNG format doesn't support multibands. Returning GeoTiffs instead.")
-                driver = "GTiff"
-            else:
-                pass
-
-            source_idx = sel_bands
-            out_idx = None
-            count = len(sel_bands)
-            height_idx = 1
-            width_idx = 2
-
-        for i in range(grid.shape[0]):
-            mask = grid.iloc[[i]]
-            geom = Polygon(   # create the square polygons to clip the raster with
-
-                ((mask.iloc[0]['ulx'], mask.iloc[0]['uly']),
-                 (mask.iloc[0]['urx'], mask.iloc[0]['ury']),
-                    (mask.iloc[0]['lrx'], mask.iloc[0]['lry']),
-                    (mask.iloc[0]['llx'], mask.iloc[0]['lly']),
-                    (mask.iloc[0]['ulx'], mask.iloc[0]['uly']))
-
-            )
-
-            try:
-                out_image, out_transform = rasmask.mask(
-                    dataset, [mapping(geom)], crop=True, filled=False, indexes=source_idx)
-                out_meta = dataset.meta
-
-                # format name: LocationCode_GridId_Date.tif
-                if driver == "PNG":
-                    ext = 'png'
-                elif driver == 'GTiff':
-                    ext = 'tif'
-                else:
-                    raise NameError("Driver must be either 'PNG' or 'GTiff'.")
-
-                if driver == "PNG":
-                    ext = 'png'
-                    out_meta.update({
-                        'dtype': ras.uint16})
-                else:
-                    ext = 'tif'
-
-                out_meta.update({"driver": driver,
-                                 "height": out_image.shape[height_idx],
-                                 "width": out_image.shape[width_idx],
-                                 "transform": out_transform,
-                                 "count": count})
-
-                tile_name = f"{getLoc(img, list_loc_codes)}_{mask.iloc[0]['grid_id']}_{getDate(img)}_{mode}"
-                savetxt = os.path.join(output_path, f"{tile_name}.{ext}")
-
-                if bool(export_image):
-                    with ras.open(savetxt, "w", **out_meta) as dest:
-                        if driver == "PNG":
-                            dest.write(out_image.astype(ras.uint16), indexes=out_idx)
-                        else:
-                            dest.write(out_image, indexes=out_idx)
-                    print(f"Succesfully saved tile: {tile_name} .")
-
-                    if bool(export_geo_dict):
-                        geo_dict.update({tile_name: out_transform})
-                    else:
-                        pass
-
-                else:
-                    pass
-
-                if bool(export_geo_dict):
-                    geo_dict.update({tile_name: out_transform})
-                else:
-                    pass
-
-            except BaseException:
-                print(
-                    f"Error with tile {mask.iloc[0]['grid_id']}. Might not overlap iamge. Skipping.")
-
-    if bool(export_geo_dict):
-        return geo_dict
-    else:
-        pass
 
 
 def check_overlay(line_geometry, img_path):
@@ -1652,3 +1491,350 @@ def s2_to_rgb(imin, scaler_range=(0,255), re_size=False, dtype=False):
         img_array_rgb=resize(im, (re_size[0], re_size[1], re_size[2]), mode='constant', preserve_range=True) # resize image
 
     return img_array_rgb
+
+
+def partial_tile_padding(dataset,
+                geom,
+                expected_shape,
+                crs,
+                tile_name,
+                output_path,
+                nodata,
+                source_idx,
+                height_idx,
+                width_idx,
+                out_idx,
+                count,
+                driver,
+                ):
+
+
+
+   ## This will be the tile name
+
+    ## Create a padded tile from the mask coordinates
+
+    px_size=dataset.transform[0]
+    ulx=geom.bounds[0]
+    ury=geom.bounds[3]
+
+    ulx_px_coords=floor(int(ulx)/10)*10
+    ury_px_coords=ceil(int(ury)/10)*10
+
+    pad_transform = from_origin(ulx_px_coords,
+                            ury_px_coords,
+                            px_size,px_size)
+
+    pad_array=ras.features.rasterize([mapping(geom)], out_shape=expected_shape,
+                                    all_touched=False)
+    print(f"pad_array:{pad_array.shape}")
+
+    #pad_array_3=np.array([pad_array, pad_array, pad_array], ras.int16)
+    pad_array_3=np.dstack([pad_array]*count).astype(ras.int16).reshape((count,expected_shape[0],expected_shape[1]))
+
+    print(f"pad_array_3:{pad_array_3.shape}")
+    print(f"height_idx:{height_idx}")
+    print(f"width_idx:{width_idx}")
+
+
+    with MemoryFile(filename="padded") as memfile_padded:
+        with memfile_padded.open(driver=driver,
+            height=pad_array_3.shape[1],
+            width=pad_array_3.shape[2],
+            count=count,
+            dtype=pad_array_3.dtype,
+            crs=crs,
+            transform=pad_transform) as mem_dataset_padded:
+
+            mem_dataset_padded.write(pad_array_3, indexes=list(np.arange(1,count+1)))
+
+
+            # Create a the temporary in-memory partial tile
+
+            out_image, out_transform = rasmask.mask(dataset=dataset,
+                                                    shapes=[mapping(geom)],
+                                                    invert=False,
+                                                    crop=True,
+                                                    filled=False,
+                                                    nodata=nodata,
+                                                    indexes=source_idx)
+
+
+            out_meta = dataset.meta
+            print(f"out_image:{out_image.shape}")
+
+            # format name: LocationCode_GridId_Date.tif
+            if driver=="PNG":
+                ext='png'
+            elif driver=='GTiff':
+                ext='tif'
+            else:
+                raise NameError("Driver must be either 'PNG' or 'GTiff'.")
+
+            if driver=="PNG":
+                ext='png'
+                out_meta.update({
+                'dtype':ras.uint16})
+            else:
+                ext='tif'
+
+
+            out_meta.update({
+             "height": out_image.shape[height_idx],
+             "width": out_image.shape[width_idx],
+             "transform": out_transform,
+            "count":count})
+
+
+            with MemoryFile() as memfile:
+                with memfile.open(**out_meta) as mem_dataset:
+
+                    if driver=="PNG":
+                        mem_dataset.write(out_image.astype(ras.uint16), indexes=out_idx)
+                    else:
+                        mem_dataset.write(out_image,indexes=out_idx)
+
+
+                    # mosaic in-memory rasters and write to disk
+                    two_rasters=[mem_dataset,mem_dataset_padded]
+
+                    mosaic, out_trans = merge(datasets=two_rasters,
+                                              indexes=list(np.arange(1,count+1)),
+                                              nodata=nodata,
+                                              method="max")
+
+                    print(f"mosaic:{mosaic.shape}")
+
+                    savetxt=os.path.join(output_path,tile_name)
+
+
+                    with ras.open(
+                        savetxt,
+                        'w',
+                        driver=driver,
+                        height=mosaic.shape[1],
+                        width=mosaic.shape[2],
+                        count=count,
+                        dtype=mosaic.dtype,
+                        crs=crs,
+                        transform=out_trans) as final_mosaic_tile:
+
+                        final_mosaic_tile.write(mosaic)
+
+                    print(f"Succesfully saved partial tile in-memory: {tile_name} .")
+
+
+
+def tile_to_disk(dataset,
+                geom,
+                crs,
+                tile_name,
+                output_path,
+                nodata,
+                source_idx,
+                height_idx,
+                width_idx,
+                out_idx,
+                count,
+                driver,
+                ):
+
+    try:
+        out_image, out_transform = rasmask.mask(dataset=dataset,
+                                                shapes=[mapping(geom)],
+                                                invert=False,
+                                                crop=True,
+                                                filled=False,
+                                                nodata=nodata,
+                                                indexes=source_idx)
+    except:
+        out_image, out_transform = rasmask.mask(dataset=dataset,
+                                                shapes=geom,
+                                                invert=False,
+                                                crop=True,
+                                                filled=False,
+                                                nodata=nodata,
+                                                indexes=source_idx)
+    out_meta = dataset.meta
+
+
+    if driver=="PNG":
+        out_meta.update({
+        'dtype':ras.uint16})
+
+
+    out_meta.update(
+                    {"driver": driver,
+                     "height": out_image.shape[height_idx],
+                     "width": out_image.shape[width_idx],
+                     "transform": out_transform,
+                     "count":count,
+                    "crs":crs}
+                   )
+
+    savetxt=os.path.join(output_path,tile_name)
+
+
+    with ras.open(savetxt, "w", **out_meta) as dest:
+        if driver=="PNG":
+            dest.write(out_image.astype(ras.uint16), indexes=out_idx)
+        else:
+            dest.write(out_image,indexes=out_idx)
+
+    print(f"Succesfully saved tile: {tile_name} .")
+
+
+
+def tiles_from_grid (grid,img_path,
+                     output_path,
+                     list_loc_codes,crs_dict_string,
+                     mode='rgb',
+                     sel_bands=None,
+                     driver="PNG"):
+"""
+Returns a dataframe with location, raw_date, filenames (paths) or geopackage index and CRS of each raster and its associated vector files.
+If the directory containing the vector files has ony one file, it is assumed that this file stores vectors
+with location and raw_date columns.
+
+Args:
+    grid (GeoDataFrame): GeoDataFrame of the grid of only tiles containing the line. Output of grid_from_shore function.
+    img_path (str): Path of the directory containing the geotiffs datasets (.tiff or .tif).
+    output_path (str): Path of the directory where to save the images tiles.
+    list_loc_codes (list): list of strings containing location codes.
+    mode (str,'rgb','mask','multi','custom'): 'rgb', the output images are 3-channels RGB tiles. 'mask', 1-band output tiles.
+    'multi', multibands output tiles (with all input bands).
+    'custom', use selected band indices (with sel_bands parameter) to only extract those bands from input multiband images
+    (NOTE: in 'custom' mode, output tile bands indices are reindexd, so do not corresponds with the original band indices, but restart from 1).
+    geotransform (bool or 'only'): If True, save tiles and also return a dictionary with the geotransform of each grid.
+    If False, save tiles without geotransform dictionary. If "only", do not save tiles but return the geotransform dictionary only.
+    sel_bands (list): list of integers (minimum is 1, not zero-indexed) corresponding to the bands to be used to create the tiles. Only used with mode='custom'.
+    Default is None.
+    driver (str, "GTiff" or "PNG"): tiles image file type. Default is "PNG".
+
+Returns:
+    Saves tiles to the specified output folder and optionally return the tiles geotransform dictionary.
+"""
+
+    loc=getLoc(img_path,list_loc_codes)
+    crs=crs_dict_string[loc]
+
+    if driver=="PNG":
+        ext='png'
+    elif driver=='GTiff':
+        ext='tif'
+    else:
+        raise NameError("Driver must be either 'PNG' or 'GTiff'.")
+
+    with ras.open(img_path,'r') as dataset:
+
+        if mode=='rgb':
+
+            count=3
+            source_idx=[1,2,3] # the band indices of the source image
+            out_idx=source_idx
+            sel_bands=None
+
+            height_idx=1
+            width_idx=2
+
+        elif mode=='multi':
+
+            if driver=="PNG":
+                print("NOTE: PNG format doesn't support multibands. Returning GeoTiffs instead.")
+                driver="GTiff"
+            else:
+                pass
+
+            sel_bands=None
+            count=dataset.count
+            source_idx=list(dataset.indexes)
+            out_idx=None
+            height_idx=1
+            width_idx=2
+
+        elif mode=='mask':
+
+            count=1
+            source_idx=1
+            out_idx=1
+            height_idx=0
+            width_idx=1
+
+        elif mode=='custom':
+            if len(sel_bands)>3 and driver=="PNG":
+                print("NOTE: More than 3 bands selected for the creation of PNG images. PNG format doesn't support multibands. Returning GeoTiffs instead.")
+                driver="GTiff"
+            else:
+                pass
+
+            source_idx=sel_bands
+            out_idx=None
+            count=len(sel_bands)
+            height_idx=1
+            width_idx=2
+
+        # creates gereferenced bounding box of the image
+        geom_im = gpd.GeoSeries(box(*dataset.bounds), crs=crs_dict_string[loc])
+
+        # evaluates which tiles are fully within the raster bounds
+        fully_contains=[geom_im.geometry.contains(mask_geom)[0] for mask_geom in grid.geometry]
+
+        # get the expected shape of fully contained tiles
+        full_in_geom=grid[fully_contains].iloc[[0]]["geometry"]
+        geom_wdw=geometry_window(dataset,full_in_geom)
+        expected_shape=(geom_wdw.height,geom_wdw.width)
+
+        print(f"Expected shape{expected_shape}")
+
+        for i, row in grid.iterrows():
+
+            tile_name=f"{loc}_{row.grid_id}_{getDate(img_path)}_{mode}.{ext}"
+
+            geom=Polygon(   # create the square polygons to clip the raster with
+
+               ((row.ulx,row.uly),
+               (row.urx,row.ury),
+               (row.lrx,row.lry),
+               (row.llx,row.lly),
+                (row.ulx,row.uly))
+
+                    )
+
+
+            # get the future shape of the tile which is about to get created
+            geom_wdw=geometry_window(im,[mapping(geom)])
+            tile_shape=(geom_wdw.height,geom_wdw.width)
+
+
+            if tile_shape == expected_shape:
+
+                tile_to_disk(dataset=dataset,
+                             geom=geom,
+                             crs=crs,
+                             tile_name=tile_name,
+                             output_path=output_path,
+                             nodata=0,
+                             source_idx=source_idx,
+                             height_idx=height_idx,
+                             width_idx=width_idx,
+                             out_idx=out_idx,
+                             count=count,
+                             driver=driver
+                                )
+
+            else:
+
+                partial_tile_padding(dataset=dataset,
+                                     expected_shape=expected_shape,
+                                     crs=crs,
+                                     geom=geom,
+                                     tile_name=tile_name,
+                                     output_path=output_path,
+                                     nodata=0,
+                                     source_idx=source_idx,
+                                     height_idx=height_idx,
+                                     width_idx=width_idx,
+                                     out_idx=out_idx,
+                                     count=count,
+                                     driver=driver
+                                    )
