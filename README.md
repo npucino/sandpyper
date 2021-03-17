@@ -118,20 +118,18 @@ To get a local copy up and running follow these simple steps.
 * then, if you do not have it already, install **Visual Studio C++ build tools** in your local machine, which is needed to install the [richdem](https://pypi.org/project/richdem/ "richdem pypi page") package. You can download it [here](https://visualstudio.microsoft.com/visual-cpp-build-tools/ "standalone VS c++ build tools").
 * now, in the Anaconda Prompt terminal, create the environment **sandpyper_env** and install the required packages by typing:
   ```sh
-  conda create --name sandpyper_env geopandas tqdm pysal=2.1 scikit-learn scikit-image rasterio scipy seaborn matplotlib
+  conda create --name sandpyper_env geopandas=0.8.2 matplotlib=3.3.4 numpy=1.20.1 pandas=1.2.2 tqdm pysal=2.1 rasterio=1.2.0 richdem=0.3.4 scikit-image=0.18.1 scikit-learn=0.24.1 scipy=1.6 seaborn=0.11.1 tqdm=4.56.2
   ```
-* now, let's PIP install richdem in the newly created environment **sandpyper_env** (ps.: remember to `conda activate sandpyper_env` ). Type:
- ```sh
- pip install richdem
- ```
- For the exact packages versions, consult the [sandpyper_env.yml file](https://github.com/npucino/sandpyper/blob/master/sandpyper_env.yml).
 
 ### Installation
 
 1. ```sh
+   conda activate sandpyper_env
+   ```
+2. ```sh
    pip install sandpyper
    ```
-2. If you use Jupyter Notebooks:
+2. You migh need to install Jupyter Notebooks:
    ```sh
    conda install jupyter notebook
    ```
