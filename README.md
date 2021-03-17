@@ -129,7 +129,7 @@ To get a local copy up and running follow these simple steps.
 2. ```sh
    pip install sandpyper
    ```
-2. You migh need to install Jupyter Notebooks:
+2. Install Jupyter Notebooks:
    ```sh
    conda install jupyter notebook
    ```
