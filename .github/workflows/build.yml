@@ -47,5 +47,3 @@ jobs:
               run: |
                   python -m unittest discover tests/
                   
-              run: |
-                  python -m unittest discover tests/
