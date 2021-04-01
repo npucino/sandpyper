@@ -1,0 +1,2413 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="canonical" href="https://npucino.github.io/sandpyper/outils/">
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-7.1.0">
+    
+    
+      
+        <title>outils module - Sandpyper</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.33e2939f.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ef6f36e2.min.css">
+        
+      
+    
+    
+    
+      
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700%7CRoboto+Mono&display=fallback">
+        <style>:root{--md-text-font-family:"Roboto";--md-code-font-family:"Roboto Mono"}</style>
+      
+    
+    
+    
+      <link rel="stylesheet" href="../assets/_mkdocstrings.css">
+    
+    
+      
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="preference" data-md-color-primary="" data-md-color-accent="">
+  
+    
+    <script>function __prefix(e){return new URL("..",location).pathname+"."+e}function __get(e,t=localStorage){return JSON.parse(t.getItem(__prefix(e)))}</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#sandpyper.outils" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="Sandpyper" class="md-header__button md-logo" aria-label="Sandpyper" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Sandpyper
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              outils module
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+      </label>
+      
+<div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" data-md-state="active" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+      </label>
+      <button type="reset" class="md-search__icon md-icon" aria-label="Clear" tabindex="-1">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
+      </button>
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        
+<a href="https://github.com//npucino//sandpyper/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Sandpyper" class="md-nav__button md-logo" aria-label="Sandpyper" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"/></svg>
+
+    </a>
+    Sandpyper
+  </label>
+  
+    <div class="md-nav__source">
+      
+<a href="https://github.com//npucino//sandpyper/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        Home
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../installation/" class="md-nav__link">
+        Installation
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../usage/" class="md-nav__link">
+        Usage
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/" class="md-nav__link">
+        Contributing
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../faq/" class="md-nav__link">
+        FAQ
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://github.com//npucino//sandpyper//issues" class="md-nav__link">
+        Report Issues
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_7" type="checkbox" id="__nav_7" checked>
+      
+      <label class="md-nav__link" for="__nav_7">
+        API Reference
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="API Reference" data-md-level="1">
+        <label class="md-nav__title" for="__nav_7">
+          <span class="md-nav__icon md-icon"></span>
+          API Reference
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../hotspot/" class="md-nav__link">
+        hotspot module
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          outils module
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        outils module
+      </a>
+      
+        
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#sandpyper.outils" class="md-nav__link">
+    sandpyper.outils
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sandpyper.outils.coords_to_points" class="md-nav__link">
+    coords_to_points()
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sandpyper.outils.create_id" class="md-nav__link">
+    create_id()
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sandpyper.outils.create_spatial_id" class="md-nav__link">
+    create_spatial_id()
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sandpyper.outils.cross_ref" class="md-nav__link">
+    cross_ref()
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sandpyper.outils.extract_loc_date" class="md-nav__link">
+    extract_loc_date()
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sandpyper.outils.filter_filename_list" class="md-nav__link">
+    filter_filename_list()
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sandpyper.outils.find_skiprows" class="md-nav__link">
+    find_skiprows()
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sandpyper.outils.gdf_distance_matrix" class="md-nav__link">
+    gdf_distance_matrix()
+  </a>
+  
+    <nav class="md-nav" aria-label="gdf_distance_matrix()">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#sandpyper.outils.gdf_distance_matrix--parameters" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sandpyper.outils.getDate" class="md-nav__link">
+    getDate()
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sandpyper.outils.getListOfDate" class="md-nav__link">
+    getListOfDate()
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sandpyper.outils.getListOfFiles" class="md-nav__link">
+    getListOfFiles()
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sandpyper.outils.getLoc" class="md-nav__link">
+    getLoc()
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sandpyper.outils.matchup_folders" class="md-nav__link">
+    matchup_folders()
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sandpyper.outils.open_gcp_file" class="md-nav__link">
+    open_gcp_file()
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sandpyper.outils.polygonize_valid" class="md-nav__link">
+    polygonize_valid()
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sandpyper.outils.round_special" class="md-nav__link">
+    round_special()
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sandpyper.outils.timeseries_to_gdf" class="md-nav__link">
+    timeseries_to_gdf()
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../volumetrics/" class="md-nav__link">
+        volumetrics module
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../profile/" class="md-nav__link">
+        profile module
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../labels/" class="md-nav__link">
+        labels module
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../dynamics/" class="md-nav__link">
+        dynamics module
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../space/" class="md-nav__link">
+        space module
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_8" data-md-state="indeterminate" type="checkbox" id="__nav_8" checked>
+      
+      <label class="md-nav__link" for="__nav_8">
+        Notebooks
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Notebooks" data-md-level="1">
+        <label class="md-nav__title" for="__nav_8">
+          <span class="md-nav__icon md-icon"></span>
+          Notebooks
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../notebooks/Profile_Extraction/" class="md-nav__link">
+        Profile Extraction
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../notebooks/Sand_KMeans_labeling/" class="md-nav__link">
+        Sand KMeans labeling
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../notebooks/Sand_No_Sand_classification_beachface/" class="md-nav__link">
+        Sand No Sand classification beachface
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#sandpyper.outils" class="md-nav__link">
+    sandpyper.outils
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sandpyper.outils.coords_to_points" class="md-nav__link">
+    coords_to_points()
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sandpyper.outils.create_id" class="md-nav__link">
+    create_id()
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sandpyper.outils.create_spatial_id" class="md-nav__link">
+    create_spatial_id()
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sandpyper.outils.cross_ref" class="md-nav__link">
+    cross_ref()
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sandpyper.outils.extract_loc_date" class="md-nav__link">
+    extract_loc_date()
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sandpyper.outils.filter_filename_list" class="md-nav__link">
+    filter_filename_list()
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sandpyper.outils.find_skiprows" class="md-nav__link">
+    find_skiprows()
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sandpyper.outils.gdf_distance_matrix" class="md-nav__link">
+    gdf_distance_matrix()
+  </a>
+  
+    <nav class="md-nav" aria-label="gdf_distance_matrix()">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#sandpyper.outils.gdf_distance_matrix--parameters" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sandpyper.outils.getDate" class="md-nav__link">
+    getDate()
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sandpyper.outils.getListOfDate" class="md-nav__link">
+    getListOfDate()
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sandpyper.outils.getListOfFiles" class="md-nav__link">
+    getListOfFiles()
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sandpyper.outils.getLoc" class="md-nav__link">
+    getLoc()
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sandpyper.outils.matchup_folders" class="md-nav__link">
+    matchup_folders()
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sandpyper.outils.open_gcp_file" class="md-nav__link">
+    open_gcp_file()
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sandpyper.outils.polygonize_valid" class="md-nav__link">
+    polygonize_valid()
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sandpyper.outils.round_special" class="md-nav__link">
+    round_special()
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sandpyper.outils.timeseries_to_gdf" class="md-nav__link">
+    timeseries_to_gdf()
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content" data-md-component="content">
+            <article class="md-content__inner md-typeset">
+              
+
+
+
+                
+                  <a href="https://github.com/npucino/sandpyper/edit/master/docs/outils.md" title="Edit this page" class="md-content__button md-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25z"/></svg>
+                  </a>
+                
+                
+                  <h1>outils module</h1>
+                
+                <div class="doc doc-object doc-module">
+
+<a id="sandpyper.outils"></a>
+    <div class="doc doc-contents first">
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+  <div class="doc doc-object doc-function">
+
+
+
+<h2 class="doc doc-heading" id="sandpyper.outils.coords_to_points">
+<code class="highlight language-python"><span class="n">coords_to_points</span><span class="p">(</span><span class="n">string_of_coords</span><span class="p">)</span></code>
+
+
+<a class="headerlink" href="#sandpyper.outils.coords_to_points" title="Permanent link">&para;</a></h2>
+
+    <div class="doc doc-contents ">
+
+      <p>Function to create Shapely Point geometries from strings representing Shapely Point geometries.
+Used when loading CSV with point geometries in string type.</p>
+
+<p><strong>Parameters:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+      <th>Default</th>
+    </tr>
+  </thead>
+  <tbody>
+      <tr>
+        <td><code>string_of_coords</code></td>
+        <td><code>str</code></td>
+        <td><p>the string version of Shapely Point geometry</p></td>
+        <td><em>required</em></td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Returns:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>pt_geom </code></td>
+      <td><p>Shapely Point geometry</p></td>
+    </tr>
+  </tbody>
+</table>
+        <details class="quote">
+          <summary>Source code in <code>sandpyper\outils.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">coords_to_points</span><span class="p">(</span><span class="n">string_of_coords</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Function to create Shapely Point geometries from strings representing Shapely Point geometries.</span>
+<span class="sd">    Used when loading CSV with point geometries in string type.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        string_of_coords (str): the string version of Shapely Point geometry</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        pt_geom : Shapely Point geometry</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">num_ditis</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">d+&#39;</span><span class="p">,</span> <span class="n">string_of_coords</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">coord_x</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">num_ditis</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;.&quot;</span> <span class="o">+</span> <span class="n">num_ditis</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">coord_y</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">num_ditis</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;.&quot;</span> <span class="o">+</span> <span class="n">num_ditis</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
+        <span class="n">pt_geom</span> <span class="o">=</span> <span class="n">Point</span><span class="p">(</span><span class="n">coord_x</span><span class="p">,</span> <span class="n">coord_y</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">BaseException</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;point creation failed! Assigning NaN. Check the format of the input string.&quot;</span><span class="p">)</span>
+        <span class="n">pt_geom</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+    <span class="k">return</span> <span class="n">pt_geom</span>
+</code></pre></div>
+        </details>
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-function">
+
+
+
+<h2 class="doc doc-heading" id="sandpyper.outils.create_id">
+<code class="highlight language-python"><span class="n">create_id</span><span class="p">(</span><span class="n">Series</span><span class="p">,</span> <span class="n">tr_id_field</span><span class="o">=</span><span class="s1">&#39;tr_id&#39;</span><span class="p">,</span> <span class="n">loc_field</span><span class="o">=</span><span class="s1">&#39;location&#39;</span><span class="p">,</span> <span class="n">dist_field</span><span class="o">=</span><span class="s1">&#39;distance&#39;</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span></code>
+
+
+<a class="headerlink" href="#sandpyper.outils.create_id" title="Permanent link">&para;</a></h2>
+
+    <div class="doc doc-contents ">
+
+      <p>Function to create unique IDs from random permutations of integers and letters from the distance, tr_id, location,
+coordinates and survey_date fields of the rgb and z table.</p>
+
+<p><strong>Parameters:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+      <th>Default</th>
+    </tr>
+  </thead>
+  <tbody>
+      <tr>
+        <td><code>Series</code></td>
+        <td><code>Pandas series</code></td>
+        <td><p>series having the selected fields.</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>random_state</code></td>
+        <td><code>int</code></td>
+        <td><p>Random seed.</p></td>
+        <td><code>42</code></td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Returns:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code></code></td>
+      <td><p>A series od unique IDs.</p></td>
+    </tr>
+  </tbody>
+</table>
+        <details class="quote">
+          <summary>Source code in <code>sandpyper\outils.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">create_id</span><span class="p">(</span><span class="n">Series</span><span class="p">,</span> <span class="n">tr_id_field</span><span class="o">=</span><span class="s2">&quot;tr_id&quot;</span><span class="p">,</span> <span class="n">loc_field</span><span class="o">=</span><span class="s2">&quot;location&quot;</span><span class="p">,</span> <span class="n">dist_field</span><span class="o">=</span><span class="s2">&quot;distance&quot;</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Function to create unique IDs from random permutations of integers and letters from the distance, tr_id, location,</span>
+<span class="sd">    coordinates and survey_date fields of the rgb and z table.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        Series (Pandas series): series having the selected fields.</span>
+<span class="sd">        tr_id_field (str)= Field name holding the transect ID (Default=&quot;tr_id&quot;).</span>
+<span class="sd">        loc_field (str)= Field name holding the location of the survey (Default=&quot;location&quot;).</span>
+<span class="sd">        dist_field (str)= Field name holding the distance from start of the transect (Default=&quot;distance&quot;).</span>
+<span class="sd">        random_state (int): Random seed.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A series od unique IDs.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">dist_c</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">Series</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">dist_field</span><span class="p">]),</span> <span class="mi">2</span><span class="p">))</span>
+    <span class="n">tr_id_c</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">Series</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">tr_id_field</span><span class="p">])</span>
+    <span class="n">loc_d</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">Series</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">loc_field</span><span class="p">])</span>
+
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">Series</span><span class="o">.</span><span class="n">coordinates</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">coord_c</span> <span class="o">=</span> <span class="n">Series</span><span class="o">.</span><span class="n">coordinates</span><span class="o">.</span><span class="n">wkt</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">1</span><span class="p">][</span><span class="o">-</span><span class="mi">3</span><span class="p">:]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">coord_c</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">Series</span><span class="o">.</span><span class="n">coordinates</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">1</span><span class="p">][</span><span class="o">-</span><span class="mi">3</span><span class="p">:])</span>
+
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">Series</span><span class="o">.</span><span class="n">survey_date</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">date_c</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">Series</span><span class="o">.</span><span class="n">survey_date</span><span class="o">.</span><span class="n">date</span><span class="p">())</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">date_c</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">Series</span><span class="o">.</span><span class="n">survey_date</span><span class="p">)</span>
+
+    <span class="n">ids_tmp</span> <span class="o">=</span> <span class="n">dist_c</span> <span class="o">+</span> <span class="s1">&#39;0&#39;</span> <span class="o">+</span> <span class="n">tr_id_c</span> <span class="o">+</span> <span class="n">loc_d</span> <span class="o">+</span> <span class="n">coord_c</span> <span class="o">+</span> <span class="n">date_c</span>
+
+    <span class="n">ids</span> <span class="o">=</span> <span class="n">ids_tmp</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="s2">&quot;0&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+    <span class="n">char_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">ids</span><span class="p">)</span>  <span class="c1"># convert string inti list</span>
+    <span class="n">random</span><span class="o">.</span><span class="n">Random</span><span class="p">(</span><span class="n">random_state</span><span class="p">)</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">char_list</span><span class="p">,</span> <span class="p">)</span>  <span class="c1"># shuffle the list</span>
+    <span class="n">ids</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">char_list</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">ids</span>
+</code></pre></div>
+        </details>
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-function">
+
+
+
+<h2 class="doc doc-heading" id="sandpyper.outils.create_spatial_id">
+<code class="highlight language-python"><span class="n">create_spatial_id</span><span class="p">(</span><span class="n">Series</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span></code>
+
+
+<a class="headerlink" href="#sandpyper.outils.create_spatial_id" title="Permanent link">&para;</a></h2>
+
+    <div class="doc doc-contents ">
+
+      <p>Function to create IDs indipended on the survey_date, but related to to distance, tr_id and location only.
+Equivalent to use coordinates field.</p>
+
+<p><strong>Parameters:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+      <th>Default</th>
+    </tr>
+  </thead>
+  <tbody>
+      <tr>
+        <td><code>Series</code></td>
+        <td><code>Pandas Series</code></td>
+        <td><p>series of merged table.</p></td>
+        <td><em>required</em></td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Returns:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code></code></td>
+      <td><p>A series od unique spatial IDs.</p></td>
+    </tr>
+  </tbody>
+</table>
+        <details class="quote">
+          <summary>Source code in <code>sandpyper\outils.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">create_spatial_id</span><span class="p">(</span><span class="n">Series</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Function to create IDs indipended on the survey_date, but related to to distance, tr_id and location only.</span>
+<span class="sd">    Equivalent to use coordinates field.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        Series (Pandas Series): series of merged table.</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        A series od unique spatial IDs.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># ID indipended on the survey_date, but only related to distance, tr_id</span>
+    <span class="c1"># and location. Useful ID, but equivalent to use coordinates field.</span>
+
+    <span class="n">ids</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">Series</span><span class="o">.</span><span class="n">distance</span><span class="p">),</span> <span class="mi">2</span><span class="p">))</span> <span class="o">+</span> <span class="s1">&#39;0&#39;</span> <span class="o">+</span> \
+        <span class="nb">str</span><span class="p">(</span><span class="n">Series</span><span class="o">.</span><span class="n">tr_id</span><span class="p">)</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">Series</span><span class="o">.</span><span class="n">location</span><span class="p">)</span>
+    <span class="n">ids</span> <span class="o">=</span> <span class="n">ids</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="s2">&quot;0&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+    <span class="n">char_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">ids</span><span class="p">)</span>  <span class="c1"># convert string inti list</span>
+    <span class="n">random</span><span class="o">.</span><span class="n">Random</span><span class="p">(</span><span class="n">random_state</span><span class="p">)</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">char_list</span><span class="p">,</span> <span class="p">)</span>  <span class="c1"># shuffle the list</span>
+    <span class="n">ids</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">char_list</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">ids</span>
+</code></pre></div>
+        </details>
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-function">
+
+
+
+<h2 class="doc doc-heading" id="sandpyper.outils.cross_ref">
+<code class="highlight language-python"><span class="n">cross_ref</span><span class="p">(</span><span class="n">dirNameDSM</span><span class="p">,</span> <span class="n">dirNameTrans</span><span class="p">,</span> <span class="n">loc_search_dict</span><span class="p">,</span> <span class="n">list_loc_codes</span><span class="p">,</span> <span class="n">print_info</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></code>
+
+
+<a class="headerlink" href="#sandpyper.outils.cross_ref" title="Permanent link">&para;</a></h2>
+
+    <div class="doc doc-contents ">
+
+      <p>Returns a dataframe with location, raw_date, filenames (paths)
+and CRS of each raster and associated transect files. Used to double-check.</p>
+
+<p><strong>Parameters:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+      <th>Default</th>
+    </tr>
+  </thead>
+  <tbody>
+      <tr>
+        <td><code>dirNameDSM</code></td>
+        <td><code>str</code></td>
+        <td><p>Path of the directory containing the geotiffs datasets (.tiff or .tif).</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>dirNameTrans</code></td>
+        <td><code>str</code></td>
+        <td><p>Path of the directory containing the transects (geopackages, .gpkg).</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>print_info</code></td>
+        <td><code>bool</code></td>
+        <td><p>If True, prints count of datasets/location and total. Default = False.</p></td>
+        <td><code>False</code></td>
+      </tr>
+      <tr>
+        <td><code>loc_search_dict</code></td>
+        <td><code>list</code></td>
+        <td><p>Dictionary used to match filename with right location code.</p></td>
+        <td><em>required</em></td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Returns:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code></code></td>
+      <td><p>Dataframe and information about raster-transect files matches.</p></td>
+    </tr>
+  </tbody>
+</table>
+        <details class="quote">
+          <summary>Source code in <code>sandpyper\outils.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">cross_ref</span><span class="p">(</span>
+        <span class="n">dirNameDSM</span><span class="p">,</span>
+        <span class="n">dirNameTrans</span><span class="p">,</span>
+        <span class="n">loc_search_dict</span><span class="p">,</span>
+        <span class="n">list_loc_codes</span><span class="p">,</span>
+        <span class="n">print_info</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns a dataframe with location, raw_date, filenames (paths)</span>
+<span class="sd">    and CRS of each raster and associated transect files. Used to double-check.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        dirNameDSM (str): Path of the directory containing the geotiffs datasets (.tiff or .tif).</span>
+<span class="sd">        dirNameTrans (str): Path of the directory containing the transects (geopackages, .gpkg).</span>
+<span class="sd">        print_info (bool): If True, prints count of datasets/location and total. Default = False.</span>
+<span class="sd">        loc_search_dict (list): Dictionary used to match filename with right location code.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Dataframe and information about raster-transect files matches.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">list_rasters</span> <span class="o">=</span> <span class="n">filter_filename_list</span><span class="p">(</span>
+        <span class="n">getListOfFiles</span><span class="p">(</span><span class="n">dirNameDSM</span><span class="p">),</span> <span class="n">fmt</span><span class="o">=</span><span class="p">[</span>
+            <span class="s1">&#39;.tif&#39;</span><span class="p">,</span> <span class="s1">&#39;.tiff&#39;</span><span class="p">])</span>
+    <span class="n">list_transects</span> <span class="o">=</span> <span class="n">filter_filename_list</span><span class="p">(</span><span class="n">getListOfFiles</span><span class="p">(</span><span class="n">dirNameTrans</span><span class="p">),</span> <span class="n">fmt</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;.gpkg&#39;</span><span class="p">])</span>
+
+    <span class="n">loc_date_labels_raster</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">extract_loc_date</span><span class="p">(</span>
+            <span class="n">file1</span><span class="p">,</span>
+            <span class="n">loc_search_dict</span><span class="o">=</span><span class="n">loc_search_dict</span><span class="p">)</span> <span class="k">for</span> <span class="n">file1</span> <span class="ow">in</span> <span class="n">list_rasters</span><span class="p">]</span>
+    <span class="n">locs_transects</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span>
+        <span class="p">[</span><span class="n">getLoc</span><span class="p">(</span><span class="n">trs</span><span class="p">,</span> <span class="n">list_loc_codes</span><span class="p">)</span> <span class="k">for</span> <span class="n">trs</span> <span class="ow">in</span> <span class="n">list_transects</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;location&quot;</span><span class="p">))</span>
+
+    <span class="n">df_tmp_raster</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+        <span class="n">loc_date_labels_raster</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span>
+            <span class="s2">&quot;location&quot;</span><span class="p">,</span> <span class="s2">&quot;raw_date&quot;</span><span class="p">])</span>
+    <span class="n">df_tmp_raster</span><span class="p">[</span><span class="s2">&quot;filename_raster&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">list_rasters</span>
+    <span class="n">df_tmp_raster</span><span class="p">[</span><span class="s2">&quot;crs_raster&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_tmp_raster</span><span class="o">.</span><span class="n">filename_raster</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+        <span class="n">getCrs_from_raster_path</span><span class="p">)</span>
+
+    <span class="n">df_tmp_trd</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">locs_transects</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;location&quot;</span><span class="p">])</span>
+    <span class="n">df_tmp_trd</span><span class="p">[</span><span class="s2">&quot;filename_trs&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">list_transects</span>
+    <span class="n">df_tmp_trd</span><span class="p">[</span><span class="s2">&quot;crs_transect&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_tmp_trd</span><span class="o">.</span><span class="n">filename_trs</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">getCrs_from_transect</span><span class="p">)</span>
+
+    <span class="n">matched</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
+        <span class="n">df_tmp_raster</span><span class="p">,</span>
+        <span class="n">df_tmp_trd</span><span class="p">,</span>
+        <span class="n">on</span><span class="o">=</span><span class="s2">&quot;location&quot;</span><span class="p">,</span>
+        <span class="n">how</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span>
+        <span class="p">[</span><span class="s2">&quot;location&quot;</span><span class="p">])</span>
+
+    <span class="k">if</span> <span class="nb">bool</span><span class="p">(</span><span class="n">print_info</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="n">counts</span> <span class="o">=</span> <span class="n">matched</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;location&quot;</span><span class="p">)[</span><span class="s2">&quot;raw_date&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">count</span><span class="p">()</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">counts</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+            <span class="nb">print</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;DSM from </span><span class="si">{</span><span class="n">counts</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;location&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> = </span><span class="si">{</span><span class="n">counts</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;raw_date&#39;</span><span class="p">]</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">NUMBER OF DATASETS TO PROCESS: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">list_rasters</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">matched</span>
+</code></pre></div>
+        </details>
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-function">
+
+
+
+<h2 class="doc doc-heading" id="sandpyper.outils.extract_loc_date">
+<code class="highlight language-python"><span class="n">extract_loc_date</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">loc_search_dict</span><span class="p">,</span> <span class="n">split_by</span><span class="o">=</span><span class="s1">&#39;_&#39;</span><span class="p">)</span></code>
+
+
+<a class="headerlink" href="#sandpyper.outils.extract_loc_date" title="Permanent link">&para;</a></h2>
+
+    <div class="doc doc-contents ">
+
+      <p>Get the location code (e.g. wbl, por) and raw dates (e.g. 20180902) from filenames.</p>
+
+<p><strong>Parameters:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+      <th>Default</th>
+    </tr>
+  </thead>
+  <tbody>
+      <tr>
+        <td><code>name</code></td>
+        <td><code>str</code></td>
+        <td><p>full filenames ('C:\jupyter\data_in_gcp\20180601_mar_gcps.csv').</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>loc_search_dict</code></td>
+        <td><code>dict</code></td>
+        <td><p>a dictionary where keys are the location codes and values are lists containing the expected full location string (["Warrnambool", "warrnambool","warrny"]).</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>split_by</code></td>
+        <td><code>str</code></td>
+        <td><p>the character used to split the name (default= '_').</p></td>
+        <td><code>&#39;_&#39;</code></td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Returns:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>(&#39;location&#39;,raw_date) </code></td>
+      <td><p>tuple with location and raw date.</p></td>
+    </tr>
+  </tbody>
+</table>
+        <details class="quote">
+          <summary>Source code in <code>sandpyper\outils.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">extract_loc_date</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">loc_search_dict</span><span class="p">,</span> <span class="n">split_by</span><span class="o">=</span><span class="s2">&quot;_&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get the location code (e.g. wbl, por) and raw dates (e.g. 20180902) from filenames.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        name (str): full filenames (&#39;C:\\jupyter\\data_in_gcp\\20180601_mar_gcps.csv&#39;).</span>
+
+<span class="sd">        loc_search_dict (dict): a dictionary where keys are the location codes and values are lists containing the expected full location string ([&quot;Warrnambool&quot;, &quot;warrnambool&quot;,&quot;warrny&quot;]).</span>
+
+<span class="sd">        split_by (str): the character used to split the name (default= &#39;_&#39;).</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        (&#39;location&#39;,raw_date) : tuple with location and raw date.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">date</span> <span class="o">=</span> <span class="n">getDate</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+    <span class="n">names</span> <span class="o">=</span> <span class="nb">set</span><span class="p">((</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">name</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">)))</span>
+
+    <span class="k">for</span> <span class="n">loc_code</span><span class="p">,</span> <span class="n">raw_strings_loc</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
+            <span class="n">loc_search_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span> <span class="nb">list</span><span class="p">(</span>
+            <span class="n">loc_search_dict</span><span class="o">.</span><span class="n">values</span><span class="p">())):</span>  <span class="c1"># loop trhough all possible lists of raw strings</span>
+        <span class="n">raw_str_set</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">raw_strings_loc</span><span class="p">)</span>
+        <span class="n">match</span> <span class="o">=</span> <span class="n">raw_str_set</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="n">names</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">match</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+
+            <span class="n">location_code_found</span> <span class="o">=</span> <span class="n">loc_code</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">pass</span>
+
+    <span class="k">return</span> <span class="p">(</span><span class="n">location_code_found</span><span class="p">,</span> <span class="n">date</span><span class="p">)</span>
+</code></pre></div>
+        </details>
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-function">
+
+
+
+<h2 class="doc doc-heading" id="sandpyper.outils.filter_filename_list">
+<code class="highlight language-python"><span class="n">filter_filename_list</span><span class="p">(</span><span class="n">filenames_list</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;.tif&#39;</span><span class="p">,</span> <span class="s1">&#39;.tiff&#39;</span><span class="p">])</span></code>
+
+
+<a class="headerlink" href="#sandpyper.outils.filter_filename_list" title="Permanent link">&para;</a></h2>
+
+    <div class="doc doc-contents ">
+
+      <p>It returns a list of only specific file formats from a list of filenames.</p>
+
+<p><strong>Parameters:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+      <th>Default</th>
+    </tr>
+  </thead>
+  <tbody>
+      <tr>
+        <td><code>filenames_list</code></td>
+        <td><code>list</code></td>
+        <td><p>list of filenames.</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>fmt</code></td>
+        <td><code>list</code></td>
+        <td><p>list of formats to be filtered (DEFAULT = [".tif",".tiff"])</p></td>
+        <td><code>[&#39;.tif&#39;, &#39;.tiff&#39;]</code></td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Returns:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code></code></td>
+      <td><p>A filtered list of filenames.</p></td>
+    </tr>
+  </tbody>
+</table>
+        <details class="quote">
+          <summary>Source code in <code>sandpyper\outils.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">filter_filename_list</span><span class="p">(</span><span class="n">filenames_list</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;.tif&quot;</span><span class="p">,</span> <span class="s2">&quot;.tiff&quot;</span><span class="p">]):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    It returns a list of only specific file formats from a list of filenames.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        filenames_list (list): list of filenames.</span>
+<span class="sd">        fmt (list): list of formats to be filtered (DEFAULT = [&quot;.tif&quot;,&quot;.tiff&quot;])</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        A filtered list of filenames.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">name</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">filenames_list</span> <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">name</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">in</span> <span class="n">fmt</span><span class="p">]</span>
+</code></pre></div>
+        </details>
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-function">
+
+
+
+<h2 class="doc doc-heading" id="sandpyper.outils.find_skiprows">
+<code class="highlight language-python"><span class="n">find_skiprows</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">keyword</span><span class="o">=</span><span class="s1">&#39;Easting&#39;</span><span class="p">)</span></code>
+
+
+<a class="headerlink" href="#sandpyper.outils.find_skiprows" title="Permanent link">&para;</a></h2>
+
+    <div class="doc doc-contents ">
+
+      <p>Find the number of rows to skip in a .CSV based on a keyword search.</p>
+
+<p><strong>Parameters:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+      <th>Default</th>
+    </tr>
+  </thead>
+  <tbody>
+      <tr>
+        <td><code>filename</code></td>
+        <td><code>str</code></td>
+        <td><p>Local path of .CSV file.</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>keyword</code></td>
+        <td><code>str</code></td>
+        <td><p>Keyword to stop the search and return its row number (default "Easting").</p></td>
+        <td><code>&#39;Easting&#39;</code></td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Returns:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code></code></td>
+      <td><p>The number (int) of the rows to skip when reading .CSV.</p></td>
+    </tr>
+  </tbody>
+</table>
+        <details class="quote">
+          <summary>Source code in <code>sandpyper\outils.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">find_skiprows</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">keyword</span><span class="o">=</span><span class="s2">&quot;Easting&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Find the number of rows to skip in a .CSV based on a keyword search.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        filename (str): Local path of .CSV file.</span>
+<span class="sd">        keyword (str): Keyword to stop the search and return its row number (default &quot;Easting&quot;).</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The number (int) of the rows to skip when reading .CSV.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">skiprows</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;r+&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">file</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">keyword</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+                <span class="n">skiprows</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">break</span>
+
+    <span class="k">return</span> <span class="n">skiprows</span>
+</code></pre></div>
+        </details>
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-function">
+
+
+
+<h2 class="doc doc-heading" id="sandpyper.outils.gdf_distance_matrix">
+<code class="highlight language-python"><span class="n">gdf_distance_matrix</span><span class="p">(</span><span class="n">gdf1</span><span class="p">,</span> <span class="n">gdf2</span><span class="p">,</span> <span class="n">crs</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;init&#39;</span><span class="p">:</span> <span class="s1">&#39;epsg:3857&#39;</span><span class="p">})</span></code>
+
+
+<a class="headerlink" href="#sandpyper.outils.gdf_distance_matrix" title="Permanent link">&para;</a></h2>
+
+    <div class="doc doc-contents ">
+
+      <p>Calculate the distance matrix between two GeoDataFrames
+Both GeoDataFrames must have the source crs set in order to be projected.</p>
+<p>[source: https://gist.github.com/1papaya]</p>
+<h4 id="sandpyper.outils.gdf_distance_matrix--parameters">Parameters<a class="headerlink" href="#sandpyper.outils.gdf_distance_matrix--parameters" title="Permanent link">&para;</a></h4>
+<p>gdf1 : geopandas.GeoDataFrame
+    GeoDataFrame #1
+gdf2 : geopandas.GeoDataFrame
+    GeoDataFrame #2
+crs : str or dict
+    Output projection parameters, passed to geopandas. Default is {'init':'epsg:3857'}.
+Returns</p>
+<hr />
+<p>pd.DataFrame
+    Distance matrix dataframe; Distances can be looked up by .loc[]</p>
+
+        <details class="quote">
+          <summary>Source code in <code>sandpyper\outils.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">gdf_distance_matrix</span><span class="p">(</span><span class="n">gdf1</span><span class="p">,</span> <span class="n">gdf2</span><span class="p">,</span> <span class="n">crs</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;init&#39;</span><span class="p">:</span> <span class="s1">&#39;epsg:3857&#39;</span><span class="p">}):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate the distance matrix between two GeoDataFrames</span>
+<span class="sd">    Both GeoDataFrames must have the source crs set in order to be projected.</span>
+
+<span class="sd">    [source: https://gist.github.com/1papaya]</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    gdf1 : geopandas.GeoDataFrame</span>
+<span class="sd">        GeoDataFrame #1</span>
+<span class="sd">    gdf2 : geopandas.GeoDataFrame</span>
+<span class="sd">        GeoDataFrame #2</span>
+<span class="sd">    crs : str or dict</span>
+<span class="sd">        Output projection parameters, passed to geopandas. Default is {&#39;init&#39;:&#39;epsg:3857&#39;}.</span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    pd.DataFrame</span>
+<span class="sd">        Distance matrix dataframe; Distances can be looked up by .loc[]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Transform to mutual coordinate system to calculate distance</span>
+    <span class="n">dset1</span> <span class="o">=</span> <span class="n">gdf1</span><span class="o">.</span><span class="n">to_crs</span><span class="p">(</span><span class="n">crs</span><span class="p">)</span>
+    <span class="n">dset2</span> <span class="o">=</span> <span class="n">gdf2</span><span class="o">.</span><span class="n">to_crs</span><span class="p">(</span><span class="n">crs</span><span class="p">)</span>
+
+    <span class="c1"># List of coordinate pairs [x,y] for each dataset</span>
+    <span class="n">dset1_xy</span> <span class="o">=</span> <span class="n">dset1</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">b</span><span class="p">:</span> <span class="p">[</span><span class="n">b</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">b</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">y</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+    <span class="n">dset2_xy</span> <span class="o">=</span> <span class="n">dset2</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">b</span><span class="p">:</span> <span class="p">[</span><span class="n">b</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">b</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">y</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">distance_matrix</span><span class="p">(</span><span class="n">dset1_xy</span><span class="p">,</span> <span class="n">dset2_xy</span><span class="p">),</span>
+                        <span class="n">columns</span><span class="o">=</span><span class="n">dset2</span><span class="o">.</span><span class="n">index</span><span class="p">,</span>
+                        <span class="n">index</span><span class="o">=</span><span class="n">dset1</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+</code></pre></div>
+        </details>
+    </div>
+
+  </div>
+
+
+
+
+
+  <div class="doc doc-object doc-function">
+
+
+
+<h2 class="doc doc-heading" id="sandpyper.outils.getDate">
+<code class="highlight language-python"><span class="n">getDate</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span></code>
+
+
+<a class="headerlink" href="#sandpyper.outils.getDate" title="Permanent link">&para;</a></h2>
+
+    <div class="doc doc-contents ">
+
+      <p>Returns the date in raw form (i.e 20180912) from already formatted filenames.</p>
+
+<p><strong>Parameters:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+      <th>Default</th>
+    </tr>
+  </thead>
+  <tbody>
+      <tr>
+        <td><code>filename</code></td>
+        <td><code>str</code></td>
+        <td><p>filename (i.e. apo_20180912_dsm_ahd.tiff).</p></td>
+        <td><em>required</em></td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Returns:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>str </code></td>
+      <td><p>raw date.</p></td>
+    </tr>
+  </tbody>
+</table>
+        <details class="quote">
+          <summary>Source code in <code>sandpyper\outils.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">getDate</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns the date in raw form (i.e 20180912) from already formatted filenames.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        filename (str): filename (i.e. apo_20180912_dsm_ahd.tiff).</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        str : raw date.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># get the date out of a file input</span>
+
+    <span class="n">num_ditis</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">d+&#39;</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+
+    <span class="c1"># now we need to convert each number into integer. int(string) converts string into integer</span>
+    <span class="c1"># we will map int() function onto all elements of numbers list</span>
+    <span class="n">num_ditis</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">num_ditis</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">date_</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">num_ditis</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">date_</span><span class="p">))</span> <span class="o">==</span> <span class="mi">8</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">date_</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unable to find correct date from input filename. Found: </span><span class="si">{</span><span class="n">date_</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">BaseException</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;No numbers in the input filename.&quot;</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">num_ditis</span><span class="p">))</span>
+</code></pre></div>
+        </details>
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-function">
+
+
+
+<h2 class="doc doc-heading" id="sandpyper.outils.getListOfDate">
+<code class="highlight language-python"><span class="n">getListOfDate</span><span class="p">(</span><span class="n">list_dsm</span><span class="p">)</span></code>
+
+
+<a class="headerlink" href="#sandpyper.outils.getListOfDate" title="Permanent link">&para;</a></h2>
+
+    <div class="doc doc-contents ">
+
+      <p>Returns the a list of raw dates (i.e 20180912) from a list of formatted filenames.</p>
+
+<p><strong>Parameters:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+      <th>Default</th>
+    </tr>
+  </thead>
+  <tbody>
+      <tr>
+        <td><code>list_dsm</code></td>
+        <td><code>list</code></td>
+        <td><p>list of filenames of DSM or rothophotos datasets.</p></td>
+        <td><em>required</em></td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Returns:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>list </code></td>
+      <td><p>raw dates.</p></td>
+    </tr>
+  </tbody>
+</table>
+        <details class="quote">
+          <summary>Source code in <code>sandpyper\outils.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">getListOfDate</span><span class="p">(</span><span class="n">list_dsm</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns the a list of raw dates (i.e 20180912) from a list of formatted filenames.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        list_dsm (list): list of filenames of DSM or rothophotos datasets.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        list : raw dates.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">dates</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">list_dsm</span><span class="p">:</span>
+        <span class="n">temp</span> <span class="o">=</span> <span class="n">getDate</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+        <span class="n">dates</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">temp</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">dates</span>
+</code></pre></div>
+        </details>
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-function">
+
+
+
+<h2 class="doc doc-heading" id="sandpyper.outils.getListOfFiles">
+<code class="highlight language-python"><span class="n">getListOfFiles</span><span class="p">(</span><span class="n">dirName</span><span class="p">)</span></code>
+
+
+<a class="headerlink" href="#sandpyper.outils.getListOfFiles" title="Permanent link">&para;</a></h2>
+
+    <div class="doc doc-contents ">
+
+      <p>Function to create a list of files from a folder path, including sub folders.</p>
+
+<p><strong>Parameters:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+      <th>Default</th>
+    </tr>
+  </thead>
+  <tbody>
+      <tr>
+        <td><code>dirName</code></td>
+        <td><code>str</code></td>
+        <td><p>Path of the parent directory.</p></td>
+        <td><em>required</em></td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Returns:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>allFiles </code></td>
+      <td><p>list of full paths of all files found.</p></td>
+    </tr>
+  </tbody>
+</table>
+        <details class="quote">
+          <summary>Source code in <code>sandpyper\outils.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">getListOfFiles</span><span class="p">(</span><span class="n">dirName</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Function to create a list of files from a folder path, including sub folders.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        dirName (str): Path of the parent directory.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        allFiles : list of full paths of all files found.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># create a list of file and sub directories names in the given directory</span>
+    <span class="n">listOfFile</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">dirName</span><span class="p">)</span>
+    <span class="n">allFiles</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>                  <span class="c1"># Iterate over all the entries</span>
+    <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">listOfFile</span><span class="p">:</span>
+
+        <span class="n">fullPath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dirName</span><span class="p">,</span> <span class="n">entry</span><span class="p">)</span>  <span class="c1"># Create full path</span>
+
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span>
+                <span class="n">fullPath</span><span class="p">):</span>     <span class="c1"># If entry is a directory then get the list of files in this directory</span>
+            <span class="n">allFiles</span> <span class="o">=</span> <span class="n">allFiles</span> <span class="o">+</span> <span class="n">getListOfFiles</span><span class="p">(</span><span class="n">fullPath</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">allFiles</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fullPath</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">allFiles</span>
+</code></pre></div>
+        </details>
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-function">
+
+
+
+<h2 class="doc doc-heading" id="sandpyper.outils.getLoc">
+<code class="highlight language-python"><span class="n">getLoc</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">list_loc_codes</span><span class="p">)</span></code>
+
+
+<a class="headerlink" href="#sandpyper.outils.getLoc" title="Permanent link">&para;</a></h2>
+
+    <div class="doc doc-contents ">
+
+      <p>Function that returns the location code from properly formatted (see documentation) filenames.</p>
+
+<p><strong>Parameters:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+      <th>Default</th>
+    </tr>
+  </thead>
+  <tbody>
+      <tr>
+        <td><code>filename</code></td>
+        <td><code>str</code></td>
+        <td><p>filename (i.e. apo_20180912_dsm_ahd.tiff).</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>list_loc_codes</code></td>
+        <td><code>list</code></td>
+        <td><p>list of strings containing location codes.</p></td>
+        <td><em>required</em></td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Returns:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>str </code></td>
+      <td><p>location codes.</p></td>
+    </tr>
+  </tbody>
+</table>
+        <details class="quote">
+          <summary>Source code in <code>sandpyper\outils.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">getLoc</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">list_loc_codes</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Function that returns the location code from properly formatted (see documentation) filenames.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        filename (str): filename (i.e. apo_20180912_dsm_ahd.tiff).</span>
+<span class="sd">        list_loc_codes (list): list of strings containing location codes.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        str : location codes.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="nb">next</span><span class="p">((</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">list_loc_codes</span> <span class="k">if</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">filename</span><span class="p">),</span> <span class="kc">False</span><span class="p">)</span>
+</code></pre></div>
+        </details>
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-function">
+
+
+
+<h2 class="doc doc-heading" id="sandpyper.outils.matchup_folders">
+<code class="highlight language-python"><span class="n">matchup_folders</span><span class="p">(</span><span class="n">dir1</span><span class="p">,</span> <span class="n">dir2</span><span class="p">,</span> <span class="n">loc_search_dict</span><span class="p">,</span> <span class="n">fmts</span><span class="o">=</span><span class="p">([</span><span class="s1">&#39;.tif&#39;</span><span class="p">,</span> <span class="s1">&#39;.tif&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;.tif&#39;</span><span class="p">,</span> <span class="s1">&#39;.tif&#39;</span><span class="p">]))</span></code>
+
+
+<a class="headerlink" href="#sandpyper.outils.matchup_folders" title="Permanent link">&para;</a></h2>
+
+    <div class="doc doc-contents ">
+
+      <p>Matches files from two folders (e.g. DSMs, orthos or GCPs) and store filenames in DataFrame.</p>
+
+<p><strong>Parameters:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+      <th>Default</th>
+    </tr>
+  </thead>
+  <tbody>
+      <tr>
+        <td><code>dir1</code></td>
+        <td><code>str</code></td>
+        <td><p>local path of a folder where the files are stored.</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>dir2</code></td>
+        <td><code>str</code></td>
+        <td><p>local path of the second folder to match with dir1.</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>loc_search_dict</code></td>
+        <td><code>dict</code></td>
+        <td><p>a dictionary where keys are the location codes and values are lists containing the expected full location string (["Warrnambool", "warrnambool","warrny"]).</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>fmts</code></td>
+        <td><code>tuple</code></td>
+        <td><p>a tuple containing dir1 list of format files to retain (e.g. [".tif",."tiff"])</p></td>
+        <td><code>([&#39;.tif&#39;, &#39;.tif&#39;], [&#39;.tif&#39;, &#39;.tif&#39;])</code></td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Returns:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code></code></td>
+      <td><p>Dataframe containing location, raw_date and dir1 and dir2 filenames (paths).</p></td>
+    </tr>
+  </tbody>
+</table>
+        <details class="quote">
+          <summary>Source code in <code>sandpyper\outils.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">matchup_folders</span><span class="p">(</span><span class="n">dir1</span><span class="p">,</span> <span class="n">dir2</span><span class="p">,</span> <span class="n">loc_search_dict</span><span class="p">,</span> <span class="n">fmts</span><span class="o">=</span><span class="p">([</span><span class="s2">&quot;.tif&quot;</span><span class="p">,</span> <span class="s2">&quot;.tif&quot;</span><span class="p">],</span> <span class="p">[</span><span class="s2">&quot;.tif&quot;</span><span class="p">,</span> <span class="s2">&quot;.tif&quot;</span><span class="p">])):</span>
+    <span class="sd">&quot;&quot;&quot; Matches files from two folders (e.g. DSMs, orthos or GCPs) and store filenames in DataFrame.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        dir1 (str): local path of a folder where the files are stored.</span>
+<span class="sd">        dir2 (str): local path of the second folder to match with dir1.</span>
+<span class="sd">        loc_search_dict (dict): a dictionary where keys are the location codes and values are lists containing the expected full location string ([&quot;Warrnambool&quot;, &quot;warrnambool&quot;,&quot;warrny&quot;]).</span>
+<span class="sd">        fmts (tuple): a tuple containing dir1 list of format files to retain (e.g. [&quot;.tif&quot;,.&quot;tiff&quot;])</span>
+<span class="sd">        and dir2 (e.g. [&quot;.cvs&quot;]). Default=([&quot;.tif&quot;,&quot;.tif&quot;],[&quot;.tif&quot;,&quot;.tif&quot;]).</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        Dataframe containing location, raw_date and dir1 and dir2 filenames (paths).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">list_dir1</span> <span class="o">=</span> <span class="n">filter_filename_list</span><span class="p">(</span><span class="n">getListOfFiles</span><span class="p">(</span><span class="n">dir1</span><span class="p">),</span> <span class="n">fmt</span><span class="o">=</span><span class="n">fmts</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">list_dir2</span> <span class="o">=</span> <span class="n">filter_filename_list</span><span class="p">(</span><span class="n">getListOfFiles</span><span class="p">(</span><span class="n">dir2</span><span class="p">),</span> <span class="n">fmt</span><span class="o">=</span><span class="n">fmts</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+    <span class="n">loc_date_labels_dir1</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">extract_loc_date</span><span class="p">(</span>
+            <span class="n">file1</span><span class="p">,</span>
+            <span class="n">loc_search_dict</span><span class="o">=</span><span class="n">loc_search_dict</span><span class="p">)</span> <span class="k">for</span> <span class="n">file1</span> <span class="ow">in</span> <span class="n">list_dir1</span><span class="p">]</span>
+    <span class="n">loc_date_labels_dir2</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">extract_loc_date</span><span class="p">(</span>
+            <span class="n">file2</span><span class="p">,</span>
+            <span class="n">loc_search_dict</span><span class="o">=</span><span class="n">loc_search_dict</span><span class="p">)</span> <span class="k">for</span> <span class="n">file2</span> <span class="ow">in</span> <span class="n">list_dir2</span><span class="p">]</span>
+
+    <span class="n">df_1</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">loc_date_labels_dir1</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;location&quot;</span><span class="p">,</span> <span class="s2">&quot;raw_date&quot;</span><span class="p">])</span>
+    <span class="n">df_1</span><span class="p">[</span><span class="s1">&#39;filename_dsm&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">list_dir1</span>
+
+    <span class="n">df_2</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">loc_date_labels_dir2</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;location&quot;</span><span class="p">,</span> <span class="s2">&quot;raw_date&quot;</span><span class="p">])</span>
+    <span class="n">df_2</span><span class="p">[</span><span class="s1">&#39;filename_gcp&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">list_dir2</span>
+
+    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">df_1</span><span class="p">,</span> <span class="n">df_2</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;location&quot;</span><span class="p">,</span> <span class="s2">&quot;raw_date&quot;</span><span class="p">],</span> <span class="n">how</span><span class="o">=</span><span class="s1">&#39;inner&#39;</span><span class="p">)</span>
+</code></pre></div>
+        </details>
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-function">
+
+
+
+<h2 class="doc doc-heading" id="sandpyper.outils.open_gcp_file">
+<code class="highlight language-python"><span class="n">open_gcp_file</span><span class="p">(</span><span class="n">csv_file</span><span class="p">,</span> <span class="n">crs</span><span class="p">)</span></code>
+
+
+<a class="headerlink" href="#sandpyper.outils.open_gcp_file" title="Permanent link">&para;</a></h2>
+
+    <div class="doc doc-contents ">
+
+      <p>Open a Propeller GCP (.CSV) file and return it as a geodataframe.</p>
+
+<p><strong>Parameters:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+      <th>Default</th>
+    </tr>
+  </thead>
+  <tbody>
+      <tr>
+        <td><code>csv_file</code></td>
+        <td><code>str</code></td>
+        <td><p>Local path of .CSV file.</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>crs</code></td>
+        <td><code>str</code></td>
+        <td><p>Coordinate Reference System in the dict format (example: {'init' :'epsg:4326'})</p></td>
+        <td><em>required</em></td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Returns:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code></code></td>
+      <td><p>Geodataframe of GCPs.</p></td>
+    </tr>
+  </tbody>
+</table>
+        <details class="quote">
+          <summary>Source code in <code>sandpyper\outils.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">open_gcp_file</span><span class="p">(</span><span class="n">csv_file</span><span class="p">,</span> <span class="n">crs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Open a Propeller GCP (.CSV) file and return it as a geodataframe.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        csv_file (str): Local path of .CSV file.</span>
+<span class="sd">        crs (str): Coordinate Reference System in the dict format (example: {&#39;init&#39; :&#39;epsg:4326&#39;})</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Geodataframe of GCPs.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">skiprows</span> <span class="o">=</span> <span class="n">find_skiprows</span><span class="p">(</span><span class="n">csv_file</span><span class="p">)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">csv_file</span><span class="p">,</span> <span class="n">skiprows</span><span class="o">=</span><span class="n">skiprows</span><span class="p">)</span>
+    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;geometry&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">Point</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">Easting</span><span class="p">,</span> <span class="n">df</span><span class="o">.</span><span class="n">Northing</span><span class="p">)]</span>
+    <span class="n">gcp</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">geometry</span><span class="o">=</span><span class="s2">&quot;geometry&quot;</span><span class="p">,</span> <span class="n">crs</span><span class="o">=</span><span class="n">crs</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">gcp</span>
+</code></pre></div>
+        </details>
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-function">
+
+
+
+<h2 class="doc doc-heading" id="sandpyper.outils.polygonize_valid">
+<code class="highlight language-python"><span class="n">polygonize_valid</span><span class="p">(</span><span class="n">raster_path_in</span><span class="p">,</span> <span class="n">output_masks_dir</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">valid_value</span><span class="o">=</span><span class="mf">255.0</span><span class="p">,</span> <span class="n">out_format</span><span class="o">=</span><span class="s1">&#39;GPKG&#39;</span><span class="p">)</span></code>
+
+
+<a class="headerlink" href="#sandpyper.outils.polygonize_valid" title="Permanent link">&para;</a></h2>
+
+    <div class="doc doc-contents ">
+
+      <p>It returns the valid data polygon masks of a raster.</p>
+
+<p><strong>Parameters:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+      <th>Default</th>
+    </tr>
+  </thead>
+  <tbody>
+      <tr>
+        <td><code>raster_path_in</code></td>
+        <td><code>str</code></td>
+        <td><p>Path to the raster, which can be a shapefiles or geopackages.</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>output_location</code></td>
+        <td><code>str</code></td>
+        <td><p>Path to the output folder.</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>name</code></td>
+        <td><code>str</code></td>
+        <td><p>Name of the output polygon.</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>valid_value</code></td>
+        <td><code>float</code></td>
+        <td><p>Value of valid data of the input raster mask. Default is 255.0.</p></td>
+        <td><code>255.0</code></td>
+      </tr>
+      <tr>
+        <td><code>out_format</code></td>
+        <td><code>&#39;str&#39;</code></td>
+        <td><p>If 'GPKG' (default), the polygon is a geopackage.</p></td>
+        <td><code>&#39;GPKG&#39;</code></td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Returns:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code></code></td>
+      <td><p>Polygons at the specified location in the specified format.
+Geopackages are reccommended (default).</p></td>
+    </tr>
+  </tbody>
+</table>
+        <details class="quote">
+          <summary>Source code in <code>sandpyper\outils.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">polygonize_valid</span><span class="p">(</span>
+        <span class="n">raster_path_in</span><span class="p">,</span>
+        <span class="n">output_masks_dir</span><span class="p">,</span>
+        <span class="n">name</span><span class="p">,</span>
+        <span class="n">valid_value</span><span class="o">=</span><span class="mf">255.0</span><span class="p">,</span>
+        <span class="n">out_format</span><span class="o">=</span><span class="s1">&#39;GPKG&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; It returns the valid data polygon masks of a raster.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        raster_path_in (str): Path to the raster, which can be a shapefiles or geopackages.</span>
+<span class="sd">        output_location (str): Path to the output folder.</span>
+<span class="sd">        name (str): Name of the output polygon.</span>
+<span class="sd">        valid_value (float): Value of valid data of the input raster mask. Default is 255.0.</span>
+<span class="sd">        out_format (&#39;str&#39;): If &#39;GPKG&#39; (default), the polygon is a geopackage.</span>
+<span class="sd">        Alternatively, &#39;ESRI Shapefile&#39; returns .shp files.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Polygons at the specified location in the specified format.</span>
+<span class="sd">        Geopackages are reccommended (default).</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Check if output format is shapefile or Geopackage</span>
+
+    <span class="k">if</span> <span class="n">out_format</span> <span class="o">==</span> <span class="s1">&#39;GPKG&#39;</span><span class="p">:</span>
+        <span class="n">file_ext</span> <span class="o">=</span> <span class="s1">&#39;.gpkg&#39;</span>
+    <span class="k">elif</span> <span class="n">out_format</span> <span class="o">==</span> <span class="s1">&#39;ESRI Shapefile&#39;</span><span class="p">:</span>
+        <span class="n">file_ext</span> <span class="o">=</span> <span class="s1">&#39;.shp&#39;</span>
+
+    <span class="c1">#___________ Open the image and extract coordinates of valid data_____________#</span>
+
+    <span class="k">with</span> <span class="n">ras</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">raster_path_in</span><span class="p">)</span> <span class="k">as</span> <span class="n">img</span><span class="p">:</span>
+
+        <span class="n">epsg</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">crs</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
+        <span class="n">trans</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">transform</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Computing valid data mask from dataset </span><span class="si">{</span><span class="n">img</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+        <span class="n">msk</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">read_masks</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="n">savetxt</span> <span class="o">=</span> <span class="n">output_masks_dir</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\\</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="n">name</span> <span class="o">+</span> <span class="n">file_ext</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Polygonizing valid data.&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">shape</span> <span class="ow">in</span> <span class="n">features</span><span class="o">.</span><span class="n">shapes</span><span class="p">(</span><span class="n">msk</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="n">trans</span><span class="p">):</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">value</span> <span class="o">==</span> <span class="n">valid_value</span><span class="p">:</span>
+                <span class="n">polygon_geom</span> <span class="o">=</span> <span class="n">Polygon</span><span class="p">(</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;coordinates&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+                <span class="n">polygon</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">crs</span><span class="o">=</span><span class="n">epsg</span><span class="p">,</span> <span class="n">geometry</span><span class="o">=</span><span class="p">[</span><span class="n">polygon_geom</span><span class="p">])</span>
+                <span class="n">polygon</span><span class="o">.</span><span class="n">to_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">savetxt</span><span class="p">,</span> <span class="n">driver</span><span class="o">=</span><span class="n">out_format</span><span class="p">)</span>
+
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Done with value </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;...&quot;</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;File </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> saved at location </span><span class="si">{</span><span class="n">savetxt</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">polygon</span>
+</code></pre></div>
+        </details>
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-function">
+
+
+
+<h2 class="doc doc-heading" id="sandpyper.outils.round_special">
+<code class="highlight language-python"><span class="n">round_special</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">thr</span><span class="p">)</span></code>
+
+
+<a class="headerlink" href="#sandpyper.outils.round_special" title="Permanent link">&para;</a></h2>
+
+    <div class="doc doc-contents ">
+
+      <p>It rounds the number (a) to its closest fraction of threshold (thr). Useful to space ticks in plots.</p>
+
+        <details class="quote">
+          <summary>Source code in <code>sandpyper\outils.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">round_special</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">thr</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; It rounds the number (a) to its closest fraction of threshold (thr). Useful to space ticks in plots.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="o">/</span> <span class="n">thr</span><span class="p">)</span> <span class="o">*</span> <span class="n">thr</span>
+</code></pre></div>
+        </details>
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-function">
+
+
+
+<h2 class="doc doc-heading" id="sandpyper.outils.timeseries_to_gdf">
+<code class="highlight language-python"><span class="n">timeseries_to_gdf</span><span class="p">(</span><span class="n">path_timeseries_folder</span><span class="p">)</span></code>
+
+
+<a class="headerlink" href="#sandpyper.outils.timeseries_to_gdf" title="Permanent link">&para;</a></h2>
+
+    <div class="doc doc-contents ">
+
+      <p>Returns a Geodataframe of geometries, location and survey_dates from a folder of timeseries files.</p>
+
+<p><strong>Parameters:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+      <th>Default</th>
+    </tr>
+  </thead>
+  <tbody>
+      <tr>
+        <td><code>path_timeseries_folder</code></td>
+        <td><code>str</code></td>
+        <td><p>Local path of the timeseries files.</p></td>
+        <td><em>required</em></td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Returns:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code></code></td>
+      <td><p>Geodataframe.</p></td>
+    </tr>
+  </tbody>
+</table>
+        <details class="quote">
+          <summary>Source code in <code>sandpyper\outils.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">timeseries_to_gdf</span><span class="p">(</span><span class="n">path_timeseries_folder</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Returns a Geodataframe of geometries, location and survey_dates from a folder of timeseries files.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        path_timeseries_folder (str): Local path of the timeseries files.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Geodataframe.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">gcp_gdf</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">()</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">getListOfFiles</span><span class="p">(</span><span class="n">path_timeseries_folder</span><span class="p">):</span>
+        <span class="n">tmp</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">read_file</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+
+        <span class="n">tmp_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;geometry&#39;</span><span class="p">:</span> <span class="n">tmp</span><span class="o">.</span><span class="n">geometry</span><span class="p">,</span>
+                    <span class="s1">&#39;survey_date&#39;</span><span class="p">:</span> <span class="n">getDate</span><span class="p">(</span><span class="n">i</span><span class="p">),</span>
+                    <span class="s2">&quot;location&quot;</span><span class="p">:</span> <span class="n">getLoc</span><span class="p">(</span><span class="n">i</span><span class="p">)}</span>
+        <span class="n">gdf_tmp</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">(</span><span class="n">tmp_dict</span><span class="p">,</span> <span class="n">crs</span><span class="o">=</span><span class="n">tmp</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">crs</span><span class="p">)</span>
+        <span class="n">gcp_gdf</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">gcp_gdf</span><span class="p">,</span> <span class="n">gdf_tmp</span><span class="p">],</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">gcp_gdf</span>
+</code></pre></div>
+        </details>
+    </div>
+
+  </div>
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+  </div>
+                
+                  
+                    
+
+<hr>
+<div class="md-source-date">
+  <small>
+    
+      Last update: 2021-04-01
+    
+  </small>
+</div>
+                  
+                
+              
+
+              
+                
+
+
+              
+            </article>
+          </div>
+        </div>
+        
+      </main>
+      
+        
+<footer class="md-footer">
+  
+    <nav class="md-footer__inner md-grid" aria-label="Footer">
+      
+        <a href="../hotspot/" class="md-footer__link md-footer__link--prev" rel="prev">
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+          </div>
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              hotspot module
+            </div>
+          </div>
+        </a>
+      
+      
+        <a href="../volumetrics/" class="md-footer__link md-footer__link--next" rel="next">
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              volumetrics module
+            </div>
+          </div>
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4z"/></svg>
+          </div>
+        </a>
+      
+    </nav>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-footer-copyright">
+        
+        Made with
+        <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+          Material for MkDocs
+        </a>
+        
+      </div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.instant", "search.highlight", "navigation.expand"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing"}, "search": "../assets/javascripts/workers/search.fe42c31b.min.js", "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.d892486b.min.js"></script>
+      
+    
+  </body>
+</html>

@@ -1,0 +1,1656 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="canonical" href="https://npucino.github.io/sandpyper/profile/">
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-7.1.0">
+    
+    
+      
+        <title>profile module - Sandpyper</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.33e2939f.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ef6f36e2.min.css">
+        
+      
+    
+    
+    
+      
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700%7CRoboto+Mono&display=fallback">
+        <style>:root{--md-text-font-family:"Roboto";--md-code-font-family:"Roboto Mono"}</style>
+      
+    
+    
+    
+      <link rel="stylesheet" href="../assets/_mkdocstrings.css">
+    
+    
+      
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="preference" data-md-color-primary="" data-md-color-accent="">
+  
+    
+    <script>function __prefix(e){return new URL("..",location).pathname+"."+e}function __get(e,t=localStorage){return JSON.parse(t.getItem(__prefix(e)))}</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#sandpyper.profile" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="Sandpyper" class="md-header__button md-logo" aria-label="Sandpyper" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Sandpyper
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              profile module
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+      </label>
+      
+<div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" data-md-state="active" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+      </label>
+      <button type="reset" class="md-search__icon md-icon" aria-label="Clear" tabindex="-1">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
+      </button>
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        
+<a href="https://github.com//npucino//sandpyper/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Sandpyper" class="md-nav__button md-logo" aria-label="Sandpyper" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"/></svg>
+
+    </a>
+    Sandpyper
+  </label>
+  
+    <div class="md-nav__source">
+      
+<a href="https://github.com//npucino//sandpyper/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        Home
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../installation/" class="md-nav__link">
+        Installation
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../usage/" class="md-nav__link">
+        Usage
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/" class="md-nav__link">
+        Contributing
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../faq/" class="md-nav__link">
+        FAQ
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://github.com//npucino//sandpyper//issues" class="md-nav__link">
+        Report Issues
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_7" type="checkbox" id="__nav_7" checked>
+      
+      <label class="md-nav__link" for="__nav_7">
+        API Reference
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="API Reference" data-md-level="1">
+        <label class="md-nav__title" for="__nav_7">
+          <span class="md-nav__icon md-icon"></span>
+          API Reference
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../hotspot/" class="md-nav__link">
+        hotspot module
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../outils/" class="md-nav__link">
+        outils module
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../volumetrics/" class="md-nav__link">
+        volumetrics module
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          profile module
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        profile module
+      </a>
+      
+        
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#sandpyper.profile" class="md-nav__link">
+    sandpyper.profile
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sandpyper.profile.extract_from_folder" class="md-nav__link">
+    extract_from_folder()
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sandpyper.profile.get_dn" class="md-nav__link">
+    get_dn()
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sandpyper.profile.get_elevation" class="md-nav__link">
+    get_elevation()
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sandpyper.profile.get_merged_table" class="md-nav__link">
+    get_merged_table()
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sandpyper.profile.get_profiles" class="md-nav__link">
+    get_profiles()
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sandpyper.profile.get_terrain_info" class="md-nav__link">
+    get_terrain_info()
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../labels/" class="md-nav__link">
+        labels module
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../dynamics/" class="md-nav__link">
+        dynamics module
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../space/" class="md-nav__link">
+        space module
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_8" data-md-state="indeterminate" type="checkbox" id="__nav_8" checked>
+      
+      <label class="md-nav__link" for="__nav_8">
+        Notebooks
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Notebooks" data-md-level="1">
+        <label class="md-nav__title" for="__nav_8">
+          <span class="md-nav__icon md-icon"></span>
+          Notebooks
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../notebooks/Profile_Extraction/" class="md-nav__link">
+        Profile Extraction
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../notebooks/Sand_KMeans_labeling/" class="md-nav__link">
+        Sand KMeans labeling
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../notebooks/Sand_No_Sand_classification_beachface/" class="md-nav__link">
+        Sand No Sand classification beachface
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#sandpyper.profile" class="md-nav__link">
+    sandpyper.profile
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sandpyper.profile.extract_from_folder" class="md-nav__link">
+    extract_from_folder()
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sandpyper.profile.get_dn" class="md-nav__link">
+    get_dn()
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sandpyper.profile.get_elevation" class="md-nav__link">
+    get_elevation()
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sandpyper.profile.get_merged_table" class="md-nav__link">
+    get_merged_table()
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sandpyper.profile.get_profiles" class="md-nav__link">
+    get_profiles()
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sandpyper.profile.get_terrain_info" class="md-nav__link">
+    get_terrain_info()
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content" data-md-component="content">
+            <article class="md-content__inner md-typeset">
+              
+
+
+
+                
+                  <a href="https://github.com/npucino/sandpyper/edit/master/docs/profile.md" title="Edit this page" class="md-content__button md-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25z"/></svg>
+                  </a>
+                
+                
+                  <h1>profile module</h1>
+                
+                <div class="doc doc-object doc-module">
+
+<a id="sandpyper.profile"></a>
+    <div class="doc doc-contents first">
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+  <div class="doc doc-object doc-function">
+
+
+
+<h2 class="doc doc-heading" id="sandpyper.profile.extract_from_folder">
+<code class="highlight language-python"><span class="n">extract_from_folder</span><span class="p">(</span><span class="n">dataset_folder</span><span class="p">,</span> <span class="n">transect_folder</span><span class="p">,</span> <span class="n">list_loc_codes</span><span class="p">,</span> <span class="n">mode</span><span class="p">,</span> <span class="n">sampling_step</span><span class="p">,</span> <span class="n">add_xy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">add_slope</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">nan_values</span><span class="o">=-</span><span class="mi">10000</span><span class="p">)</span></code>
+
+
+<a class="headerlink" href="#sandpyper.profile.extract_from_folder" title="Permanent link">&para;</a></h2>
+
+    <div class="doc doc-contents ">
+
+      <p>Wrapper to extract profiles from folder.</p>
+<p>Warning: The folders must contain the geotiffs and geopackages only.</p>
+
+<p><strong>Parameters:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+      <th>Default</th>
+    </tr>
+  </thead>
+  <tbody>
+      <tr>
+        <td><code>dataset_folder</code></td>
+        <td><code>str</code></td>
+        <td><p>Path of the directory containing the datasets (geotiffs, .tiff).</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>transect_folder</code></td>
+        <td><code>str</code></td>
+        <td><p>Path of the directory containing the transects (geopackages, .gpkg).</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>mode</code></td>
+        <td><code>str</code></td>
+        <td><p>If 'dsm', extract from DSMs. If 'ortho', extracts from orthophotos.</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>sampling_step</code></td>
+        <td><code>float</code></td>
+        <td><p>Distance along-transect to sample points at. In meters.</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>add_xy</code></td>
+        <td><code>bool</code></td>
+        <td><p>If True, adds extra columns with long and lat coordinates in the input CRS.</p></td>
+        <td><code>False</code></td>
+      </tr>
+      <tr>
+        <td><code>add_slope</code></td>
+        <td><code>bool</code></td>
+        <td><p>If True, computes slope raster in degrees (increased procesing time)</p></td>
+        <td><code>False</code></td>
+      </tr>
+      <tr>
+        <td><code>nan_values</code></td>
+        <td><code>int</code></td>
+        <td><p>Value used for NoData in the raster format.</p></td>
+        <td><code>-10000</code></td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Returns:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code></code></td>
+      <td><p>A geodataframe with survey and topographical or color information extracted.</p></td>
+    </tr>
+  </tbody>
+</table>
+        <details class="quote">
+          <summary>Source code in <code>sandpyper\profile.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">extract_from_folder</span><span class="p">(</span><span class="n">dataset_folder</span><span class="p">,</span> <span class="n">transect_folder</span><span class="p">,</span> <span class="n">list_loc_codes</span><span class="p">,</span>
+                        <span class="n">mode</span><span class="p">,</span> <span class="n">sampling_step</span><span class="p">,</span>
+                        <span class="n">add_xy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">add_slope</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">nan_values</span><span class="o">=-</span><span class="mi">10000</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Wrapper to extract profiles from folder.</span>
+
+<span class="sd">    Warning: The folders must contain the geotiffs and geopackages only.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        dataset_folder (str): Path of the directory containing the datasets (geotiffs, .tiff).</span>
+<span class="sd">        transect_folder (str): Path of the directory containing the transects (geopackages, .gpkg).</span>
+<span class="sd">        mode (str): If &#39;dsm&#39;, extract from DSMs. If &#39;ortho&#39;, extracts from orthophotos.</span>
+<span class="sd">        sampling_step (float): Distance along-transect to sample points at. In meters.</span>
+<span class="sd">        add_xy (bool): If True, adds extra columns with long and lat coordinates in the input CRS.</span>
+<span class="sd">        add_slope (bool): If True, computes slope raster in degrees (increased procesing time)</span>
+<span class="sd">        and extract slope values across transects.</span>
+<span class="sd">        nan_values (int): Value used for NoData in the raster format.</span>
+<span class="sd">        In Pix4D, this is -10000 (Default).</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A geodataframe with survey and topographical or color information extracted.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Get a list of all the filenames and path</span>
+    <span class="n">list_files</span> <span class="o">=</span> <span class="n">filter_filename_list</span><span class="p">(</span>
+        <span class="n">getListOfFiles</span><span class="p">(</span><span class="n">dataset_folder</span><span class="p">),</span> <span class="n">fmt</span><span class="o">=</span><span class="p">[</span>
+            <span class="s1">&#39;.tif&#39;</span><span class="p">,</span> <span class="s1">&#39;.tiff&#39;</span><span class="p">])</span>
+
+    <span class="n">dates</span> <span class="o">=</span> <span class="p">[</span><span class="n">getDate</span><span class="p">(</span><span class="n">dsm_in</span><span class="p">)</span> <span class="k">for</span> <span class="n">dsm_in</span> <span class="ow">in</span> <span class="n">list_files</span><span class="p">]</span>
+
+    <span class="c1"># List all the transects datasets</span>
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">transect_folder</span><span class="p">):</span>
+        <span class="n">list_trans</span> <span class="o">=</span> <span class="n">getListOfFiles</span><span class="p">(</span><span class="n">transect_folder</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">transect_folder</span><span class="p">):</span>
+        <span class="n">list_trans</span> <span class="o">=</span> <span class="n">getListOfFiles</span><span class="p">(</span><span class="n">transect_folder</span><span class="p">)</span>
+
+    <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+
+    <span class="c1"># Set the sampling distance (step) for your profiles</span>
+
+    <span class="n">gdf</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+    <span class="n">counter</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">if</span> <span class="nb">bool</span><span class="p">(</span><span class="n">add_slope</span><span class="p">):</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">&#39;WARNING: add_terrain increases running time to up to </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">list_files</span><span class="p">)</span><span class="o">*</span><span class="mi">3</span><span class="si">}</span><span class="s1"> minutes.&#39;</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">dsm</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">list_files</span><span class="p">):</span>
+
+        <span class="n">date_string</span> <span class="o">=</span> <span class="n">getDate</span><span class="p">(</span><span class="n">dsm</span><span class="p">)</span>
+        <span class="n">location</span> <span class="o">=</span> <span class="n">getLoc</span><span class="p">(</span><span class="n">dsm</span><span class="p">,</span> <span class="n">list_loc_codes</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">bool</span><span class="p">(</span><span class="n">add_slope</span><span class="p">):</span>
+
+            <span class="n">terr</span> <span class="o">=</span> <span class="n">rd</span><span class="o">.</span><span class="n">LoadGDAL</span><span class="p">(</span><span class="n">dsm</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Computing slope DSM in degrees in </span><span class="si">{</span><span class="n">location</span><span class="si">}</span><span class="s2"> at date: </span><span class="si">{</span><span class="n">date_string</span><span class="si">}</span><span class="s2"> . . .&quot;</span><span class="p">)</span>
+            <span class="n">slope</span> <span class="o">=</span> <span class="n">rd</span><span class="o">.</span><span class="n">TerrainAttribute</span><span class="p">(</span><span class="n">terr</span><span class="p">,</span> <span class="n">attrib</span><span class="o">=</span><span class="s1">&#39;slope_degrees&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">slope</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="n">transect_file_input</span> <span class="o">=</span> <span class="p">[</span><span class="n">a</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">list_trans</span> <span class="k">if</span> <span class="n">location</span> <span class="ow">in</span> <span class="n">a</span><span class="p">]</span>
+        <span class="n">transect_file</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">read_file</span><span class="p">(</span><span class="n">transect_file_input</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+        <span class="n">tr_list</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">transect_file</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">tr_list</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;dsm&#39;</span><span class="p">:</span>
+                <span class="n">temp</span> <span class="o">=</span> <span class="n">get_profiles</span><span class="p">(</span>
+                    <span class="n">dsm</span><span class="p">,</span>
+                    <span class="n">transect_file</span><span class="p">,</span>
+                    <span class="n">i</span><span class="p">,</span>
+                    <span class="n">sampling_step</span><span class="p">,</span>
+                    <span class="n">location</span><span class="p">,</span>
+                    <span class="n">date_string</span><span class="o">=</span><span class="n">date_string</span><span class="p">,</span>
+                    <span class="n">add_xy</span><span class="o">=</span><span class="n">add_xy</span><span class="p">,</span>
+                    <span class="n">add_terrain</span><span class="o">=</span><span class="n">slope</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;ortho&#39;</span><span class="p">:</span>
+                <span class="n">temp</span> <span class="o">=</span> <span class="n">get_profile_dn</span><span class="p">(</span>
+                    <span class="n">dsm</span><span class="p">,</span>
+                    <span class="n">transect_file</span><span class="p">,</span>
+                    <span class="n">i</span><span class="p">,</span>
+                    <span class="n">sampling_step</span><span class="p">,</span>
+                    <span class="n">location</span><span class="p">,</span>
+                    <span class="n">date_string</span><span class="o">=</span><span class="n">date_string</span><span class="p">,</span>
+                    <span class="n">add_xy</span><span class="o">=</span><span class="n">add_xy</span><span class="p">)</span>
+
+            <span class="n">gdf</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">temp</span><span class="p">,</span> <span class="n">gdf</span><span class="p">],</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="n">counter</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="k">if</span> <span class="n">counter</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">list_files</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Extraction succesfull&#39;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;There is something wrong with this dataset: </span><span class="si">{</span><span class="n">list_files</span><span class="p">[</span><span class="n">counter</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="n">end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span> <span class="n">time</span><span class="p">()</span>
+    <span class="n">timepassed</span> <span class="o">=</span> <span class="n">end</span> <span class="o">-</span> <span class="n">start</span>
+
+    <span class="nb">print</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;Number of points extracted:</span><span class="si">{</span><span class="n">gdf</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="se">\n</span><span class="s2">Time for processing=</span><span class="si">{</span><span class="n">timepassed</span><span class="si">}</span><span class="s2"> seconds</span><span class="se">\n</span><span class="s2">First 10 rows are printed below&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;dsm&#39;</span><span class="p">:</span>
+        <span class="n">nan_out</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">count_nonzero</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">gdf</span><span class="o">.</span><span class="n">z</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;f&#39;</span><span class="p">)))</span>
+        <span class="n">nan_raster</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">count_nonzero</span><span class="p">(</span><span class="n">gdf</span><span class="o">.</span><span class="n">z</span> <span class="o">==</span> <span class="n">nan_values</span><span class="p">)</span>
+        <span class="n">gdf</span><span class="o">.</span><span class="n">z</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="o">-</span><span class="mi">10000</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">elif</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;ortho&quot;</span><span class="p">:</span>
+        <span class="n">nan_out</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">count_nonzero</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">gdf</span><span class="p">[[</span><span class="s2">&quot;band1&quot;</span><span class="p">,</span> <span class="s2">&quot;band2&quot;</span><span class="p">,</span> <span class="s2">&quot;band3&quot;</span><span class="p">]])</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;f&#39;</span><span class="p">)))</span>
+        <span class="n">nan_raster</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">count_nonzero</span><span class="p">(</span><span class="n">gdf</span><span class="o">.</span><span class="n">band1</span> <span class="o">==</span> <span class="n">nan_values</span><span class="p">)</span>
+        <span class="n">gdf</span><span class="o">.</span><span class="n">band1</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">gdf</span><span class="o">.</span><span class="n">band2</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">gdf</span><span class="o">.</span><span class="n">band3</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;Number of points outside the raster extents: </span><span class="si">{</span><span class="n">nan_out</span><span class="si">}</span><span class="se">\n</span><span class="s2">The extraction assigns NaN.&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;Number of points in NoData areas within the raster extents: </span><span class="si">{</span><span class="n">nan_raster</span><span class="si">}</span><span class="se">\n</span><span class="s2">The extraction assigns NaN.&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">gdf</span>
+</code></pre></div>
+        </details>
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-function">
+
+
+
+<h2 class="doc doc-heading" id="sandpyper.profile.get_dn">
+<code class="highlight language-python"><span class="n">get_dn</span><span class="p">(</span><span class="n">x_coord</span><span class="p">,</span> <span class="n">y_coord</span><span class="p">,</span> <span class="n">raster</span><span class="p">,</span> <span class="n">bands</span><span class="p">,</span> <span class="n">gt</span><span class="p">)</span></code>
+
+
+<a class="headerlink" href="#sandpyper.profile.get_dn" title="Permanent link">&para;</a></h2>
+
+    <div class="doc doc-contents ">
+
+      <p>Returns the value of the raster at a specified location and band.</p>
+
+<p><strong>Parameters:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+      <th>Default</th>
+    </tr>
+  </thead>
+  <tbody>
+      <tr>
+        <td><code>x_coord,</code></td>
+        <td><code>y_coord (float</code></td>
+        <td><p>Projected coordinates of pixel to extract value.</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>raster</code></td>
+        <td><code>rasterio open file</code></td>
+        <td><p>Open raster object, from rasterio.open(raster_filepath).</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>bands</code></td>
+        <td><code>int</code></td>
+        <td><p>number of bands.</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>transform</code></td>
+        <td><code>Shapely Affine obj</code></td>
+        <td><p>Geotransform of the raster.</p></td>
+        <td><em>required</em></td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Returns:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code></code></td>
+      <td><p>raster pixel value.</p></td>
+    </tr>
+  </tbody>
+</table>
+        <details class="quote">
+          <summary>Source code in <code>sandpyper\profile.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">get_dn</span><span class="p">(</span><span class="n">x_coord</span><span class="p">,</span> <span class="n">y_coord</span><span class="p">,</span> <span class="n">raster</span><span class="p">,</span> <span class="n">bands</span><span class="p">,</span> <span class="n">gt</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns the value of the raster at a specified location and band.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        x_coord, y_coord (float): Projected coordinates of pixel to extract value.</span>
+<span class="sd">        raster (rasterio open file): Open raster object, from rasterio.open(raster_filepath).</span>
+<span class="sd">        bands (int): number of bands.</span>
+<span class="sd">        transform (Shapely Affine obj): Geotransform of the raster.</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        raster pixel value.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Let&#39;s create an empty list where we will store the elevation (z) from points</span>
+    <span class="c1"># With GDAL, we extract 4 components of the geotransform (gt) of our north-up image.</span>
+
+    <span class="n">dn_val</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">xOrigin</span> <span class="o">=</span> <span class="n">gt</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>                         <span class="c1"># top-left X</span>
+    <span class="n">yOrigin</span> <span class="o">=</span> <span class="n">gt</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>                         <span class="c1"># top-left y</span>
+    <span class="n">pixelWidth</span> <span class="o">=</span> <span class="n">gt</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>                      <span class="c1"># horizontal pixel resolution</span>
+    <span class="n">pixelHeight</span> <span class="o">=</span> <span class="n">gt</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span>                     <span class="c1"># vertical pixel resolution</span>
+    <span class="n">px</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">x_coord</span> <span class="o">-</span> <span class="n">xOrigin</span><span class="p">)</span> <span class="o">/</span> <span class="n">pixelWidth</span><span class="p">)</span>  <span class="c1"># transform geographic to image coords</span>
+    <span class="n">py</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">y_coord</span> <span class="o">-</span> <span class="n">yOrigin</span><span class="p">)</span> <span class="o">/</span> <span class="n">pixelHeight</span><span class="p">)</span>  <span class="c1"># transform geographic to image coords</span>
+    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">):</span>                  <span class="c1"># we could iterate thru multiple bands</span>
+
+        <span class="n">band</span> <span class="o">=</span> <span class="n">raster</span><span class="o">.</span><span class="n">GetRasterBand</span><span class="p">(</span><span class="n">j</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">band</span><span class="o">.</span><span class="n">ReadAsArray</span><span class="p">(</span><span class="n">px</span><span class="p">,</span> <span class="n">py</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">dn_val</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">except</span> <span class="ne">BaseException</span><span class="p">:</span>
+            <span class="n">dn_val</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">dn_val</span>
+</code></pre></div>
+        </details>
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-function">
+
+
+
+<h2 class="doc doc-heading" id="sandpyper.profile.get_elevation">
+<code class="highlight language-python"><span class="n">get_elevation</span><span class="p">(</span><span class="n">x_coord</span><span class="p">,</span> <span class="n">y_coord</span><span class="p">,</span> <span class="n">raster</span><span class="p">,</span> <span class="n">bands</span><span class="p">,</span> <span class="n">transform</span><span class="p">)</span></code>
+
+
+<a class="headerlink" href="#sandpyper.profile.get_elevation" title="Permanent link">&para;</a></h2>
+
+    <div class="doc doc-contents ">
+
+      <p>Returns the value of the raster at a specified location and band.</p>
+
+<p><strong>Parameters:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+      <th>Default</th>
+    </tr>
+  </thead>
+  <tbody>
+      <tr>
+        <td><code>x_coord,</code></td>
+        <td><code>y_coord (float</code></td>
+        <td><p>Projected coordinates of pixel to extract value.</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>raster</code></td>
+        <td><code>rasterio open file</code></td>
+        <td><p>Open raster object, from rasterio.open(raster_filepath).</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>bands</code></td>
+        <td><code>int</code></td>
+        <td><p>number of bands.</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>transform</code></td>
+        <td><code>Shapely Affine obj</code></td>
+        <td><p>Geotransform of the raster.</p></td>
+        <td><em>required</em></td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Returns:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code></code></td>
+      <td><p>raster pixel value.</p></td>
+    </tr>
+  </tbody>
+</table>
+        <details class="quote">
+          <summary>Source code in <code>sandpyper\profile.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">get_elevation</span><span class="p">(</span><span class="n">x_coord</span><span class="p">,</span> <span class="n">y_coord</span><span class="p">,</span> <span class="n">raster</span><span class="p">,</span> <span class="n">bands</span><span class="p">,</span> <span class="n">transform</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns the value of the raster at a specified location and band.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        x_coord, y_coord (float): Projected coordinates of pixel to extract value.</span>
+<span class="sd">        raster (rasterio open file): Open raster object, from rasterio.open(raster_filepath).</span>
+<span class="sd">        bands (int): number of bands.</span>
+<span class="sd">        transform (Shapely Affine obj): Geotransform of the raster.</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        raster pixel value.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">elevation</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">row</span><span class="p">,</span> <span class="n">col</span> <span class="o">=</span> <span class="n">rowcol</span><span class="p">(</span><span class="n">transform</span><span class="p">,</span> <span class="n">x_coord</span><span class="p">,</span> <span class="n">y_coord</span><span class="p">,</span> <span class="nb">round</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">bands</span><span class="p">):</span>                  <span class="c1"># we could iterate thru multiple bands</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">data_z</span> <span class="o">=</span> <span class="n">raster</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">window</span><span class="o">=</span><span class="n">Window</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="n">row</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+            <span class="n">elevation</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data_z</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">except</span> <span class="ne">BaseException</span><span class="p">:</span>
+            <span class="n">elevation</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">elevation</span>
+</code></pre></div>
+        </details>
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-function">
+
+
+
+<h2 class="doc doc-heading" id="sandpyper.profile.get_merged_table">
+<code class="highlight language-python"><span class="n">get_merged_table</span><span class="p">(</span><span class="n">rgb_table_path</span><span class="p">,</span> <span class="n">z_table_path</span><span class="p">,</span> <span class="n">add_xy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></code>
+
+
+<a class="headerlink" href="#sandpyper.profile.get_merged_table" title="Permanent link">&para;</a></h2>
+
+    <div class="doc doc-contents ">
+
+      <p>Function to merge rgb and z tables, creating IDs and adding slope and curvature information.
+Optionally, is adds long and lat columns in the input CRS, if not specified during the
+extraction process.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Not optimised for large dataset.
+It might take up to 1h for 2 MIO observations tables.</p>
+</div>
+
+<p><strong>Parameters:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+      <th>Default</th>
+    </tr>
+  </thead>
+  <tbody>
+      <tr>
+        <td><code>rgb_table_path</code></td>
+        <td><code>str</code></td>
+        <td><p>Full path to the rgb_table, in CSV format.</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>z_table_path</code></td>
+        <td><code>str</code></td>
+        <td><p>Full path to the z_table, in CSV format.</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>add_xy</code></td>
+        <td><code>bool</code></td>
+        <td><p>If True, add long and lat columns in the inut CRS. Default is False.</p></td>
+        <td><code>False</code></td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Returns:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code></code></td>
+      <td><p>A merged and ready to process dataframe containing z and rgb informations.</p></td>
+    </tr>
+  </tbody>
+</table>
+        <details class="quote">
+          <summary>Source code in <code>sandpyper\profile.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">get_merged_table</span><span class="p">(</span><span class="n">rgb_table_path</span><span class="p">,</span> <span class="n">z_table_path</span><span class="p">,</span> <span class="n">add_xy</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Function to merge rgb and z tables, creating IDs and adding slope and curvature information.</span>
+<span class="sd">    Optionally, is adds long and lat columns in the input CRS, if not specified during the</span>
+<span class="sd">    extraction process.</span>
+
+<span class="sd">    Warning:</span>
+<span class="sd">        Not optimised for large dataset.</span>
+<span class="sd">        It might take up to 1h for 2 MIO observations tables.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        rgb_table_path (str): Full path to the rgb_table, in CSV format.</span>
+<span class="sd">        z_table_path (str): Full path to the z_table, in CSV format.</span>
+<span class="sd">        add_xy (bool): If True, add long and lat columns in the inut CRS. Default is False.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A merged and ready to process dataframe containing z and rgb informations.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;loading tables.&quot;</span><span class="p">)</span>
+    <span class="c1"># Loading the tables</span>
+    <span class="n">rgb_table</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">read_file</span><span class="p">(</span><span class="n">rgb_table_path</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;rgb_table loaded.&quot;</span><span class="p">)</span>
+
+    <span class="n">z_table</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">read_file</span><span class="p">(</span><span class="n">z_table_path</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;z_table loaded.&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Rounding the distance values to 0.1 precision</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;rounding distances.&quot;</span><span class="p">)</span>
+    <span class="n">rgb_table</span><span class="p">[</span><span class="s2">&quot;distance&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span>
+        <span class="n">rgb_table</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s2">&quot;distance&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;float&quot;</span><span class="p">),</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="n">z_table</span><span class="p">[</span><span class="s2">&quot;distance&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">z_table</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s2">&quot;distance&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;float&quot;</span><span class="p">),</span> <span class="mi">2</span><span class="p">)</span>
+
+    <span class="c1"># Re-generate Shapely geometries from CSV</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;re-generating Point geometries.&quot;</span><span class="p">)</span>
+    <span class="n">rgb_table</span><span class="p">[</span><span class="s1">&#39;geometry&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">rgb_table</span><span class="o">.</span><span class="n">coordinates</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">coords_to_points</span><span class="p">)</span>
+    <span class="n">z_table</span><span class="p">[</span><span class="s1">&#39;geometry&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">z_table</span><span class="o">.</span><span class="n">coordinates</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">coords_to_points</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;creating IDs.&quot;</span><span class="p">)</span>
+    <span class="c1"># Creating unique IDs based on spatiotemporal attributes, which are the</span>
+    <span class="c1"># same for rgb and z tables</span>
+    <span class="n">rgb_table</span><span class="p">[</span><span class="s2">&quot;point_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">create_id</span><span class="p">(</span>
+            <span class="n">rgb_table</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span>
+            <span class="mi">0</span><span class="p">,</span> <span class="n">rgb_table</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])]</span>
+    <span class="n">z_table</span><span class="p">[</span><span class="s2">&quot;point_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">create_id</span><span class="p">(</span><span class="n">z_table</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+                           <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">z_table</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])]</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;merging tables based on unique IDs. Might take a while ...&quot;</span><span class="p">)</span>
+    <span class="c1"># Joining the rgb and z tables based on the newly created IDs to obtain</span>
+    <span class="c1"># one single big table</span>
+    <span class="n">data_merged</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">z_table</span><span class="p">,</span> <span class="n">rgb_table</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="s2">&quot;point_id&quot;</span><span class="p">,</span> <span class="n">validate</span><span class="o">=</span><span class="s2">&quot;one_to_one&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;successfull merging.&quot;</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;cleaning dataframe and adding slope and curvature.&quot;</span><span class="p">)</span>
+    <span class="c1"># Cleaning the data and addign slope and curvature information</span>
+    <span class="n">data_merged</span> <span class="o">=</span> <span class="n">data_merged</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">NaN</span><span class="p">)</span>
+    <span class="n">data_merged</span><span class="p">[</span><span class="s1">&#39;z&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data_merged</span><span class="o">.</span><span class="n">z</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;float&quot;</span><span class="p">)</span>
+    <span class="n">data_merged</span><span class="p">[</span><span class="s2">&quot;slope&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">gradient</span><span class="p">(</span><span class="n">data_merged</span><span class="o">.</span><span class="n">z</span><span class="p">)</span>
+    <span class="n">data_merged</span><span class="p">[</span><span class="s2">&quot;curve&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">gradient</span><span class="p">(</span><span class="n">data_merged</span><span class="o">.</span><span class="n">slope</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">bool</span><span class="p">(</span><span class="n">add_xy</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;adding long/lat info.&quot;</span><span class="p">)</span>
+        <span class="c1"># Adding long/lat fields</span>
+        <span class="n">data_merged</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data_merged</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">x</span>
+        <span class="n">data_merged</span><span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data_merged</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">y</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">pass</span>
+
+    <span class="c1"># Dropping extra columns inherited from the merge</span>
+    <span class="n">data_merged</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span>
+        <span class="n">columns</span><span class="o">=</span><span class="p">[</span>
+            <span class="s1">&#39;field_1_x&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;distance_y&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;field_1_y&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;coordinates_y&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;location_y&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;survey_date_y&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;tr_id_y&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;geometry_y&#39;</span><span class="p">],</span>
+        <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># Renaming the useful columns kept after the merge</span>
+    <span class="n">data_merged</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
+        <span class="n">columns</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">&quot;tr_id_x&quot;</span><span class="p">:</span> <span class="s2">&quot;tr_id&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;distance_x&quot;</span><span class="p">:</span> <span class="s2">&quot;distance&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;coordinates_x&quot;</span><span class="p">:</span> <span class="s2">&quot;coordinates&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;location_x&quot;</span><span class="p">:</span> <span class="s2">&quot;location&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;survey_date_x&quot;</span><span class="p">:</span> <span class="s2">&quot;survey_date&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;geometry_x&quot;</span><span class="p">:</span> <span class="s2">&quot;geometry&quot;</span><span class="p">},</span>
+        <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">data_merged</span>
+</code></pre></div>
+        </details>
+    </div>
+
+  </div>
+
+
+
+
+  <div class="doc doc-object doc-function">
+
+
+
+<h2 class="doc doc-heading" id="sandpyper.profile.get_profiles">
+<code class="highlight language-python"><span class="n">get_profiles</span><span class="p">(</span><span class="n">dsm</span><span class="p">,</span> <span class="n">transect_file</span><span class="p">,</span> <span class="n">transect_index</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">location</span><span class="p">,</span> <span class="n">date_string</span><span class="p">,</span> <span class="n">add_xy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">add_terrain</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></code>
+
+
+<a class="headerlink" href="#sandpyper.profile.get_profiles" title="Permanent link">&para;</a></h2>
+
+    <div class="doc doc-contents ">
+
+      <p>Returns a tidy GeoDataFrame of profile data, extracting raster information
+at a user-defined (step) meters gap along each transect.</p>
+
+<p><strong>Parameters:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+      <th>Default</th>
+    </tr>
+  </thead>
+  <tbody>
+      <tr>
+        <td><code>dsm</code></td>
+        <td><code></code></td>
+        <td></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>transect_file</code></td>
+        <td><code></code></td>
+        <td></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>transect_index</code></td>
+        <td><code></code></td>
+        <td></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>add_xy</code></td>
+        <td><code>bool</code></td>
+        <td><p>True to add X and Y fields.</p></td>
+        <td><code>False</code></td>
+      </tr>
+      <tr>
+        <td><code>add_terrain</code></td>
+        <td><code>bool</code></td>
+        <td><p>True to add slope in degrees. Default to False.</p></td>
+        <td><code>False</code></td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Returns:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>gdf (GeoDataFrame) </code></td>
+      <td><p>Profile data extracted from the raster.</p></td>
+    </tr>
+  </tbody>
+</table>
+        <details class="quote">
+          <summary>Source code in <code>sandpyper\profile.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">get_profiles</span><span class="p">(</span>
+        <span class="n">dsm</span><span class="p">,</span>
+        <span class="n">transect_file</span><span class="p">,</span>
+        <span class="n">transect_index</span><span class="p">,</span>
+        <span class="n">step</span><span class="p">,</span>
+        <span class="n">location</span><span class="p">,</span>
+        <span class="n">date_string</span><span class="p">,</span>
+        <span class="n">add_xy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">add_terrain</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns a tidy GeoDataFrame of profile data, extracting raster information</span>
+<span class="sd">    at a user-defined (step) meters gap along each transect.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        dsm ():</span>
+<span class="sd">        transect_file:</span>
+<span class="sd">        transect_index:</span>
+<span class="sd">        step</span>
+<span class="sd">        location</span>
+<span class="sd">        date_string</span>
+<span class="sd">        add_xy (bool): True to add X and Y fields.</span>
+<span class="sd">        add_terrain (bool): True to add slope in degrees. Default to False.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        gdf (GeoDataFrame) : Profile data extracted from the raster.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">ds</span> <span class="o">=</span> <span class="n">ras</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">dsm</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span>
+    <span class="n">bands</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">count</span>                      <span class="c1"># get raster bands. One, in a classic DEM</span>
+    <span class="n">transform</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">transform</span>            <span class="c1"># get geotransform info</span>
+
+    <span class="c1"># index each transect and store it a &quot;line&quot; object</span>
+    <span class="n">line</span> <span class="o">=</span> <span class="n">transect_file</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">transect_index</span><span class="p">]</span>
+    <span class="n">length_m</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">length</span>
+
+    <span class="c1"># Creating empty lists of coordinates, elevations and distance (from start</span>
+    <span class="c1"># to end points along each transect lines)</span>
+
+    <span class="n">x</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">z</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">slopes</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="c1"># The &quot;distance&quot; object is and empty list which will contain the x variable</span>
+    <span class="c1"># which is the displacement from the shoreward end of the transects toward</span>
+    <span class="c1"># the foredunes.</span>
+
+    <span class="n">distance</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">tr_count</span> <span class="o">=</span> <span class="mi">0</span>       <span class="c1"># a variable used as &quot;counter&quot;, to stop the FOR loop</span>
+    <span class="c1"># when has gone thru all the transects</span>
+
+    <span class="k">for</span> <span class="n">currentdistance</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">length_m</span><span class="p">),</span> <span class="n">step</span><span class="p">):</span>
+
+        <span class="c1"># creation of the point on the line</span>
+        <span class="n">point</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">currentdistance</span><span class="p">)</span>
+        <span class="n">xp</span><span class="p">,</span> <span class="n">yp</span> <span class="o">=</span> <span class="n">point</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">point</span><span class="o">.</span><span class="n">y</span>    <span class="c1"># storing point xy coordinates into xp,xy objects, respectively</span>
+        <span class="n">x</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">xp</span><span class="p">)</span>  <span class="c1"># see below</span>
+        <span class="n">y</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">yp</span><span class="p">)</span>  <span class="c1"># append point coordinates to previously created and empty x,y lists</span>
+        <span class="c1"># extraction of the elevation value from DSM</span>
+        <span class="n">z</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">get_elevation</span><span class="p">(</span><span class="n">xp</span><span class="p">,</span> <span class="n">yp</span><span class="p">,</span> <span class="n">ds</span><span class="p">,</span> <span class="n">bands</span><span class="p">,</span> <span class="n">transform</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">add_terrain</span><span class="p">))</span> <span class="o">==</span> <span class="s2">&quot;&lt;class &#39;richdem.rdarray&#39;&gt;&quot;</span><span class="p">:</span>
+            <span class="n">slopes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">get_terrain_info</span><span class="p">(</span><span class="n">xp</span><span class="p">,</span> <span class="n">yp</span><span class="p">,</span> <span class="n">add_terrain</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">pass</span>
+
+        <span class="c1"># append the distance value (currentdistance) to distance list</span>
+        <span class="n">distance</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">currentdistance</span><span class="p">)</span>
+        <span class="n">tr_count</span> <span class="o">+=</span> <span class="mi">1</span>  <span class="c1"># increment by 1 the counter, and repeat!</span>
+
+    <span class="c1"># Below, the empty lists tr_id_list and the date_list will be filled by strings</span>
+    <span class="c1"># containing the transect_id of every point as stored in the original dataset</span>
+    <span class="c1"># and a label with the date as set in the data setting section, after the input.</span>
+
+    <span class="n">tr_id_list</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">date_list</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">tr_counter</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># same mechanism as previous FOR loop</span>
+
+    <span class="k">while</span> <span class="n">tr_counter</span> <span class="o">&lt;=</span> <span class="n">tr_count</span><span class="p">:</span>
+        <span class="n">tr_id_list</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="nb">int</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">name</span><span class="p">)))</span>
+        <span class="n">date_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">date_string</span><span class="p">))</span>
+        <span class="n">tr_counter</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="c1"># Here below is to combine distance, elevation, profile_id and date into</span>
+    <span class="c1"># an array first (profile_x_z), then multiple Pandas series.</span>
+
+    <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">add_terrain</span><span class="p">))</span> <span class="o">==</span> <span class="s2">&quot;&lt;class &#39;richdem.rdarray&#39;&gt;&quot;</span><span class="p">:</span>
+        <span class="n">profile_x_z</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">distance</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">tr_id_list</span><span class="p">,</span> <span class="n">date_list</span><span class="p">,</span> <span class="n">slopes</span><span class="p">))</span>
+
+        <span class="n">ds1</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">((</span><span class="n">v</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">profile_x_z</span><span class="p">))</span>
+        <span class="n">ds2</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">((</span><span class="n">v</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">profile_x_z</span><span class="p">))</span>
+        <span class="n">ds3</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">((</span><span class="n">v</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">profile_x_z</span><span class="p">))</span>
+        <span class="n">ds4</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">((</span><span class="n">v</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">profile_x_z</span><span class="p">))</span>
+        <span class="n">ds5</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">((</span><span class="n">v</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">profile_x_z</span><span class="p">))</span>
+
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">&quot;distance&quot;</span><span class="p">:</span> <span class="n">ds1</span><span class="p">,</span> <span class="s2">&quot;z&quot;</span><span class="p">:</span> <span class="n">ds2</span><span class="p">,</span> <span class="s2">&quot;tr_id&quot;</span><span class="p">:</span> <span class="n">ds3</span><span class="p">,</span>
+                           <span class="s2">&quot;raw_date&quot;</span><span class="p">:</span> <span class="n">ds4</span><span class="p">,</span> <span class="s2">&quot;slope&quot;</span><span class="p">:</span> <span class="n">ds5</span><span class="p">})</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">profile_x_z</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">distance</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">tr_id_list</span><span class="p">,</span> <span class="n">date_list</span><span class="p">))</span>
+
+        <span class="n">ds1</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">((</span><span class="n">v</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">profile_x_z</span><span class="p">))</span>
+        <span class="n">ds2</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">((</span><span class="n">v</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">profile_x_z</span><span class="p">))</span>
+        <span class="n">ds3</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">((</span><span class="n">v</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">profile_x_z</span><span class="p">))</span>
+        <span class="n">ds4</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">((</span><span class="n">v</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">profile_x_z</span><span class="p">))</span>
+
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">&quot;distance&quot;</span><span class="p">:</span> <span class="n">ds1</span><span class="p">,</span> <span class="s2">&quot;z&quot;</span><span class="p">:</span> <span class="n">ds2</span><span class="p">,</span> <span class="s2">&quot;tr_id&quot;</span><span class="p">:</span> <span class="n">ds3</span><span class="p">,</span> <span class="s2">&quot;raw_date&quot;</span><span class="p">:</span> <span class="n">ds4</span><span class="p">})</span>
+
+    <span class="c1"># Here finally a Pandas dataframe is created containing all the Series previously created</span>
+    <span class="c1"># and coordinates of the points are added to a new column called &quot;coordinates&quot;.</span>
+    <span class="c1"># At last, we create a Pandas GeoDataFrame and set the geometry column = coordinates</span>
+
+    <span class="n">df</span><span class="p">[</span><span class="s1">&#39;coordinates&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">))</span>
+    <span class="n">df</span><span class="p">[</span><span class="s1">&#39;coordinates&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;coordinates&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">Point</span><span class="p">)</span>
+    <span class="n">df</span><span class="p">[</span><span class="s1">&#39;location&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">location</span>
+    <span class="n">df</span><span class="p">[</span><span class="s1">&#39;survey_date&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span>
+        <span class="n">date_string</span><span class="p">,</span>
+        <span class="n">yearfirst</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">dayfirst</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;%Y%m</span><span class="si">%d</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="n">gdf</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">geometry</span><span class="o">=</span><span class="s2">&quot;coordinates&quot;</span><span class="p">)</span>
+
+    <span class="c1"># The proj4 info (coordinate reference system) is gathered with</span>
+    <span class="c1"># Geopandas and applied to the newly created one.</span>
+    <span class="n">gdf</span><span class="o">.</span><span class="n">crs</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">transect_file</span><span class="o">.</span><span class="n">crs</span><span class="p">)</span>
+
+    <span class="c1"># Transforming non-hashable Shapely coordinates to hashable strings and</span>
+    <span class="c1"># store them into a variable</span>
+
+    <span class="c1"># Let&#39;s create unique IDs from the coordinates values, so that the Ids</span>
+    <span class="c1"># follows the coordinates</span>
+    <span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;point_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">create_id</span><span class="p">(</span><span class="n">gdf</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">gdf</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])]</span>
+
+    <span class="k">if</span> <span class="nb">bool</span><span class="p">(</span><span class="n">add_xy</span><span class="p">):</span>
+        <span class="c1"># Adding long/lat fields</span>
+        <span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gdf</span><span class="o">.</span><span class="n">coordinates</span><span class="o">.</span><span class="n">x</span>
+        <span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gdf</span><span class="o">.</span><span class="n">coordinates</span><span class="o">.</span><span class="n">y</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">pass</span>
+
+    <span class="k">return</span> <span class="n">gdf</span>
+</code></pre></div>
+        </details>
+    </div>
+
+  </div>
+
+
+
+
+  <div class="doc doc-object doc-function">
+
+
+
+<h2 class="doc doc-heading" id="sandpyper.profile.get_terrain_info">
+<code class="highlight language-python"><span class="n">get_terrain_info</span><span class="p">(</span><span class="n">x_coord</span><span class="p">,</span> <span class="n">y_coord</span><span class="p">,</span> <span class="n">rdarray</span><span class="p">)</span></code>
+
+
+<a class="headerlink" href="#sandpyper.profile.get_terrain_info" title="Permanent link">&para;</a></h2>
+
+    <div class="doc doc-contents ">
+
+      <p>Returns the value of the rdarray rasters.</p>
+
+<p><strong>Parameters:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+      <th>Default</th>
+    </tr>
+  </thead>
+  <tbody>
+      <tr>
+        <td><code>x_coord,</code></td>
+        <td><code>y_coord (float</code></td>
+        <td><p>Projected coordinates of pixel to extract value.</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>rdarray</code></td>
+        <td><code>rdarray</code></td>
+        <td><p>rdarray dataset.</p></td>
+        <td><em>required</em></td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Returns:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code></code></td>
+      <td><p>rdarray pixel value.</p></td>
+    </tr>
+  </tbody>
+</table>
+        <details class="quote">
+          <summary>Source code in <code>sandpyper\profile.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">get_terrain_info</span><span class="p">(</span><span class="n">x_coord</span><span class="p">,</span> <span class="n">y_coord</span><span class="p">,</span> <span class="n">rdarray</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns the value of the rdarray rasters.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        x_coord, y_coord (float): Projected coordinates of pixel to extract value.</span>
+<span class="sd">        rdarray (rdarray): rdarray dataset.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        rdarray pixel value.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+
+    <span class="n">geotransform</span> <span class="o">=</span> <span class="n">rdarray</span><span class="o">.</span><span class="n">geotransform</span>
+
+    <span class="n">xOrigin</span> <span class="o">=</span> <span class="n">geotransform</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>                         <span class="c1"># top-left X</span>
+    <span class="n">yOrigin</span> <span class="o">=</span> <span class="n">geotransform</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>                         <span class="c1"># top-left y</span>
+    <span class="n">pixelWidth</span> <span class="o">=</span> <span class="n">geotransform</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>                      <span class="c1"># horizontal pixel resolution</span>
+    <span class="n">pixelHeight</span> <span class="o">=</span> <span class="n">geotransform</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span>                     <span class="c1"># vertical pixel resolution</span>
+    <span class="n">px</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">x_coord</span> <span class="o">-</span> <span class="n">xOrigin</span><span class="p">)</span> <span class="o">/</span> <span class="n">pixelWidth</span><span class="p">)</span>  <span class="c1"># transform geographic to image coords</span>
+    <span class="n">py</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">y_coord</span> <span class="o">-</span> <span class="n">yOrigin</span><span class="p">)</span> <span class="o">/</span> <span class="n">pixelHeight</span><span class="p">)</span>  <span class="c1"># transform geographic to image coords</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">rdarray</span><span class="p">[</span><span class="n">py</span><span class="p">,</span> <span class="n">px</span><span class="p">]</span>
+    <span class="k">except</span> <span class="ne">BaseException</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+</code></pre></div>
+        </details>
+    </div>
+
+  </div>
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+  </div>
+                
+                  
+                    
+
+<hr>
+<div class="md-source-date">
+  <small>
+    
+      Last update: 2021-04-01
+    
+  </small>
+</div>
+                  
+                
+              
+
+              
+                
+
+
+              
+            </article>
+          </div>
+        </div>
+        
+      </main>
+      
+        
+<footer class="md-footer">
+  
+    <nav class="md-footer__inner md-grid" aria-label="Footer">
+      
+        <a href="../volumetrics/" class="md-footer__link md-footer__link--prev" rel="prev">
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+          </div>
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              volumetrics module
+            </div>
+          </div>
+        </a>
+      
+      
+        <a href="../labels/" class="md-footer__link md-footer__link--next" rel="next">
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              labels module
+            </div>
+          </div>
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4z"/></svg>
+          </div>
+        </a>
+      
+    </nav>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-footer-copyright">
+        
+        Made with
+        <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+          Material for MkDocs
+        </a>
+        
+      </div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.instant", "search.highlight", "navigation.expand"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing"}, "search": "../assets/javascripts/workers/search.fe42c31b.min.js", "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.d892486b.min.js"></script>
+      
+    
+  </body>
+</html>
