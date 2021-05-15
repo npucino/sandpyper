@@ -127,25 +127,25 @@ def s2_to_rgb(imin, scaler_range=(0,255), re_size=False, dtype=False):
 
 
 def shoreline_from_prediction(prediction, z, shapely_affine, min_vertices=2, shape=(64,64)):
-"""
-Extract a georeferenced subpixel shoreline from an array using Marching squares and store it in a GeoDataframe.
-Credits: adapted from Dr. Robbie Bishop-Taylor functions in Digital Earth Australia scripts, available at:
-https://github.com/GeoscienceAustralia/dea-notebooks/blob/develop/Scripts/dea_coastaltools.py
+    """
+    Extract a georeferenced subpixel shoreline from an array using Marching squares and store it in a GeoDataframe.
+    Credits: adapted from Dr. Robbie Bishop-Taylor functions in Digital Earth Australia scripts, available at:
+    https://github.com/GeoscienceAustralia/dea-notebooks/blob/develop/Scripts/dea_coastaltools.py
 
-Args:
-    prediction (array): The 2D array returned by the DL model.
+    Args:
+        prediction (array): The 2D array returned by the DL model.
 
-    z (float,int): The threshold to use to divide water and no-water.
+        z (float,int): The threshold to use to divide water and no-water.
 
-    shapely_affine (Affine object): Shapely Affine object of the tile the prediction has been performed from.
+        shapely_affine (Affine object): Shapely Affine object of the tile the prediction has been performed from.
 
-    min_vertices (int): Minimum number of vertices to retain a shoreline segment (default=2).
+        min_vertices (int): Minimum number of vertices to retain a shoreline segment (default=2).
 
-    shape (tuple): Shape of the tiles (default= (64,64), minimum requirement for Unet).
+        shape (tuple): Shape of the tiles (default= (64,64), minimum requirement for Unet).
 
-Returns:
-    Grid : A GeoDataFrame storing polygon grids, with IDs and geometry columns.
-"""
+    Returns:
+        Grid : A GeoDataFrame storing polygon grids, with IDs and geometry columns.
+    """
     # get shoreline
     shore_arr=contours_to_multiline(prediction.reshape(shape),z, min_vertices=min_vertices)
 
