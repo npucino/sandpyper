@@ -1810,29 +1810,29 @@ def tiles_from_grid (grid,img_path,
                      mode='rgb',
                      sel_bands=None,
                      driver="PNG"):
-"""
-Returns a dataframe with location, raw_date, filenames (paths) or geopackage index and CRS of each raster and its associated vector files.
-If the directory containing the vector files has ony one file, it is assumed that this file stores vectors
-with location and raw_date columns.
+    """
+    Returns a dataframe with location, raw_date, filenames (paths) or geopackage index and CRS of each raster and its associated vector files.
+    If the directory containing the vector files has ony one file, it is assumed that this file stores vectors
+    with location and raw_date columns.
 
-Args:
-    grid (GeoDataFrame): GeoDataFrame of the grid of only tiles containing the line. Output of grid_from_shore function.
-    img_path (str): Path of the directory containing the geotiffs datasets (.tiff or .tif).
-    output_path (str): Path of the directory where to save the images tiles.
-    list_loc_codes (list): list of strings containing location codes.
-    mode (str,'rgb','mask','multi','custom'): 'rgb', the output images are 3-channels RGB tiles. 'mask', 1-band output tiles.
-    'multi', multibands output tiles (with all input bands).
-    'custom', use selected band indices (with sel_bands parameter) to only extract those bands from input multiband images
-    (NOTE: in 'custom' mode, output tile bands indices are reindexd, so do not corresponds with the original band indices, but restart from 1).
-    geotransform (bool or 'only'): If True, save tiles and also return a dictionary with the geotransform of each grid.
-    If False, save tiles without geotransform dictionary. If "only", do not save tiles but return the geotransform dictionary only.
-    sel_bands (list): list of integers (minimum is 1, not zero-indexed) corresponding to the bands to be used to create the tiles. Only used with mode='custom'.
-    Default is None.
-    driver (str, "GTiff" or "PNG"): tiles image file type. Default is "PNG".
+    Args:
+        grid (GeoDataFrame): GeoDataFrame of the grid of only tiles containing the line. Output of grid_from_shore function.
+        img_path (str): Path of the directory containing the geotiffs datasets (.tiff or .tif).
+        output_path (str): Path of the directory where to save the images tiles.
+        list_loc_codes (list): list of strings containing location codes.
+        mode (str,'rgb','mask','multi','custom'): 'rgb', the output images are 3-channels RGB tiles. 'mask', 1-band output tiles.
+        'multi', multibands output tiles (with all input bands).
+        'custom', use selected band indices (with sel_bands parameter) to only extract those bands from input multiband images
+        (NOTE: in 'custom' mode, output tile bands indices are reindexd, so do not corresponds with the original band indices, but restart from 1).
+        geotransform (bool or 'only'): If True, save tiles and also return a dictionary with the geotransform of each grid.
+        If False, save tiles without geotransform dictionary. If "only", do not save tiles but return the geotransform dictionary only.
+        sel_bands (list): list of integers (minimum is 1, not zero-indexed) corresponding to the bands to be used to create the tiles. Only used with mode='custom'.
+        Default is None.
+        driver (str, "GTiff" or "PNG"): tiles image file type. Default is "PNG".
 
-Returns:
-    Saves tiles to the specified output folder and optionally return the tiles geotransform dictionary.
-"""
+    Returns:
+        Saves tiles to the specified output folder and optionally return the tiles geotransform dictionary.
+    """
 
     loc=getLoc(img_path,list_loc_codes)
     crs=crs_dict_string[loc]
