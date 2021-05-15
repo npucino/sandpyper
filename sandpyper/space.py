@@ -1,44 +1,3 @@
-<<<<<<< HEAD
-# from sandpyper.outils import cross_ref, getListOfFiles, getDate, getLoc, getCrs_from_raster_path
-# from sandpyper.profile import extract_from_folder, get_profiles
-#
-#import rasterio as ras
-#import rasterio.mask as rasmask
-#from rasterio.merge import merge
-#from rasterio.transform import from_origin
-#from rasterio.features import  geometry_window
-#from rasterio.io import MemoryFile
-#
-# import os
-# import glob
-#
-# import pandas as pd
-# import re
-# import geopandas as gpd
-# import numpy as np
-# import matplotlib.pyplot as plt
-# import seaborn as sb
-# from shapely.geometry import MultiLineString, LineString, Point, Polygon, MultiPolygon, mapping,box
-# from shapely.ops import split, snap, unary_union
-#
-#
-# import math
-# from math import tan, radians, sqrt, ceil, floor
-# from scipy.ndimage import gaussian_filter
-# import scipy.signal as sig
-# from skimage.filters import threshold_multiotsu
-# from skimage.transform import resize
-# from sklearn.metrics import mean_squared_error
-#
-#
-# from tqdm import tqdm
-#
-# import richdem as rd
-# import itertools as it
-# from itertools import groupby
-# from operator import itemgetter
-# import datetime as dt
-=======
 from sandpyper.outils import cross_ref, getListOfFiles, getDate, getLoc, getCrs_from_raster_path
 from sandpyper.profile import extract_from_folder, get_profiles
 
@@ -73,8 +32,131 @@ import itertools as it
 from itertools import groupby
 from operator import itemgetter
 import datetime as dt
->>>>>>> af1330d995b86ab63bc7fbc0f503bc616ee38fcd
 
+
+
+
+def images_to_dirs(images_folder,target_folder,op=None):
+    """Create one folder per image named as the image. Optionally, move image into it.
+
+    Args:
+        images_folder (str): path to the directory where the images are stored.
+        target_folder (str): target path where create subfolders named as the images.
+        move_images (bool): True, to move the images into the newly created folders.
+    Returns:
+        Create folders (optionally, containing the images).
+
+    """
+
+    images=os.listdir(images_folder)
+    original_images_paths=[os.path.join(images_folder,image) for image in images]
+    ids=[os.path.splitext(image)[0] for image in images]
+
+    if op != None:
+        target_images_paths=[os.path.join(target_folder,id_in) for id_in in ids]
+    # create ID-folders in target_parent_folder, named as image names
+
+    starting_wd=os.getcwd() # store starting working directory
+
+    os.chdir(target_folder) # change working dir
+
+
+    if op == None:
+        for id_i in ids:
+            if not os.path.exists(os.path.join(target_folder,id_i)):
+                os.mkdir(id_i)
+            else:
+                print(f"{id_i} exists already. Skipping this one.")
+
+    elif op != None:
+
+        for id_i,source,destination in zip(ids,original_images_paths,target_images_paths):
+            if not os.path.exists(os.path.join(target_folder,id_i)):
+                os.mkdir(id_i)
+                if op == 'move':
+                    move(source,destination)
+                elif op == 'copy':
+                    copy(source,destination)
+                else:
+                    raise ValueError("op parameter not set. 'move' to move images into newly created folders, 'copy' to copy them or None to only create folders.")
+
+            else:
+                print(f"{id_i} exists already. {op} only.")
+                if op == 'move':
+                    move(source,destination)
+                elif op == 'copy':
+                    copy(source,destination)
+    else:
+        raise ValueError("op parameter not set. 'move' to move images into newly created folders, 'copy' to copy them or None to only create folders.")
+
+    os.chdir(starting_wd) # returning to starting working dir
+
+    print(f"Succesfully created {len(ids)} ID-folders in {target_folder} .")
+
+
+
+def s2_to_rgb(imin, scaler_range=(0,255), re_size=False, dtype=False):
+    scaler=MinMaxScaler(scaler_range)
+
+    imo=ras.open(imin, "r")
+
+    if dtype!=False:
+        im=imo.read(out_dtype=dtype)
+    else:
+        im=imo.read()
+
+    if isinstance(re_size,(tuple)):
+        if imo.count > 1:
+            im=resize(im, (re_size[0], re_size[1], re_size[2]),
+                          mode='constant') # resize image
+        else:
+            im=resize(im, (re_size[1], re_size[2], 1),
+              mode='constant') # resize image
+    else:
+        pass
+
+    if imo.count > 1:
+        im_rgb=np.stack((im[0], im[1], im[2]), axis=-1)
+        rgb_array_1=b = im_rgb.reshape(-1, 1)
+        scaled_1=scaler.fit_transform(rgb_array_1).astype(int)
+        img_array_rgb= scaled_1.reshape(im_rgb.shape)
+    else:
+        img_array_rgb=im
+
+    return img_array_rgb
+
+
+def shoreline_from_prediction(prediction, z, shapely_affine, min_vertices=2, shape=(64,64)):
+"""
+Extract a georeferenced subpixel shoreline from an array using Marching squares and store it in a GeoDataframe.
+Credits: adapted from Dr. Robbie Bishop-Taylor functions in Digital Earth Australia scripts, available at:
+https://github.com/GeoscienceAustralia/dea-notebooks/blob/develop/Scripts/dea_coastaltools.py
+
+Args:
+    prediction (array): The 2D array returned by the DL model.
+
+    z (float,int): The threshold to use to divide water and no-water.
+
+    shapely_affine (Affine object): Shapely Affine object of the tile the prediction has been performed from.
+
+    min_vertices (int): Minimum number of vertices to retain a shoreline segment (default=2).
+
+    shape (tuple): Shape of the tiles (default= (64,64), minimum requirement for Unet).
+
+Returns:
+    Grid : A GeoDataFrame storing polygon grids, with IDs and geometry columns.
+"""
+    # get shoreline
+    shore_arr=contours_to_multiline(prediction.reshape(shape),z, min_vertices=min_vertices)
+
+    # create geoseries and geodataframe
+    shore_arr_geoseries=gpd.GeoSeries(shore_arr, name="geometry")
+    contours_gdf=gpd.GeoDataFrame(shore_arr_geoseries, geometry="geometry")
+
+    # georeference line using tile geotransform
+    contours_gdf['geometry'] = contours_gdf.affine_transform(shapely_affine)
+
+    return contours_gdf
 
 def grid_from_pts(pts_gdf, width, height, crs):
     """
