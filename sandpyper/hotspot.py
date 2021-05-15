@@ -1,13 +1,13 @@
 """Hotspot module."""
 
-# import numpy as np
-# from tqdm import tqdm_notebook as tqdm
-# import pandas as pd
-# import geopandas as gpd
-#
-# from pysal.lib import weights
-# import pysal.explore.esda.moran as moran
-# from pysal.explore.esda.util import fdr
+import numpy as np
+from tqdm import tqdm_notebook as tqdm
+import pandas as pd
+import geopandas as gpd
+
+from pysal.lib import weights
+import pysal.explore.esda.moran as moran
+from pysal.explore.esda.util import fdr
 
 
 def LISA_site_level(dh_path, crs_dict_string, unique_field="coordinates",

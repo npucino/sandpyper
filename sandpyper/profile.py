@@ -1,18 +1,18 @@
-# from rasterio.windows import Window, from_bounds
-# from rasterio.transform import rowcol
-# import rasterio as ras
-# import numpy as np
-# import richdem as rd
-# from shapely.geometry import Point
-# import pandas as pd
-# import geopandas as gpd
-# from tqdm import tqdm_notebook as tqdm
-#
-# import os
-# import time
-# import warnings
-#
-# from sandpyper.outils import create_id, filter_filename_list, getListOfFiles, getDate, getLoc
+from rasterio.windows import Window, from_bounds
+from rasterio.transform import rowcol
+import rasterio as ras
+import numpy as np
+import richdem as rd
+from shapely.geometry import Point
+import pandas as pd
+import geopandas as gpd
+from tqdm import tqdm_notebook as tqdm
+
+import os
+import time
+import warnings
+
+from sandpyper.outils import create_id, filter_filename_list, getListOfFiles, getDate, getLoc
 
 
 def get_terrain_info(x_coord, y_coord, rdarray):
