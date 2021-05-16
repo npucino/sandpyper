@@ -1,6 +1,8 @@
 from sandpyper.outils import cross_ref, getListOfFiles, getDate, getLoc, getCrs_from_raster_path
 from sandpyper.profile import extract_from_folder, get_profiles
 
+from pysal.lib.weights import Queen, higher_order
+
 import rasterio as ras
 import rasterio.mask as rasmask
 
