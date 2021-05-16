@@ -158,23 +158,21 @@ def shoreline_from_prediction(prediction, z, shapely_affine, min_vertices=2, sha
 
     return contours_gdf
 
-def grid_from_pts(pts_gdf, width, height, crs):
+def grid_from_pts(pts_gdf, width, height, crs, offsets=(0,0,0,0)):
     """
     Create a georeferenced grid of polygones from points along a line (shoreline).
     Used to extract tiles (images patches) from rasters.
-
     Args:
         pts_gdf (GeoDataFrame): The geodataframe storing points along a shoreline.
-
         width, height (int,float): The width and heigth of each single tile of the grid, given in the CRS unit (use projected CRS).
-
         crs (str): Coordinate Reference System in the dictionary format (example: {'init' :'epsg:4326'})
-
+        offsets (tuple): Offsets in meters (needs projected CRS) from the bounds of the pts_gdf,
+            in the form of (xmin, ymin, xmax, ymax). Default to (0,0,0,0).
     Returns:
         Grid : A GeoDataFrame storing polygon grids, with IDs and geometry columns.
     """
 
-    xmin, ymin, xmax, ymax = pts_gdf.total_bounds
+    xmin, ymin, xmax, ymax = tuple(map(operator.add, pts_gdf.total_bounds, offsets))
 
     rows = int(np.ceil((ymax - ymin) / height))
     cols = int(np.ceil((xmax - xmin) / width))
@@ -201,15 +199,13 @@ def grid_from_pts(pts_gdf, width, height, crs):
     return grid
 
 
+
 def add_grid_loc_coords(grid_gdf, location=None):
     """
     Add coordinate fields of the corners of each grid tiles.
-
     Args:
         grid_gdf (GeoDataFrame): The geodataframe storing the grid, returned by the grid_from_pts function.
-
         location (str): The location code associated with the grid. Defaults to None.
-
     Returns:
         The original grid, with UpperLeft X and Y (ulx,uly), UpperRight X and Y (urx,ury), LowerLeft X and Y (llx,llr) and LowerRigth X and Y (lrx,lry) coordinates fields added.
     """
@@ -268,23 +264,27 @@ def add_grid_loc_coords(grid_gdf, location=None):
     return grid_gdf
 
 
+
 def grid_from_shore(shore, width, height,
-                    location_code, crs='shore',
-                    shore_res=10,
+                    location_code, adj_order=1,
+                    crs='shore',
+                    shore_res=10,offsets=(0,0,0,0),
                     plot_it=True):
     """
     Create a georeference grid of equal polygones (tiles) along a line (shoreline) and select those tiles that contain at least partially the line.
-
     TO DO: CRS should also be a string for specific CRS. Probablt only need the first and last points endpoints of the shoreline, or can get box directly.
-
     Args:
         shore (geodataframe): The geodataframe storing the input line from where the grid will be created.
         width, height (int,float): The width and heigth of each single tile of the grid, given in the CRS unit (use projected CRS).
         location_code (str): The location code associated with the grid.
+        adj_order (False, int): Contiguity order to subset grid cells adjacent to shoreline. If False, only cells
+            directly touching the shoreline will be extracted (Default=1). Note: The Pysal Queen method is used to compute neighbors.
+            For more info: https://pysal.org/libpysal/generated/libpysal.weights.Queen.html#libpysal.weights.Queen
         crs (dict or 'shore'): If 'shore', use the same CRS of the input line. If dict, keys should be the location code and values the values crs in the dictionary format ('wbl' : {'init' :'epsg:32754'}).
         shore_res (int,float): the alongshore spacing of points plotted along the line in the CRS unit (default=10). It doesn't need to be a small value, it is used to get the extent of the bounding box that encapsulate all the shoreline, before split this into a grid.
+        offsets (tuple): Offsets in meters (needs projected CRS) from the bounds of the pts_gdf,
+            in the form of (xmin, ymin, xmax, ymax). Default to (0,0,0,0).
         plot_it (bool): plot the shoreline, full grid and the tiles selected containing the lien (in red). Default to True.
-
     Returns:
         GeoDataFrame of the grid of only tiles containing the line.
     """
@@ -312,23 +312,40 @@ def grid_from_shore(shore, width, height,
 
     points_gdf = gpd.GeoDataFrame({"local_id": range(len(points)),
                                    "geometry": points}, geometry="geometry", crs=crs_in)
-    grid = grid_from_pts(points_gdf, width, height, crs=crs_in)
+    grid = grid_from_pts(points_gdf, width, height, crs=crs_in, offsets=offsets)
 
+    # select grid cells that contains shoreline points
     shore_grids = grid[grid.geometry.apply(
-        lambda x: points_gdf.geometry.within(x).any())]
+        lambda x: points_gdf.geometry.intersects(x).any())]
 
-    add_grid_loc_coords(shore_grids, location=location_code)
+    if adj_order != False:
+        w=Queen.from_dataframe(grid,'geometry')
+
+        if adj_order>=1:
+            print(f"Higher order ({adj_order}) selected.")
+            w=higher_order(w, adj_order)
+
+            df_adjc=w.to_adjlist()
+
+            # get the unique neighbors of all focal cells
+            qee_polys_ids=set(df_adjc.query(f"focal in {list(shore_grids.grid_id)}").neighbor)
+
+            #subset grid based on qee_polys_ids
+            shore_grids=grid.query(f"grid_id in {list(qee_polys_ids)}")
+
+        else:
+            pass
 
     if bool(plot_it):
         f, ax = plt.subplots(figsize=(10, 10))
 
         grid.plot(color='white', edgecolor='black', ax=ax)
-        shore.plot(ax=ax)
+        shore.plot(ax=ax, color='b')
         shore_grids.geometry.boundary.plot(
-            color=None, edgecolor='r', linewidth=4, ax=ax)
+            color=None, edgecolor='r', linewidth=1, ax=ax)
 
-    else:
-        pass
+
+    add_grid_loc_coords(shore_grids, location=location_code)
 
     return shore_grids
 
@@ -1878,6 +1895,19 @@ def tiles_from_grid (grid,img_path,
             out_idx=1
             height_idx=0
             width_idx=1
+
+        elif mode == 'dsm':
+            if driver == "PNG":
+                print("NOTE: PNG format doesn't support input DSM data type. Returning GeoTiffs instead.")
+                driver = "GTiff"
+
+            count = 1
+            filled=False
+            source_idx = 1
+            out_idx = 1
+            height_idx = 0
+            width_idx = 1
+
 
         elif mode=='custom':
             if len(sel_bands)>3 and driver=="PNG":
