@@ -1825,7 +1825,9 @@ def tile_to_disk(dataset,
 
 def tiles_from_grid (grid,img_path,
                      output_path,
-                     list_loc_codes,crs_dict_string,
+                     list_loc_codes,
+                     crs_dict_string,
+                     geotransform=False,
                      mode='rgb',
                      sel_bands=None,
                      driver="PNG"):
@@ -1855,6 +1857,7 @@ def tiles_from_grid (grid,img_path,
 
     loc=getLoc(img_path,list_loc_codes)
     crs=crs_dict_string[loc]
+    geotr_dict_batch=pd.DataFrame()
 
     if driver=="PNG":
         ext='png'
@@ -1959,10 +1962,14 @@ def tiles_from_grid (grid,img_path,
 
             if tile_shape == expected_shape:
 
-                tile_to_disk(dataset=dataset,
+
+                
+                geot_series=tile_to_disk(dataset=dataset,
                              geom=geom,
                              crs=crs,
                              tile_name=tile_name,
+                             tile_code=tile_code,
+                             geotransform=geotransform,
                              output_path=output_path,
                              nodata=0,
                              source_idx=source_idx,
@@ -1972,14 +1979,19 @@ def tiles_from_grid (grid,img_path,
                              count=count,
                              driver=driver
                                 )
+                geot_df=pd.DataFrame(geot_series).transpose()
 
+                geotr_dict_batch=pd.concat([geotr_dict_batch,geot_df], ignore_index=True)
+                
             else:
 
-                partial_tile_padding(dataset=dataset,
+                geot_series=partial_tile_padding(dataset=dataset,
                                      expected_shape=expected_shape,
                                      crs=crs,
                                      geom=geom,
                                      tile_name=tile_name,
+                                     tile_code=tile_code,
+                                     geotransform=geotransform,
                                      output_path=output_path,
                                      nodata=0,
                                      source_idx=source_idx,
@@ -1989,3 +2001,7 @@ def tiles_from_grid (grid,img_path,
                                      count=count,
                                      driver=driver
                                     )
+                geot_df=pd.DataFrame(geot_series).transpose()
+                geotr_dict_batch=pd.concat([geotr_dict_batch,geot_df], ignore_index=True)
+                
+    return geotr_dict_batch
