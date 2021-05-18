@@ -951,7 +951,7 @@ def tidal_correction(shoreline, cs_shores, gdf, baseline_folder, crs_dict_string
         limited = "notlimited"
 
     if "water_index" in shoreline.columns:
-        dataset_type = 'uavs_hores'
+        dataset_type = 'uavs_shores'
     else:
         dataset_type = 'satellite_shores'
 
@@ -990,12 +990,12 @@ def tidal_correction(shoreline, cs_shores, gdf, baseline_folder, crs_dict_string
         crs = crs_dict_string[location]  # get crs of location
 
         if shores_to_corr.crs != crs:
-            shores_to_corr = shores_to_corr.to_crs(crs)
+            shores_to_corr=shores_to_corr.set_geometry("geometry").to_crs(crs=crs)
         else:
             pass
 
         if gt_shores.crs != crs:
-            gt_shores = gt_shores.to_crs(crs)
+            gt_shores=gt_shores.set_geometry("geometry").to_crs(crs=crs)
         else:
             pass
 
@@ -1004,7 +1004,18 @@ def tidal_correction(shoreline, cs_shores, gdf, baseline_folder, crs_dict_string
             baseline_location_path = glob.glob(f"{baseline_folder}/{location}*.gpkg")[0]
         except BaseException:
             raise NameError("Baseline file not found.")
-        baseline = gpd.read_file(baseline_location_path, crs=crs)
+        baseline = gpd.read_file(baseline_location_path)
+
+        if baseline.crs != crs:
+            baseline = baseline.set_geometry("geometry").to_crs(crs=crs)
+        else:
+            pass
+
+
+
+        print(baseline.crs)
+        print(shores_to_corr.crs)
+        print(gt_shores.crs)
 
         # create transects  # same parameter as the slope extraction. TO DO: if
         # exists, use existing data.
@@ -1036,7 +1047,7 @@ def tidal_correction(shoreline, cs_shores, gdf, baseline_folder, crs_dict_string
             # if "water_index" column is present, we will need to group based on water
             # indices and threshold types too
 
-            original_shore = shores_to_corr.iloc[[i]][[*group_by_fields, "geometry"]]
+            original_shore = shores_to_corr.iloc[[i]]
 
             original_shore_pts = extract_shore_pts(
                 transects, original_shore, date_field='raw_date', crs=crs)
@@ -1083,8 +1094,7 @@ def tidal_correction(shoreline, cs_shores, gdf, baseline_folder, crs_dict_string
             gt_base_distances = pd.DataFrame()
 
             for shoreline_i in tqdm(range(gt_shores.shape[0])):
-                shore_i = gt_shores.iloc[[shoreline_i]][[
-                    "location", "raw_date", "geometry"]]
+                shore_i = gt_shores.iloc[[shoreline_i]]
                 shore_pts_gt = extract_shore_pts(
                     transects, shore_i, date_field='raw_date')
 
