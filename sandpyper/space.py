@@ -1731,7 +1731,7 @@ def partial_tile_padding(dataset,
                         savetxt,
                         'w',
                         driver=driver,
-                        height=mosaic.shape[1],git
+                        height=mosaic.shape[1],
                         width=mosaic.shape[2],
                         count=count,
                         dtype=mosaic.dtype,
@@ -2000,7 +2000,7 @@ def arr2geotiff (array, transform, location, shape=(64,64,1),driver="GTiff", dty
 
         return mem_dataset
 
-        def shoreline_from_prediction(prediction, z, geotransform, min_vertices=2, shape=(64,64)):
+def shoreline_from_prediction(prediction, z, geotransform, min_vertices=2, shape=(64,64)):
 
     # get shoreline
     shore_arr=contours_to_multiline(prediction.reshape(shape),z, min_vertices=min_vertices)
