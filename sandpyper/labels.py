@@ -5,7 +5,6 @@ from sklearn.metrics import silhouette_samples, silhouette_score
 from scipy.ndimage import gaussian_filter
 import scipy.signal as sig
 
-
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sb
