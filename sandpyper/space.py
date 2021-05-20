@@ -874,12 +874,25 @@ def consecutive_ids(data, indices=True, limit=1):
     return groups
 
 
-def tidal_correction(shoreline, cs_shores, gdf, baseline_folder, crs_dict_string,
-                     limit_correction, mode, alongshore_resolution, slope_value='median',
-                     side='both', tick_length=200, subset_loc=None, limit_vertex=1,
-                     baseline_threshold='infer', replace_slope_outliers=True,
-                     save_trs_details=False, trs_details_folder=None,
-                     gdf_date_field="raw_date", distance_field='distance',
+def tidal_correction(shoreline,
+                     cs_shores,
+                     gdf,
+                     baseline_folder,
+                     crs_dict_string,
+                     limit_correction,
+                     mode,
+                     alongshore_resolution,
+                     slope_value='median',
+                     side='both',
+                     tick_length=200,
+                     subset_loc=None,
+                     limit_vertex=1,
+                     baseline_threshold='infer',
+                     replace_slope_outliers=True,
+                     save_trs_details=False,
+                     trs_details_folder=None,
+                     gdf_date_field="raw_date",
+                     distance_field='distance',
                      date_field='raw_date',  # of transect geodataframe
                      toe_field='toe'):
     """
@@ -1263,6 +1276,7 @@ def tidal_correction(shoreline, cs_shores, gdf, baseline_folder, crs_dict_string
                 orig_shore_base_distances, stats, on=[
                     "tr_id", "location", "raw_date"], how='left')
 
+
             if bool(replace_slope_outliers):
 
                 # create temp dataframes to store survey-level slope values stats and
@@ -1391,13 +1405,24 @@ def tidal_correction(shoreline, cs_shores, gdf, baseline_folder, crs_dict_string
 
         # 6)_________________ saving outputs________________________________________
 
+        # This file is transect details file that can be saved
+
         if bool(save_trs_details):
-            trs_details_file_name = f"trsdetails_{location}_{slope_value}_{limited}_{mode}.csv"
+            trs_details_file_name = f"trsdetails_{location}_{limited}_{mode}.csv"
             trs_details_out_path = os.path.join(
                 trs_details_folder, trs_details_file_name)
 
-            orig_shore_corr_dist_gdf.to_csv(trs_details_out_path, index=False)
+
+            beachfaces_widths=tmp_merge.query("beachface=='bf'")[['distance','tr_id','raw_date']].groupby(["raw_date","tr_id"])['distance'].apply(np.ptp)
+            bf_df=pd.DataFrame(beachfaces_widths).reset_index().rename({'distance':'bf_width'}, axis=1)
+            bf_df['location']=location
+
+            trdetails=pd.merge(orig_shore_trs_stats,bf_df, on=['location','raw_date','tr_id'], how='left')
+
+            trdetails.to_csv(trs_details_out_path, index=False)
+
             print(f"File {trs_details_file_name} saving in {trs_details_folder}.")
+
         else:
             pass
 
@@ -1978,7 +2003,7 @@ def tiles_from_grid (grid,img_path,
             if tile_shape == expected_shape:
 
 
-                
+
                 geot_series=tile_to_disk(dataset=dataset,
                              geom=geom,
                              crs=crs,
@@ -1997,7 +2022,7 @@ def tiles_from_grid (grid,img_path,
                 geot_df=pd.DataFrame(geot_series).transpose()
 
                 geotr_dict_batch=pd.concat([geotr_dict_batch,geot_df], ignore_index=True)
-                
+
             else:
 
                 geot_series=partial_tile_padding(dataset=dataset,
@@ -2018,5 +2043,5 @@ def tiles_from_grid (grid,img_path,
                                     )
                 geot_df=pd.DataFrame(geot_series).transpose()
                 geotr_dict_batch=pd.concat([geotr_dict_batch,geot_df], ignore_index=True)
-                
+
     return geotr_dict_batch
