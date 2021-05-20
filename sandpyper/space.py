@@ -1741,7 +1741,13 @@ def partial_tile_padding(dataset,
                         final_mosaic_tile.write(mosaic)
 
                     print(f"Succesfully saved partial tile in-memory: {tile_name} .")
+                    if geotransform==True:
 
+                            geot_series=pd.Series({'tile_code':f"{tile_code}",
+                                                   'geotransform':out_transform})
+
+                            print("Tile geotransform returned.")
+                            return geot_series
 
 
 def tile_to_disk(dataset,
@@ -1957,3 +1963,47 @@ def tiles_from_grid (grid,img_path,
                                      count=count,
                                      driver=driver
                                     )
+def shoreline_from_prediction(prediction, z, shapely_affine, min_vertices=2, shape=(64,64)):
+
+    # get shoreline
+    shore_arr=contours_to_multiline(prediction.reshape(shape),z, min_vertices=min_vertices)
+
+    # create geoseries and geodataframe
+    shore_arr_geoseries=gpd.GeoSeries(shore_arr, name="geometry")
+    contours_gdf=gpd.GeoDataFrame(shore_arr_geoseries, geometry="geometry")
+
+    # georeference line using tile geotransform
+    contours_gdf['geometry'] = contours_gdf.affine_transform(shapely_affine)
+
+    return contours_gdf
+    
+def arr2geotiff (array, transform, location, shape=(64,64,1),driver="GTiff", dtype=np.float32, save=None):
+    with MemoryFile() as memfile:
+        mem_dataset= memfile.open(driver="GTiff",
+                           height = array.shape[0],
+                           width = array.shape[1],
+                           count=array.shape[2],
+                           dtype=dtype,
+                          transform=transform,
+                           crs=crs_dict_string[location])
+
+        mem_dataset.write(array.reshape((shape[0],shape[1])),indexes=shape[2])
+
+
+        if save != None:
+            with ras.open(save, "w",
+                         driver=driver,
+                        height=array.shape[0],
+                        width=array.shape[1],
+                        count=array.shape[2],
+                        dtype=dtype,
+                        transform=transform,
+                          crs=crs_dict_string[location]
+                         ) as dest:
+                if driver=="PNG":
+                    dest.write(mem_dataset.astype(ras.uint16), indexes=1)
+                else:
+                    dest.write(array.reshape((shape[0],shape[1])),indexes=shape[2])
+
+
+        return mem_dataset
