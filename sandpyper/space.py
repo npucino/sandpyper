@@ -1,15 +1,8 @@
 from sandpyper.outils import cross_ref, getListOfFiles, getDate, getLoc, getCrs_from_raster_path
 from sandpyper.profile import extract_from_folder, get_profiles
 
-from pysal.lib.weights import Queen, higher_order
-
 import rasterio as ras
 import rasterio.mask as rasmask
-from rasterio.merge import merge
-from rasterio.transform import from_origin
-from rasterio.features import  geometry_window
-from rasterio.io import MemoryFile
-
 
 import os
 import glob
@@ -165,21 +158,23 @@ def shoreline_from_prediction(prediction, z, shapely_affine, min_vertices=2, sha
 
     return contours_gdf
 
-def grid_from_pts(pts_gdf, width, height, crs, offsets=(0,0,0,0)):
+def grid_from_pts(pts_gdf, width, height, crs):
     """
     Create a georeferenced grid of polygones from points along a line (shoreline).
     Used to extract tiles (images patches) from rasters.
+
     Args:
         pts_gdf (GeoDataFrame): The geodataframe storing points along a shoreline.
+
         width, height (int,float): The width and heigth of each single tile of the grid, given in the CRS unit (use projected CRS).
+
         crs (str): Coordinate Reference System in the dictionary format (example: {'init' :'epsg:4326'})
-        offsets (tuple): Offsets in meters (needs projected CRS) from the bounds of the pts_gdf,
-            in the form of (xmin, ymin, xmax, ymax). Default to (0,0,0,0).
+
     Returns:
         Grid : A GeoDataFrame storing polygon grids, with IDs and geometry columns.
     """
 
-    xmin, ymin, xmax, ymax = tuple(map(operator.add, pts_gdf.total_bounds, offsets))
+    xmin, ymin, xmax, ymax = pts_gdf.total_bounds
 
     rows = int(np.ceil((ymax - ymin) / height))
     cols = int(np.ceil((xmax - xmin) / width))
@@ -206,13 +201,15 @@ def grid_from_pts(pts_gdf, width, height, crs, offsets=(0,0,0,0)):
     return grid
 
 
-
 def add_grid_loc_coords(grid_gdf, location=None):
     """
     Add coordinate fields of the corners of each grid tiles.
+
     Args:
         grid_gdf (GeoDataFrame): The geodataframe storing the grid, returned by the grid_from_pts function.
+
         location (str): The location code associated with the grid. Defaults to None.
+
     Returns:
         The original grid, with UpperLeft X and Y (ulx,uly), UpperRight X and Y (urx,ury), LowerLeft X and Y (llx,llr) and LowerRigth X and Y (lrx,lry) coordinates fields added.
     """
@@ -271,27 +268,23 @@ def add_grid_loc_coords(grid_gdf, location=None):
     return grid_gdf
 
 
-
 def grid_from_shore(shore, width, height,
-                    location_code, adj_order=1,
-                    crs='shore',
-                    shore_res=10,offsets=(0,0,0,0),
+                    location_code, crs='shore',
+                    shore_res=10,
                     plot_it=True):
     """
     Create a georeference grid of equal polygones (tiles) along a line (shoreline) and select those tiles that contain at least partially the line.
+
     TO DO: CRS should also be a string for specific CRS. Probablt only need the first and last points endpoints of the shoreline, or can get box directly.
+
     Args:
         shore (geodataframe): The geodataframe storing the input line from where the grid will be created.
         width, height (int,float): The width and heigth of each single tile of the grid, given in the CRS unit (use projected CRS).
         location_code (str): The location code associated with the grid.
-        adj_order (False, int): Contiguity order to subset grid cells adjacent to shoreline. If False, only cells
-            directly touching the shoreline will be extracted (Default=1). Note: The Pysal Queen method is used to compute neighbors.
-            For more info: https://pysal.org/libpysal/generated/libpysal.weights.Queen.html#libpysal.weights.Queen
         crs (dict or 'shore'): If 'shore', use the same CRS of the input line. If dict, keys should be the location code and values the values crs in the dictionary format ('wbl' : {'init' :'epsg:32754'}).
         shore_res (int,float): the alongshore spacing of points plotted along the line in the CRS unit (default=10). It doesn't need to be a small value, it is used to get the extent of the bounding box that encapsulate all the shoreline, before split this into a grid.
-        offsets (tuple): Offsets in meters (needs projected CRS) from the bounds of the pts_gdf,
-            in the form of (xmin, ymin, xmax, ymax). Default to (0,0,0,0).
         plot_it (bool): plot the shoreline, full grid and the tiles selected containing the lien (in red). Default to True.
+
     Returns:
         GeoDataFrame of the grid of only tiles containing the line.
     """
@@ -319,40 +312,23 @@ def grid_from_shore(shore, width, height,
 
     points_gdf = gpd.GeoDataFrame({"local_id": range(len(points)),
                                    "geometry": points}, geometry="geometry", crs=crs_in)
-    grid = grid_from_pts(points_gdf, width, height, crs=crs_in, offsets=offsets)
+    grid = grid_from_pts(points_gdf, width, height, crs=crs_in)
 
-    # select grid cells that contains shoreline points
     shore_grids = grid[grid.geometry.apply(
-        lambda x: points_gdf.geometry.intersects(x).any())]
+        lambda x: points_gdf.geometry.within(x).any())]
 
-    if adj_order != False:
-        w=Queen.from_dataframe(grid,'geometry')
-
-        if adj_order>=1:
-            print(f"Higher order ({adj_order}) selected.")
-            w=higher_order(w, adj_order)
-
-            df_adjc=w.to_adjlist()
-
-            # get the unique neighbors of all focal cells
-            qee_polys_ids=set(df_adjc.query(f"focal in {list(shore_grids.grid_id)}").neighbor)
-
-            #subset grid based on qee_polys_ids
-            shore_grids=grid.query(f"grid_id in {list(qee_polys_ids)}")
-
-        else:
-            pass
+    add_grid_loc_coords(shore_grids, location=location_code)
 
     if bool(plot_it):
         f, ax = plt.subplots(figsize=(10, 10))
 
         grid.plot(color='white', edgecolor='black', ax=ax)
-        shore.plot(ax=ax, color='b')
+        shore.plot(ax=ax)
         shore_grids.geometry.boundary.plot(
-            color=None, edgecolor='r', linewidth=1, ax=ax)
+            color=None, edgecolor='r', linewidth=4, ax=ax)
 
-
-    add_grid_loc_coords(shore_grids, location=location_code)
+    else:
+        pass
 
     return shore_grids
 
@@ -874,25 +850,12 @@ def consecutive_ids(data, indices=True, limit=1):
     return groups
 
 
-def tidal_correction(shoreline,
-                     cs_shores,
-                     gdf,
-                     baseline_folder,
-                     crs_dict_string,
-                     limit_correction,
-                     mode,
-                     alongshore_resolution,
-                     slope_value='median',
-                     side='both',
-                     tick_length=200,
-                     subset_loc=None,
-                     limit_vertex=1,
-                     baseline_threshold='infer',
-                     replace_slope_outliers=True,
-                     save_trs_details=False,
-                     trs_details_folder=None,
-                     gdf_date_field="raw_date",
-                     distance_field='distance',
+def tidal_correction(shoreline, cs_shores, gdf, baseline_folder, crs_dict_string,
+                     limit_correction, mode, alongshore_resolution, slope_value='median',
+                     side='both', tick_length=200, subset_loc=None, limit_vertex=1,
+                     baseline_threshold='infer', replace_slope_outliers=True,
+                     save_trs_details=False, trs_details_folder=None,
+                     gdf_date_field="raw_date", distance_field='distance',
                      date_field='raw_date',  # of transect geodataframe
                      toe_field='toe'):
     """
@@ -969,7 +932,7 @@ def tidal_correction(shoreline,
         limited = "notlimited"
 
     if "water_index" in shoreline.columns:
-        dataset_type = 'uavs_shores'
+        dataset_type = 'uavs_hores'
     else:
         dataset_type = 'satellite_shores'
 
@@ -1008,12 +971,12 @@ def tidal_correction(shoreline,
         crs = crs_dict_string[location]  # get crs of location
 
         if shores_to_corr.crs != crs:
-            shores_to_corr=shores_to_corr.set_geometry("geometry").to_crs(crs=crs)
+            shores_to_corr = shores_to_corr.to_crs(crs)
         else:
             pass
 
         if gt_shores.crs != crs:
-            gt_shores=gt_shores.set_geometry("geometry").to_crs(crs=crs)
+            gt_shores = gt_shores.to_crs(crs)
         else:
             pass
 
@@ -1022,18 +985,7 @@ def tidal_correction(shoreline,
             baseline_location_path = glob.glob(f"{baseline_folder}/{location}*.gpkg")[0]
         except BaseException:
             raise NameError("Baseline file not found.")
-        baseline = gpd.read_file(baseline_location_path)
-
-        if baseline.crs != crs:
-            baseline = baseline.set_geometry("geometry").to_crs(crs=crs)
-        else:
-            pass
-
-
-
-        print(baseline.crs)
-        print(shores_to_corr.crs)
-        print(gt_shores.crs)
+        baseline = gpd.read_file(baseline_location_path, crs=crs)
 
         # create transects  # same parameter as the slope extraction. TO DO: if
         # exists, use existing data.
@@ -1065,7 +1017,7 @@ def tidal_correction(shoreline,
             # if "water_index" column is present, we will need to group based on water
             # indices and threshold types too
 
-            original_shore = shores_to_corr.iloc[[i]]
+            original_shore = shores_to_corr.iloc[[i]][[*group_by_fields, "geometry"]]
 
             original_shore_pts = extract_shore_pts(
                 transects, original_shore, date_field='raw_date', crs=crs)
@@ -1112,7 +1064,8 @@ def tidal_correction(shoreline,
             gt_base_distances = pd.DataFrame()
 
             for shoreline_i in tqdm(range(gt_shores.shape[0])):
-                shore_i = gt_shores.iloc[[shoreline_i]]
+                shore_i = gt_shores.iloc[[shoreline_i]][[
+                    "location", "raw_date", "geometry"]]
                 shore_pts_gt = extract_shore_pts(
                     transects, shore_i, date_field='raw_date')
 
@@ -1276,7 +1229,6 @@ def tidal_correction(shoreline,
                 orig_shore_base_distances, stats, on=[
                     "tr_id", "location", "raw_date"], how='left')
 
-
             if bool(replace_slope_outliers):
 
                 # create temp dataframes to store survey-level slope values stats and
@@ -1405,24 +1357,13 @@ def tidal_correction(shoreline,
 
         # 6)_________________ saving outputs________________________________________
 
-        # This file is transect details file that can be saved
-
         if bool(save_trs_details):
-            trs_details_file_name = f"trsdetails_{location}_{limited}_{mode}.csv"
+            trs_details_file_name = f"trsdetails_{location}_{slope_value}_{limited}_{mode}.csv"
             trs_details_out_path = os.path.join(
                 trs_details_folder, trs_details_file_name)
 
-
-            beachfaces_widths=tmp_merge.query("beachface=='bf'")[['distance','tr_id','raw_date']].groupby(["raw_date","tr_id"])['distance'].apply(np.ptp)
-            bf_df=pd.DataFrame(beachfaces_widths).reset_index().rename({'distance':'bf_width'}, axis=1)
-            bf_df['location']=location
-
-            trdetails=pd.merge(orig_shore_trs_stats,bf_df, on=['location','raw_date','tr_id'], how='left')
-
-            trdetails.to_csv(trs_details_out_path, index=False)
-
+            orig_shore_corr_dist_gdf.to_csv(trs_details_out_path, index=False)
             print(f"File {trs_details_file_name} saving in {trs_details_folder}.")
-
         else:
             pass
 
@@ -1790,7 +1731,7 @@ def partial_tile_padding(dataset,
                         savetxt,
                         'w',
                         driver=driver,
-                        height=mosaic.shape[1],
+                        height=mosaic.shape[1],git
                         width=mosaic.shape[2],
                         count=count,
                         dtype=mosaic.dtype,
@@ -1803,7 +1744,7 @@ def partial_tile_padding(dataset,
                     if geotransform==True:
 
                             geot_series=pd.Series({'tile_code':f"{tile_code}",
-                                                   'geotransform':out_transform})
+                                                   'geotransform':out_trans})
 
                             print("Tile geotransform returned.")
                             return geot_series
@@ -1866,14 +1807,18 @@ def tile_to_disk(dataset,
             dest.write(out_image,indexes=out_idx)
 
     print(f"Succesfully saved tile: {tile_name} .")
+    if geotransform==True:
 
+            geot_series=pd.Series({'tile_code':f"{tile_code}",
+                                   'geotransform':out_transform})
+
+            print("Tile geotransform returned.")
+            return geot_series
 
 
 def tiles_from_grid (grid,img_path,
                      output_path,
-                     list_loc_codes,
-                     crs_dict_string,
-                     geotransform=False,
+                     list_loc_codes,crs_dict_string,
                      mode='rgb',
                      sel_bands=None,
                      driver="PNG"):
@@ -1903,7 +1848,6 @@ def tiles_from_grid (grid,img_path,
 
     loc=getLoc(img_path,list_loc_codes)
     crs=crs_dict_string[loc]
-    geotr_dict_batch=pd.DataFrame()
 
     if driver=="PNG":
         ext='png'
@@ -1946,19 +1890,6 @@ def tiles_from_grid (grid,img_path,
             out_idx=1
             height_idx=0
             width_idx=1
-
-        elif mode == 'dsm':
-            if driver == "PNG":
-                print("NOTE: PNG format doesn't support input DSM data type. Returning GeoTiffs instead.")
-                driver = "GTiff"
-
-            count = 1
-            filled=False
-            source_idx = 1
-            out_idx = 1
-            height_idx = 0
-            width_idx = 1
-
 
         elif mode=='custom':
             if len(sel_bands)>3 and driver=="PNG":
@@ -2008,14 +1939,10 @@ def tiles_from_grid (grid,img_path,
 
             if tile_shape == expected_shape:
 
-
-
-                geot_series=tile_to_disk(dataset=dataset,
+                tile_to_disk(dataset=dataset,
                              geom=geom,
                              crs=crs,
                              tile_name=tile_name,
-                             tile_code=tile_code,
-                             geotransform=geotransform,
                              output_path=output_path,
                              nodata=0,
                              source_idx=source_idx,
@@ -2025,19 +1952,14 @@ def tiles_from_grid (grid,img_path,
                              count=count,
                              driver=driver
                                 )
-                geot_df=pd.DataFrame(geot_series).transpose()
-
-                geotr_dict_batch=pd.concat([geotr_dict_batch,geot_df], ignore_index=True)
 
             else:
 
-                geot_series=partial_tile_padding(dataset=dataset,
+                partial_tile_padding(dataset=dataset,
                                      expected_shape=expected_shape,
                                      crs=crs,
                                      geom=geom,
                                      tile_name=tile_name,
-                                     tile_code=tile_code,
-                                     geotransform=geotransform,
                                      output_path=output_path,
                                      nodata=0,
                                      source_idx=source_idx,
@@ -2047,21 +1969,6 @@ def tiles_from_grid (grid,img_path,
                                      count=count,
                                      driver=driver
                                     )
-<<<<<<< HEAD
-def shoreline_from_prediction(prediction, z, shapely_affine, min_vertices=2, shape=(64,64)):
-
-    # get shoreline
-    shore_arr=contours_to_multiline(prediction.reshape(shape),z, min_vertices=min_vertices)
-
-    # create geoseries and geodataframe
-    shore_arr_geoseries=gpd.GeoSeries(shore_arr, name="geometry")
-    contours_gdf=gpd.GeoDataFrame(shore_arr_geoseries, geometry="geometry")
-
-    # georeference line using tile geotransform
-    contours_gdf['geometry'] = contours_gdf.affine_transform(shapely_affine)
-
-    return contours_gdf
-    
 def arr2geotiff (array, transform, location, shape=(64,64,1),driver="GTiff", dtype=np.float32, save=None):
     with MemoryFile() as memfile:
         mem_dataset= memfile.open(driver="GTiff",
@@ -2092,9 +1999,17 @@ def arr2geotiff (array, transform, location, shape=(64,64,1),driver="GTiff", dty
 
 
         return mem_dataset
-=======
-                geot_df=pd.DataFrame(geot_series).transpose()
-                geotr_dict_batch=pd.concat([geotr_dict_batch,geot_df], ignore_index=True)
 
-    return geotr_dict_batch
->>>>>>> cd921b2a59dd84f7269ee6ff687d29ff6d4b2f94
+        def shoreline_from_prediction(prediction, z, geotransform, min_vertices=2, shape=(64,64)):
+
+    # get shoreline
+    shore_arr=contours_to_multiline(prediction.reshape(shape),z, min_vertices=min_vertices)
+
+    # create geoseries and geodataframe
+    shore_arr_geoseries=gpd.GeoSeries(shore_arr, name="geometry")
+    contours_gdf=gpd.GeoDataFrame(shore_arr_geoseries, geometry="geometry")
+
+    # georeference line using tile geotransform
+    contours_gdf['geometry'] = contours_gdf.affine_transform(shapely_affine)
+
+    return contours_gdf
