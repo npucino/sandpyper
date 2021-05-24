@@ -292,11 +292,11 @@ def get_profile_dn(
         date_string,
         add_xy=False):
 
-    ds = gdal.Open(ortho, GA_ReadOnly)
+    ds = ras.open(ortho, GA_ReadOnly)
 
-    bands = ds.RasterCount
+    bands = ds.count
 
-    transform = ds.GetGeoTransform()
+    transform = ds.transform
 
     line = transect_file.loc[transect_index]
 
