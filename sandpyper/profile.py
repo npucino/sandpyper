@@ -292,7 +292,7 @@ def get_profile_dn(
         date_string,
         add_xy=False):
 
-    ds = ras.open(ortho, GA_ReadOnly)
+    ds = ras.open(ortho, 'r')
 
     bands = ds.count
 
