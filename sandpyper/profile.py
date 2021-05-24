@@ -270,7 +270,6 @@ def get_dn(x_coord, y_coord, raster, bands, transform):
 
     for j in range(1, 4):                  # we could iterate thru multiple bands
 
-        band = raster.GetRasterBand(j)
         try:
             data = raster.read(j, window=Window(col, row, 1, 1))
             dn_val.append(data[0][0])
