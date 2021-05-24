@@ -250,7 +250,7 @@ def get_profiles(
     return gdf
 
 
-def get_dn(x_coord, y_coord, raster, bands, gt):
+def get_dn(x_coord, y_coord, raster, bands, transform):
     """
     Returns the value of the raster at a specified location and band.
 
@@ -266,17 +266,13 @@ def get_dn(x_coord, y_coord, raster, bands, gt):
     # With GDAL, we extract 4 components of the geotransform (gt) of our north-up image.
 
     dn_val = []
-    xOrigin = gt[0]                         # top-left X
-    yOrigin = gt[3]                         # top-left y
-    pixelWidth = gt[1]                      # horizontal pixel resolution
-    pixelHeight = gt[5]                     # vertical pixel resolution
-    px = int((x_coord - xOrigin) / pixelWidth)  # transform geographic to image coords
-    py = int((y_coord - yOrigin) / pixelHeight)  # transform geographic to image coords
+    row, col = rowcol(transform, x_coord, y_coord, round)
+
     for j in range(1, 4):                  # we could iterate thru multiple bands
 
         band = raster.GetRasterBand(j)
         try:
-            data = band.ReadAsArray(px, py, 1, 1)
+            data = raster.read(j, window=Window(col, row, 1, 1))
             dn_val.append(data[0][0])
         except BaseException:
             dn_val.append(np.nan)
