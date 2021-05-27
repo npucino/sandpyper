@@ -2,6 +2,8 @@ import numpy as np
 from tqdm import tqdm_notebook as tqdm
 import pandas as pd
 import geopandas as gpd
+import itertools
+from itertools import product,combinations
 
 from pysal.explore.giddy.markov import Markov
 import matplotlib.pyplot as plt

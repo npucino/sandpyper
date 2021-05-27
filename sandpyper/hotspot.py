@@ -8,6 +8,7 @@ import geopandas as gpd
 from pysal.lib import weights
 import pysal.explore.esda.moran as moran
 from pysal.explore.esda.util import fdr
+from sandpyper.outils import coords_to_points
 
 
 def LISA_site_level(dh_path, crs_dict_string, unique_field="coordinates",
@@ -119,4 +120,4 @@ def LISA_site_level(dh_path, crs_dict_string, unique_field="coordinates",
 
             lisa_df = pd.concat([lisa_df, gdf_input], ignore_index=True)
 
-        return lisa_df
+    return lisa_df
