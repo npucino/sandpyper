@@ -10,6 +10,8 @@ from matplotlib.ticker import FixedFormatter, FixedLocator, AutoMinorLocator
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 
 import seaborn as sb
+from sandpyper.outils import round_special
+
 
 
 def getVol(dh):
@@ -750,8 +752,12 @@ def new_plot_alongshore_change(sand_pts,
 
 def plot_mec_evolution(volumetrics,
                        location_field,
+                       loc_order,
+                       date_from_field="date_pre",
+                       date_to_field="date_post",
                        date_format="%d.%m.%y",
                        scale_mode="equal",
+                       x_diff=None,
                        dates_step=50,
                        x_limits=(-0.41,
                                  0.41),
@@ -760,21 +766,11 @@ def plot_mec_evolution(volumetrics,
                                     4),
                        font_scale=0.75,
                        sort_locations=True,
-                       loc_order=["pfa",
-                                  "wbl",
-                                  "mar",
-                                  "apo",
-                                  "prd",
-                                  "leo",
-                                  "por",
-                                  "cow",
-                                  "inv",
-                                  "sea"],
                        dpi=300,
                        img_type=".png",
                        save_fig=False,
-                       name_fig=f"Normalised Dynamics in Victoria_bigfont",
-                       save_path='C:\\jupyter\\images_ch_4\\normalised_changes\\'):
+                       name_fig=f"Mean Elevation Changes",
+                       save_path=None):
     """
     Display and optionally save global volumetric timeseries plots, displaying period-specific Mean Elevation Change (mec, in m) and cumulative mec (since start of the monitoring), across lcoations.
 
@@ -783,6 +779,8 @@ def plot_mec_evolution(volumetrics,
         date_format (str): format to plot dates on y-axis. Default="%d.%m.%y".
         scale_mode (str) ("optimised","equal"): If "equal" (Default), all locations subplots will have the same x-axis ticks spacing (reccomended for comaprison purposes).
         If "optimised", an attempt to estimate the best tick steps to use by analysing absolute range of mec values.
+        x_diff (dict): In case a subplot x needs axis limits different to the others.
+        A dictionary with location codes as keys and a list containing the minimum and maximum x values for these locations.
         dates_step (int): Frequency of days between each tick in the y-axis (dates). Default=50.
         x_limits (tuple of floats): tuple containing min and max values of mec. Used to get unifor subplots widths.
         Note: currently, an exeption is hard-coded for Inverloch, which is one ad-hoc case used during code development. (TO BE UPDated)
@@ -816,11 +814,6 @@ def plot_mec_evolution(volumetrics,
     else:
         pass
 
-    # replace long location names with shorter versions
-
-    volumetrics.replace("Point Roadknight", "Pt. Roadk.", inplace=True)
-    volumetrics.replace("St. Leonards", "St. Leo.", inplace=True)
-
     num_subplots = volumetrics.location.unique().shape[0]
     if num_subplots > 1:
 
@@ -830,20 +823,19 @@ def plot_mec_evolution(volumetrics,
                                 figsize=figure_size)
 
         for ax_i, loc in zip(axs.flatten(), volumetrics.location.unique()):
-            #     print(ax,loc)
 
             data_in = volumetrics.query(f"location=='{loc}'")
-            data_in.sort_values("date_to", inplace=True)
+            data_in.sort_values(date_to_field, inplace=True)
             # add the cumulative change curve
             data_in["cum_change"] = data_in.norm_net_change.cumsum()
 
-            first_date_from = data_in.date_from.iloc[0]
+            first_date_from = data_in.loc[:, date_from_field].iloc[0]
 
             full_loc = data_in.loc[:, location_field].iloc[0]
             x = data_in.norm_net_change
             x2 = data_in.cum_change
-            y = dates.date2num(data_in.date_to)
-            y_scatter = dates.date2num(data_in.date_from)
+            y = dates.date2num(data_in.loc[:, date_to_field])
+            y_scatter = dates.date2num(data_in.loc[:, date_from_field])
 
             # LinePlots
 
@@ -874,7 +866,7 @@ def plot_mec_evolution(volumetrics,
 
             # ScatterPlots
             ax_i.scatter(x, y, c="k", s=5, zorder=5)
-            ax_i.scatter(0, first_date_from, c="k", s=5, zorder=5)
+            ax_i.scatter(0, y_start[0], c="k", s=5, zorder=5)
 
             # ticks
             if scale_mode == "optimised":
@@ -893,15 +885,17 @@ def plot_mec_evolution(volumetrics,
                         max(x), 0.05) + tick_step, tick_step)
                 ax_i.set_xticks(ticks_value)
 
-            elif scale_mode == "equal":             # Inverloch different scale, for display purposes
-                if loc != 'inv':
+            elif scale_mode == "equal":
+                if isinstance(x_diff,dict):
 
-                    ax_i.set_xlim(x_limits)
+                    if loc in x_diff.keys():
+                        print(f"x_diff provided: {loc} found in {x_diff}. Setting xlims= {x_diff[loc][0],x_diff[loc][1]} ")
+                        ax_i.set_xlim(x_diff[loc][0],x_diff[loc][1])
+                    else:
+                        print(f"x_diff provided: {loc} not found in {x_diff}. Setting xlims= {x_limits} ")
+                        ax_i.set_xlim(x_limits)
                 else:
-                    ax_i.set_xlim(-1.1, 1.1)
-
-            else:
-                pass
+                    ax_i.set_xlim(x_limits)
 
             start, end = ax_i.get_ylim()
             ax_i.yaxis.set_ticks(np.arange(start, end, dates_step))
@@ -920,8 +914,6 @@ def plot_mec_evolution(volumetrics,
     else:
 
         fig, ax = plt.subplots(figsize=figure_size)
-
-    #     print(ax,loc)
 
         data_in = volumetrics
         data_in.sort_values("date_to", inplace=True)
