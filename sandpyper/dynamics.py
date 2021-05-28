@@ -9,8 +9,10 @@ from pysal.explore.giddy.markov import Markov
 import matplotlib.pyplot as plt
 import seaborn as sb
 
+from sandpyper.outils import getListOfFiles, getLoc
 
-def attach_trs_geometry(markov_transects_df, dirNameTrans):
+
+def attach_trs_geometry(markov_transects_df, dirNameTrans, list_loc_codes):
     """ Attach transect geometries to the transect-specific BCDs.
     Args:
         markov_transects_df (Pandas dataframe): Dataframe storing BCDs at the transect level.
@@ -26,7 +28,7 @@ def attach_trs_geometry(markov_transects_df, dirNameTrans):
 
         transect_in = gpd.read_file(i)
         transect_in.rename({'TR_ID': 'tr_id'}, axis=1, inplace=True)
-        loc = getLoc(i)
+        loc = getLoc(i,list_loc_codes)
 
         print(f" Attaching {loc} ...")
         sub_markovs_trs = markov_transects_df.query(f"location=='{loc}'")
@@ -388,6 +390,10 @@ def steady_state_transect(dataset, mode="nnn", unreal='drop', thresh=8, min_poin
         for tr_id in data_loc.tr_id.unique():
 
             data_tr = data_loc.query(f"tr_id=='{tr_id}'")
+
+            if data_tr.empty:
+                data_tr = data_loc.query(f"tr_id=={tr_id}")
+
             data_piv = data_tr.pivot(
                 values=field_markov_tags,
                 index=field_unique_id,
@@ -537,14 +543,14 @@ def compute_rBCD_transects(
 
         to_plot["location"] = loc
 
-        coastal_markov_trs_steady = attach_trs_geometry(to_plot, dirNameTrans)
+        coastal_markov_trs_steady = attach_trs_geometry(to_plot, dirNameTrans, list_loc_codes=loc_codes)
 
         piv_markov_trs = pd.pivot_table(
             coastal_markov_trs_steady, index=["location", "tr_id"],
             columns="process", values=["coastal_index"]).reset_index(col_level=1)
 
         piv_markov_trs.columns = piv_markov_trs.columns.droplevel(0)
-        trs_markov_idx = attach_trs_geometry(piv_markov_trs, dirNameTrans)
+        trs_markov_idx = attach_trs_geometry(piv_markov_trs, dirNameTrans, list_loc_codes=loc_codes)
 
         ss_transects_idx = pd.concat(
             [trs_markov_idx, ss_transects_idx], ignore_index=True)
