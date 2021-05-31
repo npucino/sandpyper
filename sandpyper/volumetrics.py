@@ -270,8 +270,8 @@ def new_get_state_vol_table(sand_pts, lod, full_specs_table,
             else:
                 specs = table_details.query(f"loc_code=='{loc}' & dt=='{dt}'")
                 full_loc = specs.loc_full.values[0]
-                date_from = specs.date_from.values[0]
-                date_to = specs.date_to.values[0]
+                date_from = specs.date_pre.values[0]
+                date_to = specs.date_post.values[0]
                 n_days = specs.n_days.values[0]
 
             beach_length = len(data_in.columns) * transect_spacing
@@ -394,8 +394,8 @@ def new_get_transects_vol_table(sand_pts, lod, full_specs_table, transect_spacin
             if bool(full_specs_table):
                 specs = full_specs_table.query(f"loc_code=='{loc}' & dt=='{dt}'")
                 full_loc = specs.loc_full.values[0]
-                date_from = specs.date_from.values[0]
-                date_to = specs.date_to.values[0]
+                date_from = specs.date_pre.values[0]
+                date_to = specs.date_post.values[0]
                 n_days = specs.n_days.values[0]
             else:
                 pass
@@ -509,12 +509,18 @@ def new_plot_alongshore_change(sand_pts,
         if bool(full_specs_table) == False:
             skip_details = True
         else:
-            print("Please provide the path to the specs table.")
-    elif os.path.isfile(full_specs_table):
-        table_details = pd.read_csv(full_specs_table)
+            raise TypeError("Not a DataFrame, nor a valid path to the .csv file for the specs table.")
+    elif isinstance(full_specs_table, str):
+        if os.path.isfile(full_specs_table):
+            table_details = pd.read_csv(full_specs_table)
+            skip_details = False
+        else:
+            TypeError("The path provided in full_spec_table is not a valid path to the .csv file.")
+    elif isinstance(full_specs_table, pd.DataFrame):
+        table_details = full_specs_table
         skip_details = False
     else:
-        raise TypeError("Not a valid path to the .csv file for the specs table.")
+        raise TypeError("Not a DataFrame, nor a valid path to the .csv file for the specs table.")
 
     land_limits = pd.DataFrame(sand_pts.groupby(
         ["location"]).distance.max()).reset_index()
@@ -563,10 +569,10 @@ def new_plot_alongshore_change(sand_pts,
                 lod = 0.05
             else:
 
-                specs = table_details.query(f"loc_code=='{loc}' & dt=='{dt}'")
+                specs = table_details.query(f"location=='{loc}' & dt=='{dt}'")
                 full_loc = specs.loc_full.values[0]
-                date_from = specs.date_from.values[0]
-                date_to = specs.date_to.values[0]
+                date_from = specs.date_pre.values[0]
+                date_to = specs.date_post.values[0]
                 n_days = specs.n_days.values[0]
 
             if isinstance(lod, str):
@@ -749,7 +755,6 @@ def new_plot_alongshore_change(sand_pts,
     if return_data:
         return data_in_filled
 
-
 def plot_mec_evolution(volumetrics,
                        location_field,
                        loc_order,
@@ -889,10 +894,10 @@ def plot_mec_evolution(volumetrics,
                 if isinstance(x_diff,dict):
 
                     if loc in x_diff.keys():
-                        print(f"x_diff provided: {loc} found in {x_diff}. Setting xlims= {x_diff[loc][0],x_diff[loc][1]} ")
+                        print(f"x_diff provided. Setting xlims of {loc} = {x_diff[loc][0],x_diff[loc][1]} ")
                         ax_i.set_xlim(x_diff[loc][0],x_diff[loc][1])
                     else:
-                        print(f"x_diff provided: {loc} not found in {x_diff}. Setting xlims= {x_limits} ")
+                        print(f"x_diff provided but {loc} not found. Setting xlims= {x_limits} ")
                         ax_i.set_xlim(x_limits)
                 else:
                     ax_i.set_xlim(x_limits)
@@ -1009,3 +1014,74 @@ def plot_mec_evolution(volumetrics,
         plt.savefig(savetxt, dpi=dpi)
     else:
         pass
+        
+def plot_single_loc (df,loc_subset,
+                    figsize,colors_dict,linewidth,out_date_format,
+                    xlabel,ylabel,suptitle):
+
+    f,ax=plt.subplots(figsize=figsize)
+
+    if isinstance(colors_dict, dict):
+        print("Color dictionary provided.")
+        color_mode="dictionary"
+
+    elif colors_dict == None:
+
+        num_colors=len(loc_subset)
+        cmapa = plt.cm.get_cmap('tab20c')
+        cs=[cmapa(i) for i in np.linspace(0, 0.5, num_colors)]
+        color_mode="auto"
+
+    else:
+        raise TypeError("Error in specifying color dictionary.")
+
+    dataset_in=df.query(f"location in {loc_subset}")
+
+    for i,location in enumerate(dataset_in.location.unique()):
+
+        dataset=dataset_in.query(f"location=='{location}'")
+
+        if color_mode=="dictionary":
+            color_i=colors_dict[location]
+        elif color_mode=="auto":
+            color_i=cs[i]
+
+        # Calculate the cumulative net volumetric change and mean elevation change from start of monitoring
+        dataset["cum"]=dataset.net_vol_change.cumsum()
+        dataset["cum_mec"]=dataset.norm_net_change.cumsum()
+
+        dataset["date_post"]=pd.to_datetime(dataset.date_post, dayfirst=False)
+        dataset["date_pre"]=pd.to_datetime(dataset.date_pre, dayfirst=False)
+
+        ax=sb.lineplot(data=dataset, x="date_post", color=color_i, y="net_vol_change",label=f"{location}: period",
+                      lw=linewidth)
+        ax=sb.lineplot(data=dataset, x="date_post", color=color_i, y="cum", label=f"{location}: cumulative",
+                       linestyle="--",lw=linewidth)
+
+        ax=sb.scatterplot(data=dataset, color=color_i, x="date_post", y="net_vol_change")
+        ax=sb.scatterplot(data=dataset, color=color_i, x="date_post", y="cum")
+
+        x_start=np.array([dataset.iloc[0].date_pre,dataset.iloc[0].date_post])
+        y_start=np.array([0,dataset.iloc[0].cum])
+
+        ax.plot(x_start,y_start, c=color_i)
+        ax.scatter(dataset.iloc[0].date_pre,0, c=color_i, marker="*")
+
+    # the zero horizontal line
+    ax.axhline(0,c="k",lw=0.5)
+
+    ax.set(xticks=np.append(dataset_in.date_pre.values,dataset_in.date_post.values[-1]))
+    ax.xaxis.set_major_formatter(dates.DateFormatter(out_date_format))
+
+    plt.xticks(rotation=90)
+
+    # the plot x and y axis labels
+    ax.set_xlabel(xlabel)
+    ax.set_ylabel(ylabel)
+
+
+    # the title of the plot
+    f.suptitle(suptitle);
+
+
+    return ax
