@@ -30,7 +30,6 @@ def attach_trs_geometry(markov_transects_df, dirNameTrans, list_loc_codes):
         transect_in.rename({'TR_ID': 'tr_id'}, axis=1, inplace=True)
         loc = getLoc(i,list_loc_codes)
 
-        print(f" Attaching {loc} ...")
         sub_markovs_trs = markov_transects_df.query(f"location=='{loc}'")
         sub_markovs_trs["geometry"] = pd.merge(
             sub_markovs_trs,
@@ -39,7 +38,6 @@ def attach_trs_geometry(markov_transects_df, dirNameTrans, list_loc_codes):
             on='tr_id')["geometry"].values
 
         return_df = pd.concat([return_df, sub_markovs_trs], ignore_index=True)
-    print(f" Done!")
     return return_df
 
 
