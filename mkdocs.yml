@@ -59,9 +59,14 @@ nav:
       - dynamics module: dynamics.md
       - space module: space.md
     - Notebooks:
-        - notebooks/Profile_Extraction.ipynb
-        - notebooks/Sand_KMeans_labeling.ipynb
-        - notebooks/Sand_No_Sand_classification_beachface.ipynb
+        - notebooks/Example_1_Profile_extraction.ipynb
+        - notebooks/Example_2_Sand_labelling.ipynb
+        - notebooks/Example_3_Labels_correction_and_multitemporal_table.ipynb
+        - notebooks/Example_4_Hotspot analysis.ipynb
+        - notebooks/Example_5a_Beachface Cluster Dynamics indices - location level.ipynb
+        - notebooks/Example_5b_Beachface Cluster Dynamics indices - transect level.ipynb
+        - notebooks/Example_6_Volumetrics.ipynb
+
 
 
     #- Notebooks:
