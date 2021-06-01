@@ -562,3 +562,50 @@ def compute_rBCD_transects(
             pass
 
     return ss_transects_idx, to_plot
+
+
+def compute_multitemporal (df,
+                           date_field='survey_date',
+                          sand_label_field='label_sand',
+                          common_field="geometry"):
+
+
+
+    fusion_long=pd.DataFrame()
+
+    for location in full_dataset.location.unique():
+        print(f"working on {location}")
+        loc_data=full_dataset.query(f"location=='{location}'")
+        list_dates=loc_data.loc[:,date_field].unique()
+        list_dates.sort()
+
+
+        for i in tqdm(range(list_dates.shape[0])):
+
+            if i < list_dates.shape[0]-1:
+                date_pre=list_dates[i]
+                date_post=list_dates[i+1]
+                print(f"Calculating dt{i}, from {date_pre} to {date_post} in {location}.")
+
+                df_pre=loc_data.query(f"{date_field} =='{date_pre}' & {sand_label_field} == 0").dropna(subset=['z'])
+                df_post=loc_data.query(f"{date_field} =='{date_post}' & {sand_label_field} == 0").dropna(subset=['z'])
+
+                merged=pd.merge(df_pre,df_post, how='inner', on=common_field,validate="one_to_one",suffixes=('_pre','_post'))
+                merged["dh"]=merged.z_post.astype(float) - merged.z_pre.astype(float)
+
+                dict_short={"geometry": merged.geometry,
+                            "location":location,
+                            "tr_id":merged.tr_id_pre,
+                            "distance":merged.distance_pre,
+                            "dt":  f"dt_{i}",
+                            "date_pre":date_pre,
+                            "date_post":date_post,
+                            "z_pre":merged.z_pre.astype(float),
+                            "z_post":merged.z_post.astype(float),
+                            "dh":merged.dh}
+
+                short_df=pd.DataFrame(dict_short)
+                fusion_long=pd.concat([short_df,fusion_long],ignore_index=True)
+
+    print("done")
+    return fusion_long
