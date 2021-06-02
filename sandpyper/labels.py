@@ -16,7 +16,7 @@ from tqdm import tqdm_notebook as tqdm
 
 def get_sil_location(merged_df, ks=(2, 21),
                      feature_set=["band1", "band2", "band3", "slope"],
-                     random_state=10, n_jobs=-1):
+                     random_state=10):
     """
     Function to obtain average Silhouette scores for a list of number of clusters (k) in all surveys.
     It uses KMeans as a clusteres and parallel processing for improved speed.
@@ -29,7 +29,6 @@ def get_sil_location(merged_df, ks=(2, 21),
         k_rng (tuple): starting and ending number of clusters to run KMeans and compute SA on.
         feature_set (list): List of strings of features in the dataframe to use for clustering.
         random_state (int): Random seed used to make the randomisation deterministic.
-        n_jobs (int): Number of threads to use. Default is -1, which uses all the available cores.
 
     Returns:
         A dataframe containing average Silhouette scores for each survey, based on the provided feature set.
@@ -69,7 +68,7 @@ def get_sil_location(merged_df, ks=(2, 21),
 
                 clusterer = KMeans(n_clusters=n_clusters, init='k-means++',
                                    algorithm='elkan', tol=0.0001,
-                                   random_state=random_state, n_jobs=-1)
+                                   random_state=random_state)
 
                 cluster_labels = clusterer.fit_predict(np.nan_to_num(minmax_scaled_df))
 
@@ -120,7 +119,7 @@ def plot_sil(array, k_rng, feat1=0, feat2=1, random_state=10):
 
         clusterer = KMeans(n_clusters=n_clusters, init='k-means++',
                            algorithm='elkan', tol=0.0001,
-                           random_state=random_state, n_jobs=-1)
+                           random_state=random_state)
         cluster_labels = clusterer.fit_predict(array)
 
         # The silhouette_score gives the average value for all the samples.
@@ -266,8 +265,7 @@ def kmeans_sa(
             'band2',
             'band3',
             'slope'],
-    random_state=10,
-        n_jobs=-1):
+    random_state=10):
     """
     Function to use KMeans on all surveys with the optimal k obtained from the Silhouette Analysis.
     It uses KMeans as a clusterer with parallel processing for improved speed.
@@ -277,7 +275,6 @@ def kmeans_sa(
         opt_k_dict (dict): Dictionary containing the optimal k for each survey. See get_opt_k function.
         thresh_k (int): Minimim k to be used. If optimal k is below, then k equals the average k of all above threshold values.
         random_state (int): Random seed used to make the randomisation deterministic.
-        n_jobs (int): Number of threads to use. Default is -1, which uses all the available cores.
 
     Returns:
         A dataframe containing the label_k column, with point_id, location, survey_date and the features used to cluster the data.
@@ -317,7 +314,7 @@ def kmeans_sa(
 
                 clusterer = KMeans(n_clusters=k, init='k-means++',
                                    algorithm='elkan', tol=0.0001,
-                                   random_state=random_state, n_jobs=n_jobs)
+                                   random_state=random_state)
 
                 data_in["label_k"] = clusterer.fit_predict(minmax_scaled_df)
 
@@ -330,7 +327,7 @@ def kmeans_sa(
 
                 clusterer = clusterer = KMeans(n_clusters=k, init='k-means++',
                                                algorithm='elkan', tol=0.0001,
-                                               random_state=random_state, n_jobs=n_jobs)
+                                               random_state=random_state)
 
                 data_in["label_k"] = clusterer.fit_predict(minmax_scaled_df)
 
