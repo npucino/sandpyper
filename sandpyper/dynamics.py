@@ -1,5 +1,5 @@
 import numpy as np
-from tqdm import tqdm_notebook as tqdm
+from tqdm.notebook import tqdm
 import pandas as pd
 import geopandas as gpd
 import itertools

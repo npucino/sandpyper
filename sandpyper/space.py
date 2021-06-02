@@ -25,7 +25,7 @@ from skimage.filters import threshold_multiotsu
 from sklearn.metrics import mean_squared_error
 
 
-from tqdm import tqdm
+from tqdm.notebook import tqdm
 
 import richdem as rd
 import itertools as it

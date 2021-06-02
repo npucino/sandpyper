@@ -9,7 +9,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sb
 
-from tqdm import tqdm_notebook as tqdm
+from tqdm.notebook import tqdm
 
 # MODULE____labels
 

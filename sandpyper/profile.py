@@ -6,7 +6,7 @@ import richdem as rd
 from shapely.geometry import Point
 import pandas as pd
 import geopandas as gpd
-from tqdm import tqdm_notebook as tqdm
+from tqdm.notebook import tqdm
 
 import os
 import time
