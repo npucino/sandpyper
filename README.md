@@ -15,11 +15,12 @@
 <br />
 <p align="center">
   <a href="https://github.com/npucino/sandpyper/">
-    <img src="images/sandpiper1-01.png" alt="Logo" width="50%" height="50%"> 
+    <img src="sandpiper2nowords-01.png" alt="Logo" width="30%" height="30%"> 
   </a>
 
+  <h1 align="center">Sandpyper</h1>
 
-  <h3 align="center">- Tools for automatic UAV-SfM beach volumetric and behavioural analysis -</h3>
+  <h3 align="center">- Sandy beaches SfM-UAV analysis tools -</h3>
 
   <p align="justify">
     Sandpyper performs an organised and automatic extraction of elevation profiles from as many DSM and orthophotos as you like. It is thought to be used when a considerable number of DSMs and orthohpotos from many different locations and coordinate reference systems need to be processed.
