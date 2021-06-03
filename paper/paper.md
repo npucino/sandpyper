@@ -39,18 +39,18 @@ Sandpyper is an open-source Python package that provides a user with tools speci
 
 Currently v0.1.1 allows to:
 
-automatically create user-defined georeferenced cross-shore transects along a line and extract elevation (from DSMs) and colour (from orthophotos) profiles.
-use unsupervised machine learning and user-provided polygon masks to clean the profiles from unwanted non-sand points and swash zones.
-compute altimetric and volumetric timeseries analysis and plotting the results (Fig 1, 2).
-use spatial autocorrelation measures to discard spatial outliers and obtain statistically significant Hotspots/Coldspots areas of beach change at the site and transect scales.
-compute Beachface Cluster Dynamics indices (Pucino et al., 2021) at the site and transect scales.
+* automatically create user-defined georeferenced cross-shore transects along a line and extract elevation (from DSMs) and colour (from orthophotos) profiles.
+* use unsupervised machine learning and user-provided polygon masks to clean the profiles from unwanted non-sand points and swash zones.
+* compute altimetric and volumetric timeseries analysis and plotting the results (Fig 1, 2).
+* use spatial autocorrelation measures to discard spatial outliers and obtain statistically significant Hotspots/Coldspots areas of beach change at the site and transect scales.
+* compute Beachface Cluster Dynamics indices (Pucino et al., 2021) at the site and transect scales.
 
 Moreover, a module called “space” is under development, which adds some functionalities to the study of beach dynamics combining UAV-SfM surveys with spaceborne-derived shorelines. Some features already in Sandpyper are:
-spatial grid generation along a line (waterline, shoreline).
-custom tiling of georeferenced imagery, including multispectral satellite imagery, UAV orthomosaics or single band images (DSMs, label masks).
-waterline to shoreline simple tidal correction.
-waterline /shoreline error assessments.
-shoreline shift assessment.
+* spatial grid generation along a line (waterline, shoreline).
+* custom tiling of georeferenced imagery, including multispectral satellite imagery, UAV orthomosaics or single band images (DSMs, label masks).
+* waterline to shoreline simple tidal correction.
+* waterline /shoreline error assessments.
+* shoreline shift assessment.
 
 Sandpyper is aimed at being further developed to be a wider-scope package as its functions can be applied to any scope involving the extraction of information from a large amount of rasters.
 
