@@ -461,6 +461,7 @@ def compute_rBCD_transects(
         dirNameTrans,
         steady_state_tr,
         loc,
+        crs_dict_string,
         weights_dict,
         label_order=[
             'ed',
