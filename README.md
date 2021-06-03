@@ -15,7 +15,7 @@
 <br />
 <p align="center">
   <a href="https://github.com/npucino/sandpyper/">
-    <img src="sandpiper2nowords-01.png" alt="Logo" width="30%" height="30%"> 
+    <img src="sandpiper2nowords-01.png" alt="Logo" width="30%" height="30%">
   </a>
 
   <h1 align="center">Sandpyper</h1>
@@ -23,12 +23,12 @@
   <h3 align="center">- Sandy beaches SfM-UAV analysis tools -</h3>
 
   <p align="justify">
-    Sandpyper performs an organised and automatic extraction of elevation profiles from as many DSM and orthophotos as you like. It is thought to be used when a considerable number of DSMs and orthohpotos from many different locations and coordinate reference systems need to be processed.
+    __Sandpyper__ performs an organised and automatic extraction of elevation profiles from as many DSM and orthophotos as you like. It is thought to be used when a considerable number of DSMs and orthohpotos from many different locations and coordinate reference systems need to be processed.
     Then, computes volumetric and behavioural analysis of beachfaces, speeding up an otherwise long and difficult to handle (big rasters) job.
     It has some specialised functions to deal with the common limitations found in beach environments:
   <ol>
     <li>Swash zone: the water motion as waves wash in and out of the swash zone prevent Structure from Motion algorithm to find matches, thus, model elevation.</li>
-    <li>Vegetation: both dune vegetation and beach wracks (macroalgae, woody debris) should be removed or filetered as can compromise sediment volumetric computation.</li>
+    <li>Vegetation: both dune vegetation and beach wracks (macroalgae, woody debris) should be removed or filtered as can compromise sediment volumetric computation.</li>
     <li>File size: a few km long beach surveyed with a Phantom 4-Advanced at 100m altitude create roughly 10 Gb (uncompressed) of data, which can be cumbersome for some GIS to handle.</li>
   </ol>
 
@@ -36,13 +36,13 @@
 
   Plus, some outils functions that can come at hand, like automatic transect creation from a vector line, grid creation along a line and subsequent tiles extraction and others.
 
-  Follow the Jupyter Notebook tutorials (IN PREPARATION) to understand how it works!
+  Follow the [Jupyter Notebook tutorials](https://github.com/npucino/sandpyper/tree/master/examples) to understand how it works!
 
   >**This code has supported the analysis and publication of the article ["Citizen science for monitoring seasonal-scale beach erosion and behaviour with aerial drones"](https://rdcu.be/cfgvu  "link to paper"), in the open access Nature Scientific Report journal.**
 
 
   <br />
-  <a href="https://github.com/npucino/sandpyper"><strong>Explore the docs »</strong></a>
+  <a href="https://npucino.github.io/sandpyper/"><strong>Explore the docs »</strong></a>
   <br />
   <a href="https://github.com/npucino/sandpyper">View Demo</a>
   ·
@@ -120,7 +120,7 @@ To get a local copy up and running follow these simple steps.
 * If you don't have it already, add __conda-forge__ channel to your anaconda config file, by typing this in your Anaconda Prompt terminal (base environment):
   ```sh
   conda config --add channels conda-forge
-  ``` 
+  ```
 * Now, always in the (base) environment, create a new environment called **sandpyper_env** and install the required packages by typing:
   ```sh
   conda create --name sandpyper_env geopandas=0.8.2 matplotlib=3.3.4 numpy=1.20.1 pandas=1.2.2 tqdm pysal=2.1 rasterio=1.2.0 richdem=0.3.4 scikit-image=0.18.1 scikit-learn=0.24.1 scipy=1.6 seaborn=0.11.1 tqdm=4.56.2
@@ -147,14 +147,17 @@ To get a local copy up and running follow these simple steps.
 <!-- USAGE EXAMPLES -->
 ## Usage
 
-TO DO.
+To see Sandpyper in action, follow the Jupyter Notebooks provided [here](https://github.com/npucino/sandpyper/tree/master/examples).
 
-_For more examples, please refer to the [Documentation](https://npucino.github.io/sandpyper/)_
+_Or, see the same notebooks already executed in the [Documentation](https://npucino.github.io/sandpyper/)_
 
 
 
 <!-- ROADMAP -->
 ## Roadmap
+
+1. Create objects and classes to keep the analysis tidy from start to end.
+2. Further development of the **Space** module.
 
 See the [open issues](https://github.com/npucino/sandpyper/issues) for a list of proposed features (and known issues).
 
