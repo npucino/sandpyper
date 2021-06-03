@@ -62,7 +62,7 @@ Various tutorials and documentation are available for using **sandpyper**, inclu
 -   [Complete documentation on sandpyper modules and functions](https://npucino.github.io/sandpyper/)
 
 <div align="center">
-  <img src="https://github.com/npucino/sandpyper/tree/master/examples/images/sandpiper1-01.png" alt="example" width="1"/>
+  <img src="https://github.com/npucino/sandpyper/tree/master/examples/images/banner3.png" alt="example" width="1"/>
 </div>
 
 # Acknowledgements
