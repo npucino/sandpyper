@@ -61,6 +61,10 @@ Various tutorials and documentation are available for using **sandpyper**, inclu
 -   [Jupyter notebook examples for using sandpyper](https://github.com/npucino/sandpyper/tree/master/examples)
 -   [Complete documentation on sandpyper modules and functions](https://npucino.github.io/sandpyper/)
 
+<div align="center">
+  <img src="https://github.com/npucino/sandpyper/tree/master/examples/images/sandpiper1-01.png" alt="example" width="1"/>
+</div>
+
 # Acknowledgements
 
 Funding provided by Deakin University and the Victorian Department of Environment, Land, Water and Planning.
