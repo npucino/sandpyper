@@ -88,7 +88,7 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-<img src="images/banner3.png" alt="banner" width="100%" height="50%">
+<img src="banner.png" alt="banner" width="80%">
 
 <!-- Background -->
 ### Background
