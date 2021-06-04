@@ -1,3 +1,5 @@
+"""Profile module."""
+
 from rasterio.windows import Window, from_bounds
 from rasterio.transform import rowcol
 import rasterio as ras
@@ -118,20 +120,20 @@ def get_profiles(
         add_xy=False,
         add_terrain=False):
     """
-    Returns a tidy GeoDataFrame of profile data, extracting raster information
-    at a user-defined (step) meters gap along each transect.
+        Returns a tidy GeoDataFrame of profile data, extracting raster information
+        at a user-defined (step) meters gap along each transect.
 
-    Args:
-        dsm ():
-        transect_file:
-        transect_index:
-        step
-        location
-        date_string
-        add_xy (bool): True to add X and Y fields.
+        Args:
+        dsm (str): path to the DSM raster.
+        transect_file (str): path to the transect file.
+        transect_index (int): index of the transect to extract information from.
+        step (int,float): sampling distance from one point to another in meters along the transect.
+        location (str): location code
+        date_string: raw format of the survey date (20180329)
+        add_xy (bool): True to add X and Y coordinates fields.
         add_terrain (bool): True to add slope in degrees. Default to False.
 
-    Returns:
+        Returns:
         gdf (GeoDataFrame) : Profile data extracted from the raster.
     """
 
@@ -286,6 +288,22 @@ def get_profile_dn(
         location,
         date_string,
         add_xy=False):
+    """
+        Returns a tidy GeoDataFrame of profile data, extracting raster information
+        at a user-defined (step) meters gap along each transect.
+
+        Args:
+        ortho (str): path to the DSM raster.
+        transect_file (str): path to the transect file.
+        transect_index (int): index of the transect to extract information from.
+        step (int,float): sampling distance from one point to another in meters along the transect.
+        location (str): location code
+        date_string: raw format of the survey date (20180329)
+        add_xy (bool): True to add X and Y coordinates fields.
+
+        Returns:
+        gdf (GeoDataFrame) : Profile data extracted from the raster.
+    """
 
     ds = ras.open(ortho, 'r')
 
@@ -326,14 +344,6 @@ def get_profile_dn(
     # Geopandas and applied to the newly created one.
     gdf_rgb.crs = str(transect_file.crs)
 
-    #   Let's create unique IDs from the coordinates values, so that the Ids follows the coordinates
-    # Transforming non-hashable Shapely coordinates to hashable strings and
-    # store them into a variable
-
-    # Transforming non-hashable Shapely coordinates to hashable strings and
-    # store them into a variable
-
-    #geometries = gdf_rgb['coordinates'].apply(lambda x: x.wkt).values
 
     # Let's create unique IDs from the coordinates values, so that the Ids
     # follows the coordinates
@@ -350,112 +360,19 @@ def get_profile_dn(
     return gdf_rgb
 
 
-def get_merged_table(rgb_table_path, z_table_path, add_xy=False):
-    """
-    Function to merge rgb and z tables, creating IDs and adding slope and curvature information.
-    Optionally, is adds long and lat columns in the input CRS, if not specified during the
-    extraction process.
-
-    Warning:
-        Not optimised for large dataset.
-        It might take up to 1h for 2 MIO observations tables.
-
-    Args:
-        rgb_table_path (str): Full path to the rgb_table, in CSV format.
-        z_table_path (str): Full path to the z_table, in CSV format.
-        add_xy (bool): If True, add long and lat columns in the inut CRS. Default is False.
-
-    Returns:
-        A merged and ready to process dataframe containing z and rgb informations.
-    """
-    print("loading tables.")
-    # Loading the tables
-    rgb_table = gpd.read_file(rgb_table_path)
-    print("rgb_table loaded.")
-
-    z_table = gpd.read_file(z_table_path)
-    print("z_table loaded.")
-
-    # Rounding the distance values to 0.1 precision
-    print("rounding distances.")
-    rgb_table["distance"] = np.round(
-        rgb_table.loc[:, "distance"].values.astype("float"), 2)
-    z_table["distance"] = np.round(z_table.loc[:, "distance"].values.astype("float"), 2)
-
-    # Re-generate Shapely geometries from CSV
-    print("re-generating Point geometries.")
-    rgb_table['geometry'] = rgb_table.coordinates.apply(coords_to_points)
-    z_table['geometry'] = z_table.coordinates.apply(coords_to_points)
-
-    print("creating IDs.")
-    # Creating unique IDs based on spatiotemporal attributes, which are the
-    # same for rgb and z tables
-    rgb_table["point_id"] = [
-        create_id(
-            rgb_table.iloc[i]) for i in range(
-            0, rgb_table.shape[0])]
-    z_table["point_id"] = [create_id(z_table.iloc[i])
-                           for i in range(0, z_table.shape[0])]
-
-    print("merging tables based on unique IDs. Might take a while ...")
-    # Joining the rgb and z tables based on the newly created IDs to obtain
-    # one single big table
-    data_merged = pd.merge(z_table, rgb_table, on="point_id", validate="one_to_one")
-    print("successfull merging.")
-
-    print("cleaning dataframe and adding slope and curvature.")
-    # Cleaning the data and addign slope and curvature information
-    data_merged = data_merged.replace("", np.NaN)
-    data_merged['z'] = data_merged.z.astype("float")
-    data_merged["slope"] = np.gradient(data_merged.z)
-    data_merged["curve"] = np.gradient(data_merged.slope)
-
-    if bool(add_xy):
-        print("adding long/lat info.")
-        # Adding long/lat fields
-        data_merged["x"] = data_merged.geometry.x
-        data_merged["y"] = data_merged.geometry.y
-    else:
-        pass
-
-    # Dropping extra columns inherited from the merge
-    data_merged.drop(
-        columns=[
-            'field_1_x',
-            'distance_y',
-            'field_1_y',
-            'coordinates_y',
-            'location_y',
-            'survey_date_y',
-            'tr_id_y',
-            'geometry_y'],
-        inplace=True)
-
-    # Renaming the useful columns kept after the merge
-    data_merged.rename(
-        columns={
-            "tr_id_x": "tr_id",
-            "distance_x": "distance",
-            "coordinates_x": "coordinates",
-            "location_x": "location",
-            "survey_date_x": "survey_date",
-            "geometry_x": "geometry"},
-        inplace=True)
-
-    return data_merged
-
 
 def extract_from_folder(dataset_folder, transect_folder, list_loc_codes,
                         mode, sampling_step,
                         add_xy=False, add_slope=False, nan_values=-10000):
     """
-    Wrapper to extract profiles from folder.
+    Wrapper to extract profiles from all rasters inside a folder.
 
     Warning: The folders must contain the geotiffs and geopackages only.
 
     Args:
         dataset_folder (str): Path of the directory containing the datasets (geotiffs, .tiff).
         transect_folder (str): Path of the directory containing the transects (geopackages, .gpkg).
+        list_loc_codes (list): list of strings containing location codes.
         mode (str): If 'dsm', extract from DSMs. If 'ortho', extracts from orthophotos.
         sampling_step (float): Distance along-transect to sample points at. In meters.
         add_xy (bool): If True, adds extra columns with long and lat coordinates in the input CRS.

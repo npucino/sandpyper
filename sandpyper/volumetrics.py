@@ -13,29 +13,22 @@ import seaborn as sb
 from sandpyper.outils import round_special
 
 
-
-def getVol(dh):
-    """ Return a volumetric change from altimetric change (dh)
-    """
-    return dh * 0.025
-
-
 def prep_heatmap(df, lod, outliers=False, sigma_n=3):
     """
-    Function to create a pivoted and filtered dataframe from dh_table of specific period-location combination (i.e. loc= pfa, dt= dt_3).
+    Function to create a pivoted and filtered dataframe from multitemporal table of specific period-location combination (i.e. loc= pfa, dt= dt_3).
     Elevation differences within LoD (uncertain) can be set to zero and outliers can be eliminated.
     Each column is a transect and each row is a distance value along transect. Values are elevation differences.
 
     Warning:
-        This function is to be used on site-period specific slices of the dh_table.
+        This function is to be used on location-period specific slices of the multitemporal table.
 
     Args:
-        df (Pandas dataframe): Location-period specific slice of dh_table.
+        df (Pandas dataframe): Location-period specific subset (filtered for a location and a timeperiod) of multitemporal table.
         outliers: when True, use the specified number of standard deviation to exclude outliers. If False, retain all the points.
         sigma_n (int): number of standard deviation to use to exclude outliers (default=3).
-        lod (path, value, False): if valid path to an LoD table, use the table.
+        lod (path, value, False): if valid path to an Limit of Detection table, use the table.
             If a value is provided, use the value across all surveys. If False, do not apply LoD filter.
-             All dh values within LoD will be set to zero.
+             All elevation changes within +- LoD will be set to zero.
 
     Returns:
         Pivoted and clean Pandas Dataframe, ready to be used to plot heatmaps and compute volumetrics.
@@ -109,12 +102,12 @@ def prep_heatmap(df, lod, outliers=False, sigma_n=3):
 
 def fill_gaps(data_in, y_heat_bottom_limit, bottom=True, y_heat_start=0, spacing=0.1):
     """
-    Function to fill the pivoted table (returned from prep_heatmap function) with missing across-shore distances, to align data on heatmaps.
+    Function to fill the pivoted table (returned from prep_heatmap function) with missing across-shore distances, due to align data on heatmaps.
     Empty rows (NaN) will be added on top (from 0 to the first valid distance) and, optionally on the bottom of each transect,
     (from the last valid distance to a specified seaward limit).
 
     Warning:
-        This function assume along-transect distances to be going from land to water.
+        This function assume along-transect distances to be going from land to water, which is not what the profiles distances represent originally.
 
     Args:
         data_in (Pandas dataframe): Pivoted dataframe, where each column is a transect and row is a along-shore distance.
@@ -126,7 +119,7 @@ def fill_gaps(data_in, y_heat_bottom_limit, bottom=True, y_heat_start=0, spacing
         Complete dataframe with extra rows of NaN added.
     """
 
-    multiplier = 0.1 * 100
+    multiplier = spacing * 100
     if bool(bottom):
         bottom_fill_array = np.empty(((int(np.round(
             y_heat_bottom_limit + spacing - data_in.index[-1], 1) * multiplier)), data_in.shape[1]))
@@ -154,11 +147,8 @@ def fill_gaps(data_in, y_heat_bottom_limit, bottom=True, y_heat_start=0, spacing
 
 def interpol_integrate(series):
     """
-    Interpolate NaN values (non-sand) within the first and last valid points (from the swash to the landward end of each transect),
-    and intergrate the area below this interoplated profile, to obtain transect specific volumetric change.
-
-    Warning: for now, dx, interpolation and integration methods are fixed as it is used with Pandas method Series.apply(fn).
-           Make dx a parameter.
+    Linearly interpolate NaN values (non-sand) within the first and last valid points (from the swash to the landward end of each transect),
+    and intergrate the area below this interoplated profile, to obtain transect specific estimates of volumetric change.
 
     Args:
         Series (Pandas Series): series of elevation change with distance as indices.
@@ -213,10 +203,10 @@ def get_m3_m_location(data_in, transect_spacing=20):
     return tot_vol / along_beach  # return m3_m alongshore
 
 
-def new_get_state_vol_table(sand_pts, lod, full_specs_table,
+def get_state_vol_table(sand_pts, lod, full_specs_table,
                             transect_spacing=20, outliers=False, sigma_n=3):
     """
-    Function to compute location-level altimetric beach change statistics from the dh table.
+    Function to compute location-level altimetric beach change statistics from the multitemporal table.
     By default, only sand points beyond LoD are accounted for. Optionally, LoD filter can be turned off.
     The table contains info on:
     - monitoring period: location code, full name, period code, dates, number of days and valid points
@@ -225,10 +215,10 @@ def new_get_state_vol_table(sand_pts, lod, full_specs_table,
 
 
     Args:
-        sand_pts (Pandas dataframe): dh_table.
+        sand_pts (Pandas dataframe): multitemporal table.
         lod (path, value, False): if valid path to an LoD table, use the table.
             If a value is provided, use the value across all surveys. If False, do not apply LoD filter.
-             All dh values within LoD will be set to zero.
+             All elevation change (dh) values within LoD will be set to zero.
         full_specs_table (False, path): Full path to the table with extended monitoring info. If False, monitoring period information are limited.
         transect_spacing (int): Alongshore spacing of transects (m)
         outliers (bool): when True, use the specified number of standard deviation to exclude outliers. If False, retain all the points.
@@ -353,10 +343,10 @@ def new_get_state_vol_table(sand_pts, lod, full_specs_table,
     return tr_df_full
 
 
-def new_get_transects_vol_table(sand_pts, lod, full_specs_table, transect_spacing=20,  # INTEGRATED
+def get_transects_vol_table(sand_pts, lod, full_specs_table, transect_spacing=20,  # INTEGRATED
                                 outliers=False, sigma_n=3):
     """
-    Function to compute transect-level altimetric change statistics from the dh table.
+    Function to compute transect-level altimetric change statistics from the multitemporal table.
     By default, only sand points beyond LoD are accounted for. Optionally, LoD filter can be turned off.
     The table contains info on:
     - monitoring period: location code, full name, period code, transect ID, dates, number of days and valid points
@@ -364,10 +354,10 @@ def new_get_transects_vol_table(sand_pts, lod, full_specs_table, transect_spacin
     - normalised altimetric change: meters of rising, lowering and net elevation change per valid survey point (MEC)
 
     Args:
-        sand_pts (Pandas dataframe): dh_table.
+        sand_pts (Pandas dataframe): multitemporal table.
         lod (path, value, False): if valid path to an LoD table, use the table.
             If a value is provided, use the value across all surveys. If False, do not apply LoD filter.
-             All dh values within LoD will be set to zero.
+             All elevation change (dh) values within LoD will be set to zero.
         full_specs_table (False, path): Full path to the table with extended monitoring info. If False, monitoring period information are limited.
         lod (bool): when True (default), dh values within LoD are zeroed. If False, all the points are retained.
         outliers: when True, use the specified number of standard deviation to exclude outliers. If False, retain all the points.
@@ -441,7 +431,7 @@ def new_get_transects_vol_table(sand_pts, lod, full_specs_table, transect_spacin
     return transects_df_full
 
 
-def new_plot_alongshore_change(sand_pts,
+def plot_alongshore_change(sand_pts,
                                mode,
                                lod,
                                full_specs_table,
@@ -451,7 +441,7 @@ def new_plot_alongshore_change(sand_pts,
                                ax2_y_lims=(-8,
                                            5),
                                save=False,
-                               save_path="C:\\jupyter\\images_ch_4\\volumetric_dynamics\\",
+                               save_path="C:\\your\\preferred\\folder\\",
                                dpi=300,
                                img_type=".png",
                                from_land=True,
@@ -474,16 +464,16 @@ def new_plot_alongshore_change(sand_pts,
     Optionally, LoD filter can be turned off.
 
     Args:
-        sand_pts (Pandas dataframe): dh_table.
+        sand_pts (Pandas dataframe): multitemporal table.
         mode (str): if 'subset', only a subset of locations and dts are plotted. If 'all', all periods and locations are plotted. .
         lod (path, value, False): if valid path to an LoD table, use the table.
-        If a value is provided, use the value across all surveys. If False, do not apply LoD filter. All dh values within LoD will be set to zero.
+        If a value is provided, use the value across all surveys. If False, do not apply LoD filter. All elevation change (dh) values within LoD will be set to zero.
         full_specs_table (False, path): Full path to the table with extended monitoring info. If False, monitoring period information are limited.
         location_subset (list): list of strings containing the location codes (e.g. wbl) to be plotted.
         dt_subset (list): list of strings containing the period codes (e.g. dt_0) to be plotted.
         ax2_y_lims (tuple): limits of y-axis of alonghsore volumetric change plot. Default is (-8,5).
         save (bool): If True, saves the plots in the specified save_path. False is default.
-        save_path (path): Full path to a folder (e.g. C:\\jupyter\\images\\) where to save plots.
+        save_path (path): Full path to a folder (e.g. C:\\preferred\\folder\\) where to save plots.
         dpi (int): Resolution in Dot Per Inch (DPI) to save the images.
         img_type (str): '.png','.pdf', '.ps', '.svg'. Format of the saved figures.
         from_land (bool): If True (default), cross-shore distances are transformed into landward distances, where 0 is the end of beachface.
@@ -789,7 +779,6 @@ def plot_mec_evolution(volumetrics,
         dates_step (int): Frequency of days between each tick in the y-axis (dates). Default=50.
         x_limits (tuple of floats): tuple containing min and max values of mec. Used to get unifor subplots widths.
         Note: currently, an exeption is hard-coded for Inverloch, which is one ad-hoc case used during code development. (TO BE UPDated)
-        x_binning (int):
         figure_size (tuple): Tuple of float to specify images size. Default is (7.4).
         font_scale (float): Scale of text.
         sort_locations (bool): Wether or not to sort the locations according to the loc-order provided.
@@ -1014,11 +1003,32 @@ def plot_mec_evolution(volumetrics,
         plt.savefig(savetxt, dpi=dpi)
     else:
         pass
-        
-def plot_single_loc (df,loc_subset,
-                    figsize,colors_dict,linewidth,out_date_format,
-                    xlabel,ylabel,suptitle):
 
+def plot_single_loc (df,
+                    loc_subset,
+                    figsize,
+                    colors_dict,
+                    linewidth,
+                    out_date_format,
+                    xlabel,
+                    ylabel,
+                    suptitle):
+    """
+    Display Mean Elevation Change (mec, in m) and cumulative mec (since start of the monitoring), for a single location.
+
+    Args:
+        df (Pandas dataframe): location-level-volumetrics table obtained from get_state_vol_table function.
+        loc_subset (list): a list of location codes, in case multiple locations need to be plotted (not optimal).
+        figsize (tuple): Tuple of float to specify images size.
+        colors_dict (dict): Dictionary with keys=location code and values=color (in matplotlib specification).
+        linewidth (float, int): linewidths of the plot lines.
+        out_date_format (str): format of the dates plotted in the x axis (datetime format).
+        xlabel,ylabel (str): labels for x and y axis.
+        suptitle: title of the plot.
+
+    Returns:
+        An matplotlib.ax containing the plot.
+    """
     f,ax=plt.subplots(figsize=figsize)
 
     if isinstance(colors_dict, dict):
@@ -1082,6 +1092,5 @@ def plot_single_loc (df,loc_subset,
 
     # the title of the plot
     f.suptitle(suptitle);
-
 
     return ax

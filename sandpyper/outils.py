@@ -1,3 +1,5 @@
+"""Outils module."""
+
 import os
 import re
 import random
@@ -56,7 +58,7 @@ def coords_to_points(string_of_coords):
 def create_id(Series, tr_id_field="tr_id", loc_field="location", dist_field="distance", random_state=42):
     """
     Function to create unique IDs from random permutations of integers and letters from the distance, tr_id, location,
-    coordinates and survey_date fields of the rgb and z table.
+    coordinates and survey_date fields of the rgb and z tables.
 
     Args:
         Series (Pandas series): series having the selected fields.
@@ -100,6 +102,7 @@ def create_spatial_id(Series, random_state=42):
 
     Args:
         Series (Pandas Series): series of merged table.
+        random_state (int): Random seed.
     Returns:
         A series od unique spatial IDs.
     """
@@ -207,10 +210,10 @@ def getListOfDate(list_dsm):
 
 def extract_loc_date(name, loc_search_dict, split_by="_"):
     """
-    Get the location code (e.g. wbl, por) and raw dates (e.g. 20180902) from filenames.
+    Get the location code (e.g. wbl, por) and raw dates (e.g. 20180902) from pre-formatted filenames.
 
     Args:
-        name (str): full filenames ('C:\\jupyter\\data_in_gcp\\20180601_mar_gcps.csv').
+        name (str): full filenames of the tipy 'C:\\jupyter\\data_in_gcp\\20180601_mar_gcps.csv').
 
         loc_search_dict (dict): a dictionary where keys are the location codes and values are lists containing the expected full location string (["Warrnambool", "warrnambool","warrny"]).
 
@@ -368,7 +371,7 @@ def find_skiprows(filename, keyword="Easting"):
 
 
 def open_gcp_file(csv_file, crs):
-    """ Open a Propeller GCP (.CSV) file and return it as a geodataframe.
+    """ Open a Propeller GCP (.CSV) files and return it as a geodataframe.
 
     Args:
         csv_file (str): Local path of .CSV file.
@@ -445,11 +448,27 @@ def gdf_distance_matrix(gdf1, gdf2, crs={'init': 'epsg:3857'}):
 
 
 def getCrs_from_raster_path(ras_path):
+    """ Returns the EPSG code of the input raster (geotiff).
+
+    Args:
+        ras_path (str): Path of the raster.
+
+    Returns:
+        EPSG code of the input raster.
+    """
     with ras.open(r"{}".format(ras_path)) as raster:
         return raster.crs.to_epsg()
 
 
 def getCrs_from_transect(trs_path):
+    """ Returns the EPSG code of the input transect file (geopackage).
+
+    Args:
+        trs_path (str): Path of the transect file.
+
+    Returns:
+        EPSG code of the input transect file.
+    """
     return gpd.read_file(trs_path).crs
 
 
@@ -466,8 +485,9 @@ def cross_ref(
     Args:
         dirNameDSM (str): Path of the directory containing the geotiffs datasets (.tiff or .tif).
         dirNameTrans (str): Path of the directory containing the transects (geopackages, .gpkg).
-        print_info (bool): If True, prints count of datasets/location and total. Default = False.
         loc_search_dict (list): Dictionary used to match filename with right location code.
+        list_loc_codes (list): list of strings containing location codes.
+        print_info (bool): If True, prints count of datasets/location and total. Default = False.
 
     Returns:
         Dataframe and information about raster-transect files matches.

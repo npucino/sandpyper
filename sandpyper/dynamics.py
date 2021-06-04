@@ -1,3 +1,5 @@
+"""Dynamics module."""
+
 import numpy as np
 from tqdm.notebook import tqdm
 import pandas as pd
@@ -13,10 +15,11 @@ from sandpyper.outils import getListOfFiles, getLoc
 
 
 def attach_trs_geometry(markov_transects_df, dirNameTrans, list_loc_codes):
-    """ Attach transect geometries to the transect-specific BCDs.
+    """ Attach transect geometries to the transect-specific BCDs dataframe.
     Args:
         markov_transects_df (Pandas dataframe): Dataframe storing BCDs at the transect level.
         dirNameTrans (str): Full path to the folder where the transects are stored.
+        list_loc_codes (list): list of strings containing location codes.
 
     Returns:
         Dataframe with the geometries attached, ready to be mapped.
@@ -108,7 +111,7 @@ def get_coastal_Markov(arr_markov, weights_dict, store_neg=True):
 
     Args:
         arr_markov (array): Numpy array of markov transition matrix.
-        weights_dict (dict): Dictionary with keys:dh classes, values: weigth (int). Used for BCDs magnitude trend (sign).
+        weights_dict (dict): Dictionary with keys:dh classes, values: weigth (int). Especially useful for the e-BCDs magnitude trend (sign).
         store_neg: If True (default), use the subtraction for diminishing trends.
 
     Returns:
@@ -184,14 +187,16 @@ def BCDs_compute(
     fig_size=(
             6,
             4),
-        font_scale=0.75,
-        dpi=300,
-        save_it=False,
-        save_output="C:\\jupyter\\tables\\final_tables\\"):
-    """ It computes all the transition matrices, based on the sand-only hotspots
-    of elevation change across beachface dataset, at the site level.
+    heat_annot_size=10,
+    font_scale=0.75,
+    dpi=300,
+    save_it=False,
+    save_output="C:\\your\\preferred\\folder\\"):
 
-    Warning: changing label order is not supported as submatrix partitioning is hard-coded (TO UPDATe)
+    """ It computes all the first order stochastic transition matrices, based on the timeseries
+    of elevation change magnituteds across the beachface dataset (markov_tag dataframe), at the site level.
+
+    Warning: changing label order is not supported as submatrix partitioning is hard-coded.
 
     Args:
         dataset (dataframe): Dataframe with dh values timeseries.
@@ -333,7 +338,7 @@ def BCDs_compute(
                     vmin=0,
                     vmax=exclude_outliers,
                     annot_kws={
-                        'size': 6},
+                        'size': heat_annot_size},
                     ax=ax_i)
                 ax_i.set_title(f"{title}", size=9)
                 title = f2.suptitle(f"{loc} (n={n},t={t}, trans:{int(n_transitions)}) ")
@@ -353,8 +358,8 @@ def BCDs_compute(
 def steady_state_transect(dataset, mode="nnn", unreal='drop', thresh=8, min_points=20,
                           field_markov_tags="markov_tag", field_unique_id="geometry",
                           field_discrete_time="dt", use_neg=True):
-    """ It computes the r-BCDs at the transect level, based on the sand-only hotspots
-    of elevation change transect dataset.
+    """ It computes the r-BCDs at the transect level, based on the timeseries
+    of elevation change magnituteds across the beachface dataset (markov_tag dataframe).
 
     Args:
         dataset (dataframe): Pandas dataframe with dh magnitude labelled.
@@ -490,7 +495,7 @@ def compute_rBCD_transects(
         geo (bool): wether or not to return a Geopandas geodataframe (Default) instead of a Pandas dataframe.
 
     Returns:
-       Two dataframes. The first is the transect-level r-BCDs (geo)dataframe and the second is a dataframe, useful for plotting purposes (TO UPDATe).
+       Two dataframes. The first is the transect-level r-BCDs (geo)dataframe and the second is a dataframe, useful for plotting purposes.
     """
     weigths_series = pd.Series(weights_dict, weights_dict.keys(), name="weight")
 
@@ -562,13 +567,22 @@ def compute_rBCD_transects(
 
     return ss_transects_idx, to_plot
 
-
 def compute_multitemporal (df,
                            date_field='survey_date',
                           sand_label_field='label_sand',
                           common_field="geometry"):
+    """
+    From a dataframe containing the extracted points and a column specifying wether they are sand or non-sand, returns a multitemporal dataframe
+    with time-periods sand-specific elevation changes.
 
+    Args:
+        date_field (str): the name of the column storing the survey date.
+        sand_label_field (str): the name of the column storing the sand label (sand=0, no_sand=1).
+        common_field (str): name of the field where the points share the same name. It is usually the geometry or spatial IDs.
 
+    Returns:
+        A multitemporal dataframe of sand-specific elevation changes.
+    """
 
     fusion_long=pd.DataFrame()
 

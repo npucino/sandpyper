@@ -19,7 +19,6 @@ def LISA_site_level(dh_path, crs_dict_string, unique_field="coordinates",
     Args:
         dh_path (str): Local path of the timeseries files,
         as returned by the multitemporal extraction.
-
         crs_dict_string (dict): Dictionary storing location codes as key and crs information as values, in dictionary form.
         Example: crs_dict_string = {'wbl': {'init': 'epsg:32754'},
                    'apo': {'init': 'epsg:32754'},

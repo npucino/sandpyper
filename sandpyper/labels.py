@@ -1,3 +1,5 @@
+"""Labels module."""
+
 import numpy as np
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.cluster import KMeans
@@ -14,8 +16,8 @@ from tqdm.notebook import tqdm
 # MODULE____labels
 
 
-def get_sil_location(merged_df, ks=(2, 21),
-                     feature_set=["band1", "band2", "band3", "slope"],
+def get_sil_location(merged_df, ks,
+                     feature_set,
                      random_state=10):
     """
     Function to obtain average Silhouette scores for a list of number of clusters (k) in all surveys.
@@ -26,7 +28,7 @@ def get_sil_location(merged_df, ks=(2, 21),
 
     Args:
         merged_df (Pandas dataframe): The clean and merged dataframe containing the features.
-        k_rng (tuple): starting and ending number of clusters to run KMeans and compute SA on.
+        ks (tuple): starting and ending number of clusters to run KMeans and compute SA on.
         feature_set (list): List of strings of features in the dataframe to use for clustering.
         random_state (int): Random seed used to make the randomisation deterministic.
 
@@ -98,6 +100,7 @@ def plot_sil(array, k_rng, feat1=0, feat2=1, random_state=10):
     """
     Function to perform Silhouette Analysis and visualise Silhouette plots iteratively,
     from a list of k (number of clusters).
+
     [Source:https://scikit-learn.org/stable/auto_examples/cluster/plot_kmeans_silhouette_analysis.html]
 
     Args:
@@ -191,16 +194,16 @@ def plot_sil(array, k_rng, feat1=0, feat2=1, random_state=10):
 def get_opt_k(sil_df, sigma=1):
     """
     Function to create a dictionary with optimal number of clusters (k) for all surveys.
-    It search for the inflexion points where an additional cluster do not degrade the overall clustering performance.
-    It uses a Gaussian smoothed regression of number of k against mean silhouette scores to identify relative minima (first order)
+    It search for the inflexion points where an additional cluster does not degrade the overall clustering performance.
+    It uses a Gaussian smoothed regression of k against mean silhouette scores to identify relative minima (first order)
     as possible inlfexion values.
     When multiple relative minimas are found, the smaller k will be the optimal one.
     When no relative minima are found, it searches for peaks in the second order derivative of such regression line.
-    If multiple peaks are found, the mean k will be used as optimal.
+    If multiple peaks are found, the mean k, computed so far, will be used as optimal.
 
 
     Args:
-        sil_group_df (Pandas dataframe): Dataframe containing the mean silhouette score per k in each survey.
+        sil_df (Pandas dataframe): Dataframe containing the mean silhouette score per k in each survey.
         sigma (int): Number of standard deviations to use in the Gaussian filter. Default is 1.
     Returns:
         Dictionary with optimal k for each survey.
@@ -260,19 +263,16 @@ def kmeans_sa(
         merged_df,
         opt_k_dict,
         thresh_k=5,
-        feature_set=[
-            'band1',
-            'band2',
-            'band3',
-            'slope'],
+        feature_set,
     random_state=10):
     """
     Function to use KMeans on all surveys with the optimal k obtained from the Silhouette Analysis.
-    It uses KMeans as a clusterer with parallel processing for improved speed.
+    It uses KMeans as a clusterer.
 
     Args:
         merged_df (Pandas dataframe): The clean and merged dataframe containing the features. Must contain the columns point_id, location and survey_date, as well as the
         opt_k_dict (dict): Dictionary containing the optimal k for each survey. See get_opt_k function.
+        feature_set (list): List of strings of features in the dataframe to use for clustering.
         thresh_k (int): Minimim k to be used. If optimal k is below, then k equals the average k of all above threshold values.
         random_state (int): Random seed used to make the randomisation deterministic.
 
@@ -335,50 +335,3 @@ def kmeans_sa(
                     [data_in, data_classified], ignore_index=True)
 
     return data_classified
-
-
-def compute_multitemporal (df,
-                           date_field='survey_date',
-                          sand_label_field='label_sand',
-                          common_field="geometry"):
-
-
-
-    fusion_long=pd.DataFrame()
-
-    for location in full_dataset.location.unique():
-        print(f"working on {location}")
-        loc_data=full_dataset.query(f"location=='{location}'")
-        list_dates=loc_data.loc[:,date_field].unique()
-        list_dates.sort()
-
-
-        for i in tqdm(range(list_dates.shape[0])):
-
-            if i < list_dates.shape[0]-1:
-                date_pre=list_dates[i]
-                date_post=list_dates[i+1]
-                print(f"Calculating dt{i}, from {date_pre} to {date_post} in {location}.")
-
-                df_pre=loc_data.query(f"{date_field} =='{date_pre}' & {sand_label_field} == 0").dropna(subset=['z'])
-                df_post=loc_data.query(f"{date_field} =='{date_post}' & {sand_label_field} == 0").dropna(subset=['z'])
-
-                merged=pd.merge(df_pre,df_post, how='inner', on=common_field,validate="one_to_one",suffixes=('_pre','_post'))
-                merged["dh"]=merged.z_post.astype(float) - merged.z_pre.astype(float)
-
-                dict_short={"geometry": merged.geometry,
-                            "location":location,
-                            "tr_id":merged.tr_id_pre,
-                            "distance":merged.distance_pre,
-                            "dt":  f"dt_{i}",
-                            "date_pre":date_pre,
-                            "date_post":date_post,
-                            "z_pre":merged.z_pre.astype(float),
-                            "z_post":merged.z_post.astype(float),
-                            "dh":merged.dh}
-
-                short_df=pd.DataFrame(dict_short)
-                fusion_long=pd.concat([short_df,fusion_long],ignore_index=True)
-
-    print("done")
-    return fusion_long
