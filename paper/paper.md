@@ -10,16 +10,24 @@ authors:
     - name: Nicolas Pucino
       orcid: 0000-0001-6260-6647
       affiliation: "1"
+    - name: David M. Kennedy
+      orcid: 0000-0002-4878-7717
+      affiliation: "2"
+    - name: Daniel Ierodiaconou
+      orcid: 0000-0002-7832-4801
+      affiliation: "1"
 affiliations:
     - name: School of Life and Environmental Sciences, Deakin University, Warrnambool, 3280, Australia
       index: 1
-date: 6 June 2021
+    - name: School of Geography, The University of Melbourne, Melbourne, 3010, Australia
+      index: 2
+date: 7 June 2021
 bibliography: paper.bib
 ---
 
 # Summary
 
-**sandpyper** is a Python package for 
+**sandpyper** is a Python package that allows researchers to automate beachface volumetric and 
 
 # Intro
 
@@ -46,6 +54,7 @@ Currently v0.1.1 allows to:
 * compute Beachface Cluster Dynamics indices [@Pucino2021-ox] at the site and transect scales.
 
 Moreover, a module called “space” is under development, which adds some functionalities to the study of beach dynamics combining UAV-SfM surveys with spaceborne-derived shorelines. Some features already in Sandpyper are:
+
 * spatial grid generation along a line (waterline, shoreline).
 * custom tiling of georeferenced imagery, including multispectral satellite imagery, UAV orthomosaics or single band images (DSMs, label masks).
 * waterline to shoreline simple tidal correction.
