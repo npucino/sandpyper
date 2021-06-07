@@ -43,7 +43,7 @@ def images_to_dirs(images_folder,target_folder,op=None):
     Args:
         images_folder (str): path to the directory where the images are stored.
         target_folder (str): target path where create subfolders named as the images.
-        move_images (bool): True, to move the images into the newly created folders.
+        op (None, "copy", "move"): Move or copy the images into the newly created folders. None, creates empty subfolders.
     Returns:
         Create folders (optionally, containing the images).
 
@@ -95,24 +95,30 @@ def images_to_dirs(images_folder,target_folder,op=None):
     print(f"Succesfully created {len(ids)} ID-folders in {target_folder} .")
 
 
-
 def s2_to_rgb(imin, scaler_range=(0,255), re_size=False, dtype=False):
+    """Transform image pixels into specified range. Used to obtain 8-bit RGB images.
+
+    Args:
+        imin (array): array to be transformed.
+        scaler_range (min,max): tuple with minimum and maximum brightness values. Defaults is 0-255.
+        re_size (False, tuple): if a tuple of size 2 is provided, reshape the transformed array with the provided shape. Default to False.
+        dtype (False, dtype): optional data type for the transformed array. False, keep the original dtype.
+    Returns:
+        Transformed array.
+
+    """
+
     scaler=MinMaxScaler(scaler_range)
 
     imo=ras.open(imin, "r")
-
     if dtype!=False:
         im=imo.read(out_dtype=dtype)
     else:
         im=imo.read()
 
     if isinstance(re_size,(tuple)):
-        if imo.count > 1:
-            im=resize(im, (re_size[0], re_size[1], re_size[2]),
-                          mode='constant') # resize image
-        else:
-            im=resize(im, (re_size[1], re_size[2], 1),
-              mode='constant') # resize image
+        im=resize(im, (re_size[0], re_size[1], re_size[2]),
+                      mode='constant', preserve_range=True) # resize image
     else:
         pass
 
@@ -124,8 +130,10 @@ def s2_to_rgb(imin, scaler_range=(0,255), re_size=False, dtype=False):
     else:
         img_array_rgb=im
 
-    return img_array_rgb
+    if isinstance(re_size,(tuple)):
+        img_array_rgb=resize(im, (re_size[0], re_size[1], re_size[2]), mode='constant', preserve_range=True) # resize image
 
+    return img_array_rgb
 
 def shoreline_from_prediction(prediction, z, shapely_affine, min_vertices=2, shape=(64,64)):
     """
@@ -135,17 +143,13 @@ def shoreline_from_prediction(prediction, z, shapely_affine, min_vertices=2, sha
 
     Args:
         prediction (array): The 2D array returned by the DL model.
-
-        z (float,int): The threshold to use to divide water and no-water.
-
+        z (float,int): The threshold to use to divide water and no-water predicted binary image.
         shapely_affine (Affine object): Shapely Affine object of the tile the prediction has been performed from.
-
         min_vertices (int): Minimum number of vertices to retain a shoreline segment (default=2).
-
         shape (tuple): Shape of the tiles (default= (64,64), minimum requirement for Unet).
 
     Returns:
-        Grid : A GeoDataFrame storing polygon grids, with IDs and geometry columns.
+        Geodataframe containing the contours (shoreline) extracted from the prediction.
     """
     # get shoreline
     shore_arr=contours_to_multiline(prediction.reshape(shape),z, min_vertices=min_vertices)
@@ -166,9 +170,7 @@ def grid_from_pts(pts_gdf, width, height, crs):
 
     Args:
         pts_gdf (GeoDataFrame): The geodataframe storing points along a shoreline.
-
         width, height (int,float): The width and heigth of each single tile of the grid, given in the CRS unit (use projected CRS).
-
         crs (str): Coordinate Reference System in the dictionary format (example: {'init' :'epsg:4326'})
 
     Returns:
@@ -208,7 +210,6 @@ def add_grid_loc_coords(grid_gdf, location=None):
 
     Args:
         grid_gdf (GeoDataFrame): The geodataframe storing the grid, returned by the grid_from_pts function.
-
         location (str): The location code associated with the grid. Defaults to None.
 
     Returns:
@@ -466,11 +467,6 @@ def create_transects(baseline, sampling_step, tick_length, location, crs, side='
     Returns:
         Geodataframe.
     """
-    #     if crs != baseline.crs:
-    #         print(f"WARNING: Baseline CRS ({baseline.crs['init']}) is different to desired CRS ({crs['init']}). Reprojecting to: {crs['init']}.")
-    #         baseline=baseline.to_crs(crs)
-    #     else:
-    #         pass
 
     if side != 'both':
         tick_length = 2 * tick_length
@@ -542,6 +538,15 @@ def create_transects(baseline, sampling_step, tick_length, location, crs, side='
 
 
 def correct_multi_detections(shore_pts, transects):
+    """.
+
+    Args:
+        shore_pts (array): array to be transformed.
+        transects (min,max): tuple with minimum and maximum brightness values. Defaults is 0-255.
+    Returns:
+        Transformed array.
+
+    """
 
     geometries = []
     for i in range(shore_pts.shape[0]):
@@ -611,6 +616,7 @@ def extract_shore_pts(
 
 def shore_shift(transects, gt, sat, crs, baseline_pts, sat_from_baseline=False):
 
+
     sat_pts = extract_shore_pts(transects, sat, crs)
     gt_pts = extract_shore_pts(transects, gt, crs, date_field='raw_date')
 
@@ -643,6 +649,7 @@ def rawdate_from_timestamp_str(timestamp_str):
 
 
 def corr_baseline_distance(dist, slope, z_tide):
+    """Returns the tidal corrected distance from baseline of one more (in a pd.Series) uncorrected distances from the baseline (dist), profile slope (slope) and tidal height (z_tide)."""
 
     if isinstance(dist, (int, float, complex)):
 
@@ -659,18 +666,39 @@ def corr_baseline_distance(dist, slope, z_tide):
         raise TypeError("Input must be either Pandas.Series or numeric (int,float).")
 
 
-def error_from_gt(shorelines, groundtruths, crs_dict_string,
+def error_from_gt(shorelines,groundtruths, crs_dict_string,
                   location, sampling_step, tick_length,
                   shore_geometry_field,
                   gt_geometry_field,
+                  gt_date_field="raw_date",
+                  shore_date_field="raw_date",
                   side='both',
-                  baseline_mode="dynamic", tidal_correct=None):
+                  baseline_mode="dynamic",
+                  tidal_correct=None):
+    """Compute shorelines errors from a groundtruth references. You can use a fixed baseline shoreline or let the baseline be dynamic, which means
+    that a new set of transects will be created on each groundtruth shoreline.
 
-    # shore and gt geometry fields allow to swap between corrected or original geometry fields of both shorelines and groundtruths
-    # baseline_mode: if dynamic, stats will be computed from transects created from each groundtruth shoreline.
-    # if path to a .gpkg is provided, then use those arbitrary location specific baseline and transects will
-    # be fixed.
-    # crs=int(crs_dict_string[location]['init'][-5:]) # get EPSG code from crs dict
+    Args:
+        shorelines (gdf): GeoDataFrame of shorelines to test.
+        groundtruths (gdf): GeoDataFrame of shorelines to test.
+        crs_dict_string (dict): Dictionary storing location codes as key and crs information as values, in dictionary form.
+        Example: crs_dict_string = {'wbl': {'init': 'epsg:32754'},
+                   'apo': {'init': 'epsg:32754'},
+                   'prd': {'init': 'epsg:32755'},
+                   'dem': {'init': 'epsg:32755'} }
+        location (str): Strings of location code ("apo").
+        sampling_step (int, float): Alongshore distanace to separate each evaluation transect.
+        tick_length (int, float): Length of transects.
+        shore_geometry_field (str): Field where the geometry of the test shoreline is stored.
+        gt_geometry_field (str): Field where the geometry of the groundtruth shoreline is stored.
+        gt_date_field, shore_date_field (str): Fields where the survey dates are stored in the groundtruth and to-correct datasets respectively.
+        side (str, "right, "left,"both"): Wether to create transect on the right, left or both sides. Default to "both".
+        baseline_mode (str, "dynamic", "fixed"): If "dynamic" (default), statistics will be computed from transects created from each groundtruth shoreline.
+        If path to a .gpkg is provided, then use those arbitrary location specific baselines and transects will be fixed.
+
+    Returns:
+        shore_shift_df: Dataframe containing the distances from groundtruth at each timestep.
+    """
     crs = crs_dict_string[location]
 
     if os.path.isfile(baseline_mode):
@@ -717,14 +745,12 @@ def error_from_gt(shorelines, groundtruths, crs_dict_string,
     # else:
     #     pass
 
-    #     tests["raw_date"]=tests.timestamp.apply(rawdate_from_timestamp_str) # DEA
-
     for i in range(cs_shore_in.shape[0]):  # for all CS groundtruths in location
 
         groundtruth = cs_shore_in.iloc[[i]]  # select the current groundtruth
 
         # get survey date           # HARDCODED DATE FIELD! BAD
-        survey_date = groundtruth.raw_date.values[0]
+        survey_date = groundtruth.loc[gt_date_field][0]
 
         if survey_date in tests.raw_date.unique():
             print(f"Working on {survey_date}...")
@@ -785,12 +811,23 @@ def toes_from_slopes(
         slope_field="slope",
         sigma=0,
         peak_height=30):
-    """Returns candidate distances to clip beachfaces based on satellite or CS shoreline and these values."""
+    """Returns dune toe distance (from transect origin) by extracting peaks higher of a given value
+    from a Gaussian filtered slope profile. It can return multiple candidates when mutliple peaks are found.
+    These will be used to clip beachfaces, defined as going from the swash line to dune toes.
+    Args:
+        series (pd.Series): Slope profile.
+        distance_field (str): Field where the distance is stored. Default to "distance".
+        slope_field (str):  Field where the slope is stored. Default to "slope".
+        sigma (int): Number of standard deviations sued in the Gaussian smoothing filter.
+        peak_height (int): Threshold to use to define a peak in the smoothed slope profile.
 
+    Returns:
+        Toe distances of the given slope profile.
+    """
     sorted_series = series.sort_values([distance_field])
 
     gauss = gaussian_filter(sorted_series.loc[:, slope_field], sigma=sigma)
-    peak = sig.find_peaks(gauss, height=peak_height,)
+    peak = sig.find_peaks(gauss, height=peak_height)
 
     try:
         toe_distances = sorted_series.iloc[peak[0]][distance_field]
@@ -806,7 +843,22 @@ def toes_candidates(df, location_field='location', date_field="raw_date",
                     distance_field="distance",
                     slope_field="slope",
                     sigma=0, peak_height=30):
-    """Returns candidate distances to clip beachfaces based on satellite or CS shoreline and these values."""
+    """Dataframe implementation of the toes_from_slope function.
+    Returns dune toe distance (from transect origin) by extracting peaks higher of a given value
+    from a Gaussian filtered slope profile. It can return multiple candidates when mutliple peaks are found.
+    These will be used to clip beachfaces, defined as going from the swash line to dune toes.
+    Args:
+        df (pd.DataFrame): Dataframe containing the slope profiles.
+        location_field (str): Field where the location code is stored. Default to "location".
+        date_field (str): Field where the survey date is stored. Default to "raw_date".
+        tr_id_field (str): Field where the transect ID is stored. Default to "tr_id".
+        distance_field (str): Field where the distance is stored. Default to "distance".
+        slope_field (str):  Field where the slope is stored. Default to "slope".
+        sigma (int): Number of standard deviations sued in the Gaussian smoothing filter.
+        peak_height (int): Threshold to use to define a peak in the smoothed slope profile.
+
+    Returns:
+        Candidate distances of the each slope profile."""
 
     apply_dict = {'distance_field': distance_field,
                   'slope_field': slope_field,
@@ -825,16 +877,7 @@ def toes_candidates(df, location_field='location', date_field="raw_date",
 
 
 def consecutive_ids(data, indices=True, limit=1):
-    """Returns indices of consecutive tr_ids in groups. Covenient to create multi-line geometries in case of disconnected shorelines.
-
-    Args:
-        data (): .
-        indices (bool): .
-        limit (int): Default=1.
-    Returns:
-        Groups.
-
-    """
+    """Returns indices of consecutive tr_ids in groups. Covenient to create multi-line geometries in case of disconnected shorelines."""
 
     if bool(indices) == False:
         return_i = 1  # return data values
@@ -864,13 +907,9 @@ def tidal_correction(shoreline, cs_shores, gdf, baseline_folder, crs_dict_string
 
     Args:
         shoreline (GeoDataFrame): The geodataframe storing points along a shoreline.
-
         cs_shores (GeoDataFrame): The width and heigth of each single tile of the grid, given in the CRS unit (use projected CRS).
-
         gdf (GeoDataFrame): Coordinate Reference System in the dictionary format (example: {'init' :'epsg:4326'})
-
         baseline_folder: Path to the folder storing the baseline Geopackages (.gpkgs).
-
         crs_dict_string: Dictionary storing location codes as key and crs information as values, in dictionary form.
         Example: crs_dict_string = {'wbl': {'init': 'epsg:32754'},
                    'apo': {'init': 'epsg:32754'},
@@ -884,6 +923,11 @@ def tidal_correction(shoreline, cs_shores, gdf, baseline_folder, crs_dict_string
         mode (str, 'sat' or 'gt'): If 'sat', use satellite shorelines as seaward edge to classify beachfaces.
         If 'gt', use groundthruth shorelines instead.
 
+        alongshore_resolution ('infer', int, float): The alongshore spacing between transects, in the unit of measure of the
+        location CRS. If 'infer', use the gdf file to detect the spacing with 10cm precision. If the transects
+        spacing is less than 10cm, set the spacing manually.
+        Note: It also smoothes the original line if this value is greater of the original line vertex spacing.
+
         slope_value (int,float,'mean','median','min','max'): If a numeric value is provided (assumed to be in degrees),
         use it to correct the shorelines. If one of 'mean','median','min','max', use this statistics instead.
         It also computes range, standard deviation and variance for
@@ -892,29 +936,38 @@ def tidal_correction(shoreline, cs_shores, gdf, baseline_folder, crs_dict_string
         side (str, 'left', 'right', 'both'): Wether if retain only the left, right or both sides of the transects once created.
         Defaults to 'both'.
 
-        alongshore_resolution ('infer', int, float): The alongshore spacing between transects, in the unit of measure of the
-        location CRS. If 'infer', use the gdf file to detect the spacing with 10cm precision. If the transects
-        spacing is less than 10cm, set the spacing manually.
-        Note: It also smoothes the original line if this value is greater of the original line vertex spacing.
-
         tick_length (int, float): Across-shore length of each transect in the unit of measure of the location CRS.
+
+        subset_loc (list). List of string of location codes to limit the corection. Default to None.
 
         limit_vertex (int): Sets the minimum number of consecutive transect ids to create one segment
         of the corrected shoreline. Defaults to 1.
 
-        baseline_threshold:
+        baseline_threshold ("infer", float, None): If a number is provided, it sets the minimum distance the original un-corrected and the tidal-corrected shorelines
+        must be in order to consider the correction valid.
+        If the distance between the original the tidal-corrected shorelines at one point is less than this value,
+        then the original shoreline is retained. If it is above, then the tidal-corrected value is retained.
+        This is done to avaoid to correct areas where an artificial shoreline occurs (seawalls or harbours). If "infer", then the Otsu method
+        is used to find this threshold value. This option works where artificial shorelines are present. If None, do not use this option.
+        Default to "infer".
 
         replace_slope_outliers (bool): If True (default), replace the values of the defined slope statistics (slope_value parameter)
         with its survey-level median.
 
-        save_trs_details (bool): True to save. It defaults to False.
+        save_trs_details (bool): True to save a .CSV file with transect-specific information. It defaults to False.
 
         trs_details_folder (str): Folder where to save the transect details. Defaults to None.
 
         gdf_date_field (str): Date field of the slope geodataframe used to correct the shoreline.Defaults to "raw_date".
 
+        distance_field (str): Field storing the distance values. Default to "distance".
+
+        date_field (str): Field storing the survey date values. Default to "raw_date".
+
+        toe_field (str): Field storing the toe distances values. Default to "toe".
+
     Returns:
-        GeoDataFrame containing two geometry columns :
+        GeoDataFrame containing both the original shorelines and the corrected ones, stored in two different geometry fields.
     """
 
     if isinstance(slope_value, (int, float)):
@@ -1584,35 +1637,6 @@ def save_slope_corr_files(
     return gdf
 
 
-def s2_to_rgb(imin, scaler_range=(0,255), re_size=False, dtype=False):
-    scaler=MinMaxScaler(scaler_range)
-
-    imo=ras.open(imin, "r")
-    if dtype!=False:
-        im=imo.read(out_dtype=dtype)
-    else:
-        im=imo.read()
-
-    if isinstance(re_size,(tuple)):
-        im=resize(im, (re_size[0], re_size[1], re_size[2]),
-                      mode='constant', preserve_range=True) # resize image
-    else:
-        pass
-
-    if imo.count > 1:
-        im_rgb=np.stack((im[0], im[1], im[2]), axis=-1)
-        rgb_array_1=b = im_rgb.reshape(-1, 1)
-        scaled_1=scaler.fit_transform(rgb_array_1).astype(int)
-        img_array_rgb= scaled_1.reshape(im_rgb.shape)
-    else:
-        img_array_rgb=im
-
-    if isinstance(re_size,(tuple)):
-        img_array_rgb=resize(im, (re_size[0], re_size[1], re_size[2]), mode='constant', preserve_range=True) # resize image
-
-    return img_array_rgb
-
-
 def partial_tile_padding(dataset,
                 geom,
                 expected_shape,
@@ -1970,7 +1994,23 @@ def tiles_from_grid (grid,img_path,
                                      count=count,
                                      driver=driver
                                     )
-def arr2geotiff (array, transform, location, shape=(64,64,1),driver="GTiff", dtype=np.float32, save=None):
+
+def arr2geotiff (array, transform, location, shape=(64,64,1), driver="GTiff", dtype=np.float32, save=None):
+    """Transform an array into a Geotiff given its Shapely transform and location code.
+
+    Args:
+        array (array): array to be transformed.
+        transform (tuple): tuple with Shapely transform parameters.
+        shape (tuple): Tuple of size 3 of the shape of the array. Default to (64,64,1)
+        driver ("GTiff"): Driver used by Fiona to save file.
+        dtype (data type object): Default to numpy.float32.
+        save (None,path). If a full path is provided, save the file to a geotiff image (C:\my\new\image.tif).
+        If None (default), the geotiff is saved in the memory but not to the disk.
+    Returns:
+        Geotiff image.
+
+    """
+
     with MemoryFile() as memfile:
         mem_dataset= memfile.open(driver="GTiff",
                            height = array.shape[0],
@@ -1998,10 +2038,23 @@ def arr2geotiff (array, transform, location, shape=(64,64,1),driver="GTiff", dty
                 else:
                     dest.write(array.reshape((shape[0],shape[1])),indexes=shape[2])
 
-
         return mem_dataset
 
 def shoreline_from_prediction(prediction, z, geotransform, min_vertices=2, shape=(64,64)):
+    """Obtain a georeferenced shoreline in a GeoDataFrame from a binary predicted water mask.
+    Credits: adapted from Dr. Robbie Bishop-Taylor functions in Digital Earth Australia scripts, available at:
+    https://github.com/GeoscienceAustralia/dea-notebooks/blob/develop/Scripts/dea_coastaltools.py
+
+    Args:
+        prediction (array): array to be thresholded.
+        z (int, float): threshold value to separate land and water from the prediction array.
+        geotransform (tuple): uple with Shapely transform parameters.
+        min_vertices (int): Minimum number of vertices a segment has to have to be retained as a shoreline. Default to 2.
+        shape (data type object): Shape of the array. Default to (64,64).
+    Returns:
+        Geodataframe with georeferenced shoreline.
+
+    """
 
     # get shoreline
     shore_arr=contours_to_multiline(prediction.reshape(shape),z, min_vertices=min_vertices)

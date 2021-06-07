@@ -489,6 +489,11 @@ def compute_rBCD_transects(
         dirNameTrans (str): Full path to the folder where the transects are stored.
         steady_state_tr (df): dataframe containing the steady state distributions (returned by steady_state_transect function) of each transect.
         loc (str): Location code of the location being analysed. Used to match transect file.
+        crs_dict_string (dict): Dictionary storing location codes as key and crs information as values, in dictionary form.
+        Example: crs_dict_string = {'wbl': {'init': 'epsg:32754'},
+                   'apo': {'init': 'epsg:32754'},
+                   'prd': {'init': 'epsg:32755'},
+                   'dem': {'init': 'epsg:32755'} }
         weigth_dict (dict): dictionary containing each magnitude class as keys and value to be used to weigth each class as values.
         This can be manually set or objectively returned by the infer_weights function (reccommended).
         label_order (list): order to arrange the states in the first-order and steady-state matrices.

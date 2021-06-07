@@ -262,8 +262,8 @@ def get_opt_k(sil_df, sigma=1):
 def kmeans_sa(
         merged_df,
         opt_k_dict,
+        feature_set
         thresh_k=5,
-        feature_set,
     random_state=10):
     """
     Function to use KMeans on all surveys with the optimal k obtained from the Silhouette Analysis.
