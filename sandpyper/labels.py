@@ -262,7 +262,7 @@ def get_opt_k(sil_df, sigma=1):
 def kmeans_sa(
         merged_df,
         opt_k_dict,
-        feature_set
+        feature_set,
         thresh_k=5,
     random_state=10):
     """
