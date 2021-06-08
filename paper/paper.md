@@ -83,6 +83,6 @@ Various tutorials and documentation are available for using **sandpyper**, inclu
 # Acknowledgements
 
 Funding provided by Deakin University and the Victorian Department of Environment, Land, Water and Planning.
-Some functions in space module have been inspired and adapted from the [Digital Earth Australia github repository](https://github.com/GeoscienceAustralia/dea-notebooks)(credits in the docstrings). 
+Some functions in space module have been inspired and adapted from the [Digital Earth Australia github repository](https://github.com/GeoscienceAustralia/dea-notebooks) (credits in the docstrings). 
 
 # References
