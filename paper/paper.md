@@ -70,9 +70,11 @@ Various tutorials and documentation are available for using **sandpyper**, inclu
 -   [Jupyter notebook examples for using sandpyper](https://github.com/npucino/sandpyper/tree/master/examples)
 -   [Complete documentation on sandpyper modules and functions](https://npucino.github.io/sandpyper/)
 
-<div align="center">
-  <img src="https://github.com/npucino/sandpyper/tree/master/examples/images/banner3.png" alt="example" width="1"/>
-</div>
+# Figures
+
+![**Example of the volumetric change computation pipeline.** (A) A sample virtual transects network. (B) Sand and no-sand classified points, facilitated with iterative Silhouette and KMeans analysis. (C) Alongshore transect-scale altimetric (top) and volumetric (bottom) change. (D) Site-level Mean Elevation Change (MEC) timeseries.\label{fig:ground}](joss_fig1.png)
+
+![**Example of derivation of e-BCD indices.** (A) statistical significant clusters of elevation changes (hot-coldspots) timeseries. (B) First-order transition probabilities matrices. (C) e-BCDs plot derived.\label{fig:dists}](joss_fig2.png)
 
 # Acknowledgements
 
