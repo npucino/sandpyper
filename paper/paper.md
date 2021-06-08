@@ -21,13 +21,13 @@ affiliations:
       index: 1
     - name: School of Geography, The University of Melbourne, Melbourne, 3010, Australia
       index: 2
-date: 7 June 2021
+date: 8 June 2021
 bibliography: paper.bib
 ---
 
 # Summary
 
-**sandpyper** is a Python package that allows researchers to automate beachface volumetric and 
+**sandpyper** is a Python package that automates profile-based beachface volumetric and altimetric change analysis from a large amount of digital surface models and orthophotos, two endproducts of a typical unoccupied aerial vehicle structure of motion pipeline. Moreover, it allows to compute the Beachface Cluster Dynamics indices.
 
 # Intro
 
@@ -47,18 +47,18 @@ Sandpyper is an open-source Python package that provides a user with tools speci
 
 Currently v0.1.1 allows to:
 
-* automatically create user-defined georeferenced cross-shore transects along a line and extract elevation (from DSMs) and colour (from orthophotos) profiles.
-* use unsupervised machine learning and user-provided polygon masks to clean the profiles from unwanted non-sand points and swash zones.
-* compute altimetric and volumetric timeseries analysis and plotting the results (Fig 1, 2).
-* use spatial autocorrelation measures to discard spatial outliers and obtain statistically significant Hotspots/Coldspots areas of beach change at the site and transect scales.
-* compute Beachface Cluster Dynamics indices [@Pucino2021-ox] at the site and transect scales.
+* automatically create user-defined georeferenced cross-shore transects (Figure 1a) along a line and extract elevation (from DSMs) and colour (from orthophotos) profiles.
+* facilitate unsupervised machine learning sand classification (Figure 1b) and profile masking.
+* compute altimetric and volumetric timeseries analysis and plotting the results, at the transect (Figure 1c) and site scales (Figure 1d).
+* use spatial autocorrelation measures to discard spatial outliers and obtain statistically significant Hotspots/Coldspots areas of beach change at the site scale (Figure 2a).
+* compute first-order transition probabilties of magnitude of change classes to derive Beachface Cluster Dynamics indices (Figure 2c) [@Pucino2021-ox].
 
-Moreover, a module called “space” is under development, which adds some functionalities to the study of beach dynamics combining UAV-SfM surveys with spaceborne-derived shorelines. Some features already in Sandpyper are:
+Moreover, a module called “space” is under development, which adds some functionalities to the study of beach dynamics combining UAV-SfM surveys with satellite-derived shorelines. Some features already in Sandpyper are:
 
 * spatial grid generation along a line (waterline, shoreline).
 * custom tiling of georeferenced imagery, including multispectral satellite imagery, UAV orthomosaics or single band images (DSMs, label masks).
-* waterline to shoreline simple tidal correction.
-* waterline /shoreline error assessments.
+* shoreline simple tidal correction.
+* shoreline error assessments.
 * shoreline shift assessment.
 
 Sandpyper is aimed at being further developed to be a wider-scope package as its functions can be applied to any scope involving the extraction of information from a large amount of rasters.
@@ -74,10 +74,16 @@ Various tutorials and documentation are available for using **sandpyper**, inclu
 
 ![**Example of the volumetric change computation pipeline.** (A) A sample virtual transects network. (B) Sand and no-sand classified points, facilitated with iterative Silhouette and KMeans analysis. (C) Alongshore transect-scale altimetric (top) and volumetric (bottom) change. (D) Site-level Mean Elevation Change (MEC) timeseries.\label{fig:ground}](joss_fig1.png)
 
+## Figure 1
+**Example of the volumetric change computation pipeline.** (A) A sample virtual transects network. (B) Sand and no-sand classified points, facilitated with iterative Silhouette and KMeans analysis. (C) Alongshore transect-scale altimetric (top) and volumetric (bottom) change. (D) Site-level Mean Elevation Change (MEC) timeseries.
+
+## Figure 2
 ![**Example of derivation of e-BCD indices.** (A) statistical significant clusters of elevation changes (hot-coldspots) timeseries. (B) First-order transition probabilities matrices. (C) e-BCDs plot derived.\label{fig:dists}](joss_fig2.png)
+**Example of derivation of e-BCD indices.** (A) statistical significant clusters of elevation changes (hot-coldspots) timeseries. (B) First-order transition probabilities matrices. (C) e-BCDs plot derived.
 
 # Acknowledgements
 
 Funding provided by Deakin University and the Victorian Department of Environment, Land, Water and Planning.
+Some functions in space module have been inspired and adapted from the [Digital Earth Australia github repository](https://github.com/GeoscienceAustralia/dea-notebooks)(credits in the docstrings). 
 
 # References
