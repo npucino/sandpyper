@@ -23,7 +23,7 @@
   <h3 align="center">- Sandy beaches SfM-UAV analysis tools -</h3>
 
   <p align="justify">
-    __Sandpyper__ performs an organised and automatic extraction of elevation profiles from as many DSM and orthophotos as you like. It is thought to be used when a considerable number of DSMs and orthohpotos from many different locations and coordinate reference systems need to be processed.
+    <em>Sandpyper</em> performs an organised and automatic extraction of elevation profiles from as many DSM and orthophotos as you like. It is thought to be used when a considerable number of DSMs and orthohpotos from many different locations and coordinate reference systems need to be processed.
     Then, computes volumetric and behavioural analysis of beachfaces, speeding up an otherwise long and difficult to handle (big rasters) job.
     It has some specialised functions to deal with the common limitations found in beach environments:
   <ol>
