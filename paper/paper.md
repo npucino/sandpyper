@@ -27,7 +27,7 @@ bibliography: paper.bib
 
 # Summary
 
-**sandpyper** is a Python package that automates profile-based beachface volumetric and altimetric change analysis from a large amount of digital surface models and orthophotos, two endproducts of a typical unoccupied aerial vehicle structure of motion pipeline. Moreover, it allows to compute the Beachface Cluster Dynamics indices.
+**sandpyper** is a Python package that automates profile-based beachface volumetric and altimetric change analysis from a large amount of digital surface models and orthophotos.  It includes functions to facilitate the cleaning of the elevation data from unwanted non-sand points or swash areas and to model beachface behavioural regimes using the Beachface Cluster Dynamics indices.
 
 # Intro
 
@@ -72,9 +72,8 @@ Various tutorials and documentation are available for using **sandpyper**, inclu
 
 # Figures
 
-![**Example of the volumetric change computation pipeline.** (A) A sample virtual transects network. (B) Sand and no-sand classified points, facilitated with iterative Silhouette and KMeans analysis. (C) Alongshore transect-scale altimetric (top) and volumetric (bottom) change. (D) Site-level Mean Elevation Change (MEC) timeseries.\label{fig:ground}](joss_fig1.png)
-
 ## Figure 1
+![**Example of the volumetric change computation pipeline.** (A) A sample virtual transects network. (B) Sand and no-sand classified points, facilitated with iterative Silhouette and KMeans analysis. (C) Alongshore transect-scale altimetric (top) and volumetric (bottom) change. (D) Site-level Mean Elevation Change (MEC) timeseries.\label{fig:ground}](joss_fig1.png)
 **Example of the volumetric change computation pipeline.** (A) A sample virtual transects network. (B) Sand and no-sand classified points, facilitated with iterative Silhouette and KMeans analysis. (C) Alongshore transect-scale altimetric (top) and volumetric (bottom) change. (D) Site-level Mean Elevation Change (MEC) timeseries.
 
 ## Figure 2
