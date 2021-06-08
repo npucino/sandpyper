@@ -27,7 +27,7 @@ bibliography: paper.bib
 
 # Summary
 
-**sandpyper** is a Python package that automates profile-based beachface volumetric and altimetric change analysis from a large amount of digital surface models and orthophotos.  It includes functions to facilitate the cleaning of the elevation data from unwanted non-sand points or swash areas and to model beachface behavioural regimes using the Beachface Cluster Dynamics indices.
+**sandpyper** is a Python package that automates profile-based volumetric and altimetric sandy beaches analysis from a large amount of digital surface models and orthophotos.  It includes functions to facilitate the cleaning of the elevation data from unwanted non-sand points or swash areas (where waves run up on the bech slope and 3D reconstruction is inaccurate) and to model beachface behavioural regimes using the Beachface Cluster Dynamics indices.
 
 # Intro
 
