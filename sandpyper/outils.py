@@ -12,9 +12,11 @@ import geopandas as gpd
 import pandas as pd
 
 from shapely.geometry import Point, Polygon
+
 # from astropy.stats import median_absolute_deviation
 
-def test_format (filename, loc_search_dict):
+
+def test_format(filename, loc_search_dict):
     """
     It returns True if the filename matches the required format (regx) or False if it doesn't.
 
@@ -25,8 +27,8 @@ def test_format (filename, loc_search_dict):
         bool
     """
 
-    re_list_loc='|'.join(loc_search_dict.keys())
-    regx=rf"\d{{8}}_({re_list_loc})_(ortho|dsm)\.(tiff|tif)"
+    re_list_loc = "|".join(loc_search_dict.keys())
+    regx = rf"\d{{8}}_({re_list_loc})_(ortho|dsm)\.(tiff|tif)"
 
     try:
         re.search(regx, filename).group()
@@ -34,10 +36,25 @@ def test_format (filename, loc_search_dict):
     except:
         return False
 
-def find_date_string (filename,
-                      list_months=['jan','feb','mar','apr','may',\
-                                   'jun','jul','aug','sept','oct','nov','dec'],
-                     to_rawdate=True):
+
+def find_date_string(
+    filename,
+    list_months=[
+        "jan",
+        "feb",
+        "mar",
+        "apr",
+        "may",
+        "jun",
+        "jul",
+        "aug",
+        "sept",
+        "oct",
+        "nov",
+        "dec",
+    ],
+    to_rawdate=True,
+):
     """
     It finds the date and returns True or a formatted version of it, from a filename of the type "Seaspray_22_Oct_2020_GeoTIFF_DSM_GDA94_MGA_zone_55.tiff".
 
@@ -49,17 +66,19 @@ def find_date_string (filename,
         bool
     """
 
-    re_list_months='|'.join(list_months)
-    regx=rf"_\d{{2}}_({re_list_months})_\d{{4}}_"
+    re_list_months = "|".join(list_months)
+    regx = rf"_\d{{2}}_({re_list_months})_\d{{4}}_"
 
     try:
-        group=re.search(regx, filename, re.IGNORECASE).group()
-        if to_rawdate==False:
+        group = re.search(regx, filename, re.IGNORECASE).group()
+        if to_rawdate == False:
             return True
         else:
-            group_split=group.split("_")
-            dt=datetime.strptime(f'{group_split[1]}{group_split[2]}{group_split[3]}', '%d%b%Y')
-            return dt.strftime('%Y%m%d')
+            group_split = group.split("_")
+            dt = datetime.strptime(
+                f"{group_split[1]}{group_split[2]}{group_split[3]}", "%d%b%Y"
+            )
+            return dt.strftime("%Y%m%d")
     except:
         return False
 
@@ -78,7 +97,7 @@ def filter_filename_list(filenames_list, fmt=[".tif", ".tiff"]):
 
 
 def round_special(a, thr):
-    """ It rounds the number (a) to its closest fraction of threshold (thr). Useful to space ticks in plots."""
+    """It rounds the number (a) to its closest fraction of threshold (thr). Useful to space ticks in plots."""
     return round(float(a) / thr) * thr
 
 
@@ -93,18 +112,26 @@ def coords_to_points(string_of_coords):
     Returns:
         pt_geom : Shapely Point geometry
     """
-    num_ditis = re.findall('\\d+', string_of_coords)
+    num_ditis = re.findall("\\d+", string_of_coords)
     try:
         coord_x = float(num_ditis[0] + "." + num_ditis[1])
         coord_y = float(num_ditis[2] + "." + num_ditis[3])
         pt_geom = Point(coord_x, coord_y)
     except BaseException:
-        print(f"point creation failed! Assigning NaN. Check the format of the input string.")
+        print(
+            f"point creation failed! Assigning NaN. Check the format of the input string."
+        )
         pt_geom = np.nan
     return pt_geom
 
 
-def create_id(Series, tr_id_field="tr_id", loc_field="location", dist_field="distance", random_state=42):
+def create_id(
+    Series,
+    tr_id_field="tr_id",
+    loc_field="location",
+    dist_field="distance",
+    random_state=42,
+):
     """
     Function to create unique IDs from random permutations of integers and letters from the distance, tr_id, location,
     coordinates and survey_date fields of the rgb and z tables.
@@ -134,12 +161,14 @@ def create_id(Series, tr_id_field="tr_id", loc_field="location", dist_field="dis
     else:
         date_c = str(Series.survey_date)
 
-    ids_tmp = dist_c + '0' + tr_id_c + loc_d + coord_c + date_c
+    ids_tmp = dist_c + "0" + tr_id_c + loc_d + coord_c + date_c
 
-    ids = ids_tmp.replace('.', "0").replace('-', '')
+    ids = ids_tmp.replace(".", "0").replace("-", "")
     char_list = list(ids)  # convert string inti list
-    random.Random(random_state).shuffle(char_list, )  # shuffle the list
-    ids = ''.join(char_list)
+    random.Random(random_state).shuffle(
+        char_list,
+    )  # shuffle the list
+    ids = "".join(char_list)
 
     return ids
 
@@ -159,12 +188,18 @@ def create_spatial_id(Series, random_state=42):
     # ID indipended on the survey_date, but only related to distance, tr_id
     # and location. Useful ID, but equivalent to use coordinates field.
 
-    ids = str(np.round(float(Series.distance), 2)) + '0' + \
-        str(Series.tr_id) + str(Series.location)
-    ids = ids.replace('.', "0").replace('-', '')
+    ids = (
+        str(np.round(float(Series.distance), 2))
+        + "0"
+        + str(Series.tr_id)
+        + str(Series.location)
+    )
+    ids = ids.replace(".", "0").replace("-", "")
     char_list = list(ids)  # convert string inti list
-    random.Random(random_state).shuffle(char_list, )  # shuffle the list
-    ids = ''.join(char_list)
+    random.Random(random_state).shuffle(
+        char_list,
+    )  # shuffle the list
+    ids = "".join(char_list)
 
     return ids
 
@@ -182,13 +217,14 @@ def getListOfFiles(dirName):
 
     # create a list of file and sub directories names in the given directory
     listOfFile = os.listdir(dirName)
-    allFiles = list()                  # Iterate over all the entries
+    allFiles = list()  # Iterate over all the entries
     for entry in listOfFile:
 
         fullPath = os.path.join(dirName, entry)  # Create full path
 
         if os.path.isdir(
-                fullPath):     # If entry is a directory then get the list of files in this directory
+            fullPath
+        ):  # If entry is a directory then get the list of files in this directory
             allFiles = allFiles + getListOfFiles(fullPath)
         else:
             allFiles.append(fullPath)
@@ -223,7 +259,7 @@ def getDate(filename):
     """
     # get the date out of a file input
 
-    num_ditis = re.findall('\\d+', filename)
+    num_ditis = re.findall("\\d+", filename)
 
     # now we need to convert each number into integer. int(string) converts string into integer
     # we will map int() function onto all elements of numbers list
@@ -237,7 +273,7 @@ def getDate(filename):
     except BaseException:
         raise TypeError(print("No numbers in the input filename."))
 
-    return (max(num_ditis))
+    return max(num_ditis)
 
 
 def getListOfDate(list_dsm):
@@ -273,18 +309,18 @@ def extract_loc_date(name, loc_search_dict, split_by="_"):
     """
 
     try:
-        date=getDate(name)
+        date = getDate(name)
 
     except:
         print("Proceeding with automated regular expression match")
-        date=find_date_string(name)
+        date = find_date_string(name)
         print(f"Date found: {date}")
 
     names = set((os.path.split(name)[-1].split("_")))
 
     for loc_code, raw_strings_loc in zip(
-            loc_search_dict.keys(), list(
-            loc_search_dict.values())):  # loop trhough all possible lists of raw strings
+        loc_search_dict.keys(), list(loc_search_dict.values())
+    ):  # loop trhough all possible lists of raw strings
         raw_str_set = set(raw_strings_loc)
         match = raw_str_set.intersection(names)
 
@@ -311,12 +347,9 @@ def extract_loc_date(name, loc_search_dict, split_by="_"):
 
 
 def polygonize_valid(
-        raster_path_in,
-        output_masks_dir,
-        name,
-        valid_value=255.0,
-        out_format='GPKG'):
-    """ It returns the valid data polygon masks of a raster.
+    raster_path_in, output_masks_dir, name, valid_value=255.0, out_format="GPKG"
+):
+    """It returns the valid data polygon masks of a raster.
 
     Args:
         raster_path_in (str): Path to the raster, which can be a shapefiles or geopackages.
@@ -334,12 +367,12 @@ def polygonize_valid(
 
     # Check if output format is shapefile or Geopackage
 
-    if out_format == 'GPKG':
-        file_ext = '.gpkg'
-    elif out_format == 'ESRI Shapefile':
-        file_ext = '.shp'
+    if out_format == "GPKG":
+        file_ext = ".gpkg"
+    elif out_format == "ESRI Shapefile":
+        file_ext = ".shp"
 
-    #___________ Open the image and extract coordinates of valid data_____________#
+    # ___________ Open the image and extract coordinates of valid data_____________#
 
     with ras.open(raster_path_in) as img:
 
@@ -355,7 +388,7 @@ def polygonize_valid(
         for shape in features.shapes(msk, transform=trans):
             value = shape[1]
             if value == valid_value:
-                polygon_geom = Polygon(shape[0]['coordinates'][0])
+                polygon_geom = Polygon(shape[0]["coordinates"][0])
                 polygon = gpd.GeoDataFrame(index=[0], crs=epsg, geometry=[polygon_geom])
                 polygon.to_file(filename=savetxt, driver=out_format)
 
@@ -368,8 +401,10 @@ def polygonize_valid(
     return polygon
 
 
-def matchup_folders(dir1, dir2, loc_search_dict, fmts=([".tif", ".tif"], [".tif", ".tif"])):
-    """ Matches files from two folders (e.g. DSMs, orthos or GCPs) and store filenames in DataFrame.
+def matchup_folders(
+    dir1, dir2, loc_search_dict, fmts=([".tif", ".tif"], [".tif", ".tif"])
+):
+    """Matches files from two folders (e.g. DSMs, orthos or GCPs) and store filenames in DataFrame.
 
     Args:
         dir1 (str): local path of a folder where the files are stored.
@@ -385,25 +420,23 @@ def matchup_folders(dir1, dir2, loc_search_dict, fmts=([".tif", ".tif"], [".tif"
     list_dir2 = filter_filename_list(getListOfFiles(dir2), fmt=fmts[1])
 
     loc_date_labels_dir1 = [
-        extract_loc_date(
-            file1,
-            loc_search_dict=loc_search_dict) for file1 in list_dir1]
+        extract_loc_date(file1, loc_search_dict=loc_search_dict) for file1 in list_dir1
+    ]
     loc_date_labels_dir2 = [
-        extract_loc_date(
-            file2,
-            loc_search_dict=loc_search_dict) for file2 in list_dir2]
+        extract_loc_date(file2, loc_search_dict=loc_search_dict) for file2 in list_dir2
+    ]
 
     df_1 = pd.DataFrame(loc_date_labels_dir1, columns=["location", "raw_date"])
-    df_1['filename_dsm'] = list_dir1
+    df_1["filename_dsm"] = list_dir1
 
     df_2 = pd.DataFrame(loc_date_labels_dir2, columns=["location", "raw_date"])
-    df_2['filename_gcp'] = list_dir2
+    df_2["filename_gcp"] = list_dir2
 
-    return pd.merge(df_1, df_2, on=["location", "raw_date"], how='inner')
+    return pd.merge(df_1, df_2, on=["location", "raw_date"], how="inner")
 
 
 def find_skiprows(filename, keyword="Easting"):
-    """ Find the number of rows to skip in a .CSV based on a keyword search.
+    """Find the number of rows to skip in a .CSV based on a keyword search.
 
     Args:
         filename (str): Local path of .CSV file.
@@ -414,7 +447,7 @@ def find_skiprows(filename, keyword="Easting"):
     """
 
     skiprows = 0
-    with open(filename, 'r+') as file:
+    with open(filename, "r+") as file:
         for line in file:
             if keyword not in line:
                 skiprows += 1
@@ -425,7 +458,7 @@ def find_skiprows(filename, keyword="Easting"):
 
 
 def open_gcp_file(csv_file, crs):
-    """ Open a Propeller GCP (.CSV) files and return it as a geodataframe.
+    """Open a Propeller GCP (.CSV) files and return it as a geodataframe.
 
     Args:
         csv_file (str): Local path of .CSV file.
@@ -444,7 +477,7 @@ def open_gcp_file(csv_file, crs):
 
 
 def timeseries_to_gdf(path_timeseries_folder):
-    """ Returns a Geodataframe of geometries, location and survey_dates from a folder of timeseries files.
+    """Returns a Geodataframe of geometries, location and survey_dates from a folder of timeseries files.
 
     Args:
         path_timeseries_folder (str): Local path of the timeseries files.
@@ -458,16 +491,18 @@ def timeseries_to_gdf(path_timeseries_folder):
     for i in getListOfFiles(path_timeseries_folder):
         tmp = gpd.read_file(i)
 
-        tmp_dict = {'geometry': tmp.geometry,
-                    'survey_date': getDate(i),
-                    "location": getLoc(i)}
+        tmp_dict = {
+            "geometry": tmp.geometry,
+            "survey_date": getDate(i),
+            "location": getLoc(i),
+        }
         gdf_tmp = gpd.GeoDataFrame(tmp_dict, crs=tmp.geometry.crs)
         gcp_gdf = pd.concat([gcp_gdf, gdf_tmp], ignore_index=True)
 
     return gcp_gdf
 
 
-def gdf_distance_matrix(gdf1, gdf2, crs={'init': 'epsg:3857'}):
+def gdf_distance_matrix(gdf1, gdf2, crs={"init": "epsg:3857"}):
     """
     Calculate the distance matrix between two GeoDataFrames
     Both GeoDataFrames must have the source crs set in order to be projected.
@@ -496,13 +531,13 @@ def gdf_distance_matrix(gdf1, gdf2, crs={'init': 'epsg:3857'}):
     dset1_xy = dset1.apply(lambda b: [b.geometry.x, b.geometry.y], axis=1).tolist()
     dset2_xy = dset2.apply(lambda b: [b.geometry.x, b.geometry.y], axis=1).tolist()
 
-    return pd.DataFrame(distance_matrix(dset1_xy, dset2_xy),
-                        columns=dset2.index,
-                        index=dset1.index)
+    return pd.DataFrame(
+        distance_matrix(dset1_xy, dset2_xy), columns=dset2.index, index=dset1.index
+    )
 
 
 def getCrs_from_raster_path(ras_path):
-    """ Returns the EPSG code of the input raster (geotiff).
+    """Returns the EPSG code of the input raster (geotiff).
 
     Args:
         ras_path (str): Path of the raster.
@@ -515,7 +550,7 @@ def getCrs_from_raster_path(ras_path):
 
 
 def getCrs_from_transect(trs_path):
-    """ Returns the EPSG code of the input transect file (geopackage).
+    """Returns the EPSG code of the input transect file (geopackage).
 
     Args:
         trs_path (str): Path of the transect file.
@@ -527,11 +562,8 @@ def getCrs_from_transect(trs_path):
 
 
 def cross_ref(
-        dirNameDSM,
-        dirNameTrans,
-        loc_search_dict,
-        list_loc_codes,
-        print_info=False):
+    dirNameDSM, dirNameTrans, loc_search_dict, list_loc_codes, print_info=False
+):
     """
     Returns a dataframe with location, raw_date, filenames (paths)
     and CRS of each raster and associated transect files. Used to double-check.
@@ -548,40 +580,42 @@ def cross_ref(
     """
 
     list_rasters = filter_filename_list(
-        getListOfFiles(dirNameDSM), fmt=[
-            '.tif', '.tiff'])
-    list_transects = filter_filename_list(getListOfFiles(dirNameTrans), fmt=['.gpkg'])
+        getListOfFiles(dirNameDSM), fmt=[".tif", ".tiff"]
+    )
+    list_transects = filter_filename_list(getListOfFiles(dirNameTrans), fmt=[".gpkg"])
 
     loc_date_labels_raster = [
-        extract_loc_date(
-            file1,
-            loc_search_dict=loc_search_dict) for file1 in list_rasters]
-    locs_transects = pd.DataFrame(pd.Series(
-        [getLoc(trs, list_loc_codes) for trs in list_transects], name="location"))
+        extract_loc_date(file1, loc_search_dict=loc_search_dict)
+        for file1 in list_rasters
+    ]
+    locs_transects = pd.DataFrame(
+        pd.Series(
+            [getLoc(trs, list_loc_codes) for trs in list_transects], name="location"
+        )
+    )
 
     df_tmp_raster = pd.DataFrame(
-        loc_date_labels_raster, columns=[
-            "location", "raw_date"])
+        loc_date_labels_raster, columns=["location", "raw_date"]
+    )
     df_tmp_raster["filename_raster"] = list_rasters
     df_tmp_raster["crs_raster"] = df_tmp_raster.filename_raster.apply(
-        getCrs_from_raster_path)
+        getCrs_from_raster_path
+    )
 
     df_tmp_trd = pd.DataFrame(locs_transects, columns=["location"])
     df_tmp_trd["filename_trs"] = list_transects
     df_tmp_trd["crs_transect"] = df_tmp_trd.filename_trs.apply(getCrs_from_transect)
 
-    matched = pd.merge(
-        df_tmp_raster,
-        df_tmp_trd,
-        on="location",
-        how='left').set_index(
-        ["location"])
+    matched = pd.merge(df_tmp_raster, df_tmp_trd, on="location", how="left").set_index(
+        ["location"]
+    )
 
     if bool(print_info) is True:
         counts = matched.groupby("location")["raw_date"].count().reset_index()
         for i in range(counts.shape[0]):
             print(
-                f"DSM from {counts.iloc[i]['location']} = {counts.iloc[i]['raw_date']}\n")
+                f"DSM from {counts.iloc[i]['location']} = {counts.iloc[i]['raw_date']}\n"
+            )
 
         print(f"\nNUMBER OF DATASETS TO PROCESS: {len(list_rasters)}")
 
