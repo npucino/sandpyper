@@ -14,6 +14,54 @@ import pandas as pd
 from shapely.geometry import Point, Polygon
 # from astropy.stats import median_absolute_deviation
 
+def test_format (filename, loc_search_dict, regx=rf"\d{{8}}_({re_list_loc})_(ortho|dsm)\.(tiff|tif)"):
+    """
+    It returns True if the filename matches the required format (regx) or False if it doesn't.
+
+    Args:
+        filenames (str): filename to test, of the type "Seaspray_22_Oct_2020_GeoTIFF_DSM_GDA94_MGA_zone_55.tiff".
+        loc_search_dict (dict): a dictionary where keys are the location codes and values are lists containing the expected full location string (["Warrnambool", "warrnambool","warrny"]).
+        regx (str): regular expression to match. Default to Sandpyper naming format rawDate_locCode_dataType (20180825_apo_dsm.tif).
+    Returns:
+        bool
+    """
+
+    re_list_loc='|'.join(loc_search_dict.keys())
+    try:
+        re.search(regx, filename).group()
+        return True
+    except:
+        return False
+
+def find_date_string (filename,
+                      list_months=['jan','feb','mar','apr','may',\
+                                   'jun','jul','aug','sept','oct','nov','dec'],
+                      regx=rf"_\d{{2}}_({re_list_months})_\d{{4}}_",
+                     to_rawdate=True):
+    """
+    It finds the date and returns True or a formatted version of it, from a filename of the type "Seaspray_22_Oct_2020_GeoTIFF_DSM_GDA94_MGA_zone_55.tiff".
+
+    Args:
+        filenames (str): filename to test, of the type "Seaspray_22_Oct_2020_GeoTIFF_DSM_GDA94_MGA_zone_55.tiff".
+        list_months (list): expected denominations for the months. Default to ['jan','feb','mar',...,'dec'].
+        regx (str): regular expression to match. Default to _dd_Month_yyy (_22_Oct_2020).
+        to_rawdate (bool): True to format the found date into raw_date (20201022). False, return True if the date is found or False if not.
+    Returns:
+        bool
+    """
+
+    re_list_months='|'.join(list_months)
+    try:
+        group=re.search(regx, filename, re.IGNORECASE).group()
+        if to_rawdate==False:
+            return True
+        else:
+            group_split=group.split("_")
+            dt=datetime.strptime(f'{group_split[1]}{group_split[2]}{group_split[3]}', '%d%b%Y')
+            return dt.strftime('%Y%m%d')
+    except:
+        return False
+
 
 def filter_filename_list(filenames_list, fmt=[".tif", ".tiff"]):
     """
@@ -223,7 +271,14 @@ def extract_loc_date(name, loc_search_dict, split_by="_"):
         ('location',raw_date) : tuple with location and raw date.
     """
 
-    date = getDate(name)
+    try:
+        date=getDate(name)
+        print("Proceeding with automated regular expression match")
+
+    except:
+        date=find_date_string(name)
+        print(f"Date found: {date}")
+
     names = set((os.path.split(name)[-1].split("_")))
 
     for loc_code, raw_strings_loc in zip(
