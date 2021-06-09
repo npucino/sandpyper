@@ -288,13 +288,10 @@ def extract_loc_date(name, loc_search_dict, split_by="_"):
         raw_str_set = set(raw_strings_loc)
         match = raw_str_set.intersection(names)
 
-        if len(match) == 1:
+        if len(match) >= 1:
 
             location_code_found = loc_code
             break
-
-        else:
-            pass
 
     return (location_code_found, date)
 
