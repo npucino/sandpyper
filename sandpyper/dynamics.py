@@ -1,5 +1,3 @@
-"""Dynamics module."""
-
 import numpy as np
 from tqdm.notebook import tqdm
 import pandas as pd
