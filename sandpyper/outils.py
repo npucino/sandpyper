@@ -5,14 +5,13 @@ import re
 import random
 
 import numpy as np
-import rasterio as ras
-from rasterio import features
-
-import geopandas as gpd
 import pandas as pd
-
+import geopandas as gpd
+from scipy.spatial import distance_matrix
 from shapely.geometry import Point, Polygon
 
+import rasterio as ras
+from rasterio import features
 # from astropy.stats import median_absolute_deviation
 
 
@@ -96,9 +95,9 @@ def filter_filename_list(filenames_list, fmt=[".tif", ".tiff"]):
     return [name for name in filenames_list if os.path.splitext(name)[1] in fmt]
 
 
-def round_special(a, thr):
+def round_special(num, thr):
     """It rounds the number (a) to its closest fraction of threshold (thr). Useful to space ticks in plots."""
-    return round(float(a) / thr) * thr
+    return round(float(num) / thr) * thr
 
 
 def coords_to_points(string_of_coords):
@@ -126,7 +125,7 @@ def coords_to_points(string_of_coords):
 
 
 def create_id(
-    Series,
+    series,
     tr_id_field="tr_id",
     loc_field="location",
     dist_field="distance",
@@ -147,19 +146,19 @@ def create_id(
         A series od unique IDs.
     """
 
-    dist_c = str(np.round(float(Series.loc[dist_field]), 2))
-    tr_id_c = str(Series.loc[tr_id_field])
-    loc_d = str(Series.loc[loc_field])
+    dist_c = str(np.round(float(series.loc[dist_field]), 2))
+    tr_id_c = str(series.loc[tr_id_field])
+    loc_d = str(series.loc[loc_field])
 
-    if type(Series.coordinates) != str:
-        coord_c = Series.coordinates.wkt.split()[1][-3:]
+    if type(series.coordinates) != str:
+        coord_c = series.coordinates.wkt.split()[1][-3:]
     else:
-        coord_c = str(Series.coordinates.split()[1][-3:])
+        coord_c = str(series.coordinates.split()[1][-3:])
 
-    if type(Series.survey_date) != str:
-        date_c = str(Series.survey_date.date())
+    if type(series.survey_date) != str:
+        date_c = str(series.survey_date.date())
     else:
-        date_c = str(Series.survey_date)
+        date_c = str(series.survey_date)
 
     ids_tmp = dist_c + "0" + tr_id_c + loc_d + coord_c + date_c
 
@@ -173,7 +172,7 @@ def create_id(
     return ids
 
 
-def create_spatial_id(Series, random_state=42):
+def create_spatial_id(series, random_state=42):
     """
     Function to create IDs indipended on the survey_date, but related to to distance, tr_id and location only.
     Equivalent to use coordinates field.
@@ -189,10 +188,10 @@ def create_spatial_id(Series, random_state=42):
     # and location. Useful ID, but equivalent to use coordinates field.
 
     ids = (
-        str(np.round(float(Series.distance), 2))
+        str(np.round(float(series.distance), 2))
         + "0"
-        + str(Series.tr_id)
-        + str(Series.location)
+        + str(series.tr_id)
+        + str(series.location)
     )
     ids = ids.replace(".", "0").replace("-", "")
     char_list = list(ids)  # convert string inti list
@@ -316,7 +315,7 @@ def extract_loc_date(name, loc_search_dict, split_by="_"):
         date = find_date_string(name)
         print(f"Date found: {date}")
 
-    names = set((os.path.split(name)[-1].split("_")))
+    names = set((os.path.split(name)[-1].split(split_by)))
 
     for loc_code, raw_strings_loc in zip(
         loc_search_dict.keys(), list(loc_search_dict.values())
@@ -476,7 +475,7 @@ def open_gcp_file(csv_file, crs):
     return gcp
 
 
-def timeseries_to_gdf(path_timeseries_folder):
+def timeseries_to_gdf(path_timeseries_folder,list_loc_codes):
     """Returns a Geodataframe of geometries, location and survey_dates from a folder of timeseries files.
 
     Args:
@@ -494,7 +493,7 @@ def timeseries_to_gdf(path_timeseries_folder):
         tmp_dict = {
             "geometry": tmp.geometry,
             "survey_date": getDate(i),
-            "location": getLoc(i),
+            "location": getLoc(i, list_loc_codes),
         }
         gdf_tmp = gpd.GeoDataFrame(tmp_dict, crs=tmp.geometry.crs)
         gcp_gdf = pd.concat([gcp_gdf, gdf_tmp], ignore_index=True)
@@ -507,7 +506,6 @@ def gdf_distance_matrix(gdf1, gdf2, crs={"init": "epsg:3857"}):
     Calculate the distance matrix between two GeoDataFrames
     Both GeoDataFrames must have the source crs set in order to be projected.
 
-    [source: https://gist.github.com/1papaya]
 
     Parameters
     ----------

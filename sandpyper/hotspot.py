@@ -1,11 +1,8 @@
 """Hotspot module."""
 
-import numpy as np
 from tqdm.notebook import tqdm
 import pandas as pd
 import geopandas as gpd
-
-
 from pysal.lib import weights
 import pysal.explore.esda.moran as moran
 from pysal.explore.esda.util import fdr
@@ -75,7 +72,6 @@ def LISA_site_level(
 
             if mode == "distance":
                 dist = distance_value
-                optimal_distance = dist  # USELESS
                 dist_mode = "distance_band"
                 decay = 0
 
@@ -86,7 +82,6 @@ def LISA_site_level(
                 # distance
             if mode == "idw":
                 dist = distance_value
-                optimal_distance = dist  # USELESS
                 dist_mode = "idw"
                 decay = decay
 
@@ -99,7 +94,6 @@ def LISA_site_level(
             elif mode == "knn":
 
                 k = k_value
-                optimal_distance = k
                 dist_mode = "k"
                 decay = 0
 
