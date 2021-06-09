@@ -290,6 +290,7 @@ def extract_loc_date(name, loc_search_dict, split_by="_"):
         if len(match) == 1:
 
             location_code_found = loc_code
+            break
 
         else:
             pass
