@@ -27,7 +27,7 @@ def test_format (filename, loc_search_dict):
 
     re_list_loc='|'.join(loc_search_dict.keys())
     regx=rf"\d{{8}}_({re_list_loc})_(ortho|dsm)\.(tiff|tif)"
-    
+
     try:
         re.search(regx, filename).group()
         return True
@@ -274,9 +274,9 @@ def extract_loc_date(name, loc_search_dict, split_by="_"):
 
     try:
         date=getDate(name)
-        print("Proceeding with automated regular expression match")
 
     except:
+        print("Proceeding with automated regular expression match")
         date=find_date_string(name)
         print(f"Date found: {date}")
 
