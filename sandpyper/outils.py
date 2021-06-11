@@ -11,6 +11,9 @@ from rasterio import features
 import geopandas as gpd
 import pandas as pd
 
+from fuzzywuzzy import fuzz
+from itertools import chain
+
 from shapely.geometry import Point, Polygon
 # from astropy.stats import median_absolute_deviation
 
@@ -258,42 +261,82 @@ def getListOfDate(list_dsm):
 
 
 def extract_loc_date(name, loc_search_dict, split_by="_"):
+
     """
-    Get the location code (e.g. wbl, por) and raw dates (e.g. 20180902) from pre-formatted filenames.
+
+    Get the location code (e.g. wbl, por) and raw dates (e.g. 20180902) from filenames using the search dictionary.
+    If no location is found using exact matches, a fuzzy word match is implemented, searching closest matches
+    between locations in filenames and search candidates provided in the loc_search_dict dictionary. 
 
     Args:
+
         name (str): full filenames of the tipy 'C:\\jupyter\\data_in_gcp\\20180601_mar_gcps.csv').
-
         loc_search_dict (dict): a dictionary where keys are the location codes and values are lists containing the expected full location string (["Warrnambool", "warrnambool","warrny"]).
-
         split_by (str): the character used to split the name (default= '_').
 
     Returns:
+
         ('location',raw_date) : tuple with location and raw date.
+
     """
 
     try:
+
         date=getDate(name)
 
     except:
+
         print("Proceeding with automated regular expression match")
+
         date=find_date_string(name)
+
         print(f"Date found: {date}")
+
+
 
     names = set((os.path.split(name)[-1].split("_")))
 
-    for loc_code, raw_strings_loc in zip(
-            loc_search_dict.keys(), list(
-            loc_search_dict.values())):  # loop trhough all possible lists of raw strings
+    locations_search_names=list(loc_search_dict.values())
+    locations_codes=list(loc_search_dict.keys())
+
+    for loc_code, raw_strings_loc in zip(locations_codes, locations_search_names):  # loop trhough all possible lists of raw strings
+
         raw_str_set = set(raw_strings_loc)
+
         match = raw_str_set.intersection(names)
 
         if len(match) >= 1:
 
             location_code_found = loc_code
+
             break
 
-    return (location_code_found, date)
+    try:
+        return (location_code_found, date)
+
+    except:
+        # location not found. Let's implement fuzzy string match.
+
+        scores =[]
+        for i,search_loc in enumerate(locations_search_names):
+            for word in search_loc:
+                score=fuzz.ratio(word,names) # how close is each candidate word to the list of names which contain the location?
+                scores.append([score,i,word])
+
+        scores_arr=np.array(scores) # just to safely use np.argmax on a specified dimension
+
+        max_score_idx=scores_arr[:,:2].astype(int).argmax(0)[0] # returns the index of the maximum score in scores array
+        closest_loc_idx=scores[max_score_idx][0] # closest location found
+        closest_loc_code_idx=scores[max_score_idx][1] # closest code found
+
+        closest_word=scores[max_score_idx][-1]
+        loc_code=locations_codes[closest_loc_code_idx]
+
+        print(f"Location not understood in {name}.\n\
+        Fuzzy word matching found {closest_word}, which corresponds to location code: {loc_code} ")
+
+        return (loc_code, date)
+
 
 
 # def nmad(in_series):
