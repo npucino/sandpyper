@@ -10,6 +10,7 @@ from sandpyper.profile import extract_from_folder, get_profiles
 
 import rasterio as ras
 import rasterio.mask as rasmask
+from rasterio.io import MemoryFile
 
 import os
 import glob
@@ -27,6 +28,7 @@ from shapely.geometry import (
     Polygon,
     MultiPolygon,
     mapping,
+    box,
 )
 from shapely.ops import split, snap, unary_union
 
@@ -1955,6 +1957,7 @@ def partial_tile_padding(
     out_idx,
     count,
     driver,
+    geotransform,
 ):
 
     ## This will be the tile name
@@ -2097,6 +2100,7 @@ def tile_to_disk(
     out_idx,
     count,
     driver,
+    geotransform,
 ):
 
     try:
@@ -2163,6 +2167,7 @@ def tiles_from_grid(
     mode="rgb",
     sel_bands=None,
     driver="PNG",
+    geotransform=False
 ):
     """
     Returns a dataframe with location, raw_date, filenames (paths) or geopackage index and CRS of each raster and its associated vector files.
@@ -2280,7 +2285,7 @@ def tiles_from_grid(
             )
 
             # get the future shape of the tile which is about to get created
-            geom_wdw = geometry_window(im, [mapping(geom)])
+            geom_wdw = geometry_window(dataset, [mapping(geom)])
             tile_shape = (geom_wdw.height, geom_wdw.width)
 
             if tile_shape == expected_shape:
@@ -2298,6 +2303,7 @@ def tiles_from_grid(
                     out_idx=out_idx,
                     count=count,
                     driver=driver,
+                    geotransform=geotransform,
                 )
 
             else:
@@ -2316,6 +2322,7 @@ def tiles_from_grid(
                     out_idx=out_idx,
                     count=count,
                     driver=driver,
+                    geotransform=geotransform,
                 )
 
 
