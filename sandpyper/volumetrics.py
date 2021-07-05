@@ -38,7 +38,7 @@ def prep_heatmap(df, lod, outliers=False, sigma_n=3):
 
     # add an int version of tr_id to sort better
     df["int_tr"] = df.tr_id.apply(lambda a: int(float(a)), convert_dtype=True)
-    df.rename({'distance': 'dist'}, axis=1, inplace=True)
+    df.rename({"distance": "dist"}, axis=1, inplace=True)
     df.dist.astype(float)
     df.sort_values(by=["int_tr", "dt", "dist"], inplace=True)  # sort
     df_piv = df.pivot("dist", "int_tr", "dh")
@@ -65,11 +65,12 @@ def prep_heatmap(df, lod, outliers=False, sigma_n=3):
 
             # applying LoDs
 
-            lod_table = pd.read_csv(lod)   # read in the lod table
+            lod_table = pd.read_csv(lod)  # read in the lod table
             loc = df.location.iloc[0]
             dt = df.dt.iloc[0]
             lod = lod_table.query(
-                f"location == '{loc}' and dt == '{dt}'").nmad  # extract nmad
+                f"location == '{loc}' and dt == '{dt}'"
+            ).nmad  # extract nmad
             # create condition (within LoD) to mask the dataframe
             cond = (df_piv >= -lod.values[0]) & (df_piv <= lod.values[0])
             # replace the values that satisfied the condition (within LoD) with zeroes
@@ -79,9 +80,12 @@ def prep_heatmap(df, lod, outliers=False, sigma_n=3):
             return df_piv2.sort_index(ascending=False)
         else:
             raise NameError(
-                "Not a valid file or path.Please provide a valid path to the LoD table")
+                "Not a valid file or path.Please provide a valid path to the LoD table"
+            )
 
-    elif isinstance(lod, (float, int)):  # if a numeric, use this value across all surveys
+    elif isinstance(
+        lod, (float, int)
+    ):  # if a numeric, use this value across all surveys
 
         lod = float(lod)
         cond = (df_piv >= -lod) & (df_piv <= lod)
@@ -121,11 +125,23 @@ def fill_gaps(data_in, y_heat_bottom_limit, bottom=True, y_heat_start=0, spacing
 
     multiplier = spacing * 100
     if bool(bottom):
-        bottom_fill_array = np.empty(((int(np.round(
-            y_heat_bottom_limit + spacing - data_in.index[-1], 1) * multiplier)), data_in.shape[1]))
+        bottom_fill_array = np.empty(
+            (
+                (
+                    int(
+                        np.round(y_heat_bottom_limit + spacing - data_in.index[-1], 1)
+                        * multiplier
+                    )
+                ),
+                data_in.shape[1],
+            )
+        )
         bottom_fill_array[:] = np.NaN
-        to_concat_after = pd.DataFrame(data=bottom_fill_array, index=np.arange(
-            data_in.index[-1], y_heat_bottom_limit + spacing, spacing), columns=data_in.columns)
+        to_concat_after = pd.DataFrame(
+            data=bottom_fill_array,
+            index=np.arange(data_in.index[-1], y_heat_bottom_limit + spacing, spacing),
+            columns=data_in.columns,
+        )
     else:
         pass
 
@@ -133,11 +149,9 @@ def fill_gaps(data_in, y_heat_bottom_limit, bottom=True, y_heat_start=0, spacing
     before_fill_array[:] = np.NaN
     to_concat_before = pd.DataFrame(
         data=before_fill_array,
-        index=np.arange(
-            y_heat_start,
-            data_in.index[0],
-            spacing),
-        columns=data_in.columns)
+        index=np.arange(y_heat_start, data_in.index[0], spacing),
+        columns=data_in.columns,
+    )
 
     if bool(bottom):
         return pd.concat([to_concat_before, data_in, to_concat_after.iloc[1:]])
@@ -156,7 +170,9 @@ def interpol_integrate(series):
     Returns:
         Volumetric change in cubic meters.
     """
-    min_dist, max_dist = series.first_valid_index(), series.last_valid_index(
+    min_dist, max_dist = (
+        series.first_valid_index(),
+        series.last_valid_index(),
     )  # get distances of first and last sand points
 
     interpol = series.loc[min_dist:max_dist].interpolate()  # interpolate linearly
@@ -197,14 +213,16 @@ def get_m3_m_location(data_in, transect_spacing=20):
     # compute alongshore beachface length
     along_beach = data_in.shape[1] * transect_spacing
 
-    tot_vol = sum((data_in.apply(interpol_integrate, axis=0)) *
-                  transect_spacing)  # compute net volume change
+    tot_vol = sum(
+        (data_in.apply(interpol_integrate, axis=0)) * transect_spacing
+    )  # compute net volume change
 
     return tot_vol / along_beach  # return m3_m alongshore
 
 
-def get_state_vol_table(sand_pts, lod, full_specs_table,
-                            transect_spacing=20, outliers=False, sigma_n=3):
+def get_state_vol_table(
+    sand_pts, lod, full_specs_table, transect_spacing=20, outliers=False, sigma_n=3
+):
     """
     Function to compute location-level altimetric beach change statistics from the multitemporal table.
     By default, only sand points beyond LoD are accounted for. Optionally, LoD filter can be turned off.
@@ -266,75 +284,71 @@ def get_state_vol_table(sand_pts, lod, full_specs_table,
 
             beach_length = len(data_in.columns) * transect_spacing
 
-            n_obs_valid = data_in.count().sum()  # sand only, within beachface, LoD filtered (default)
+            n_obs_valid = (
+                data_in.count().sum()
+            )  # sand only, within beachface, LoD filtered (default)
 
             abs_in = data_in[data_in > 0].sum().sum()  # total profiles rising
             abs_out = data_in[data_in < 0].sum().sum()  # total profiles lowering
             abs_net_change = data_in.sum().sum()  # net altimetric change
 
-            mec_m = abs_net_change / beach_length  # meters of elevation change per meter of beach
+            mec_m = (
+                abs_net_change / beach_length
+            )  # meters of elevation change per meter of beach
 
             norm_in = abs_in / n_obs_valid  # meters of profile rising per valid point
-            norm_out = abs_out / n_obs_valid  # meters of profile lowering per valid point
+            norm_out = (
+                abs_out / n_obs_valid
+            )  # meters of profile lowering per valid point
             norm_net_change = abs_net_change / n_obs_valid  # MEC
 
             tot_vol_depo = (
-                data_in_deposition.apply(
-                    interpol_integrate,
-                    axis=0) *
-                transect_spacing).sum()
+                data_in_deposition.apply(interpol_integrate, axis=0) * transect_spacing
+            ).sum()
             tot_vol_ero = (
-                data_in_erosion.apply(
-                    interpol_integrate,
-                    axis=0) *
-                transect_spacing).sum()
+                data_in_erosion.apply(interpol_integrate, axis=0) * transect_spacing
+            ).sum()
             net_vol_change = tot_vol_depo + tot_vol_ero
             location_m3_m = net_vol_change / beach_length
 
             if bool(skip_details) == False:
-                df_dict = {"location": loc,
-                           "location_full": full_loc,
-                           "dt": dt,
-                           "date_from": date_from,
-                           "date_to": date_to,
-                           "n_days": n_days,
-
-                           "abs_in": abs_in,
-                           "abs_out": abs_out,
-                           "abs_net_change": abs_net_change,
-                           "mec_m": mec_m,
-
-                           "norm_in": norm_in,
-                           "norm_out": norm_out,
-                           "norm_net_change": norm_net_change,
-
-                           "tot_vol_depo": tot_vol_depo,
-                           "tot_vol_ero": tot_vol_ero,
-                           "net_vol_change": tot_vol_depo - abs(tot_vol_ero),
-                           "location_m3_m": location_m3_m,
-
-                           "n_obs_valid": n_obs_valid
-                           }
+                df_dict = {
+                    "location": loc,
+                    "location_full": full_loc,
+                    "dt": dt,
+                    "date_from": date_from,
+                    "date_to": date_to,
+                    "n_days": n_days,
+                    "abs_in": abs_in,
+                    "abs_out": abs_out,
+                    "abs_net_change": abs_net_change,
+                    "mec_m": mec_m,
+                    "norm_in": norm_in,
+                    "norm_out": norm_out,
+                    "norm_net_change": norm_net_change,
+                    "tot_vol_depo": tot_vol_depo,
+                    "tot_vol_ero": tot_vol_ero,
+                    "net_vol_change": tot_vol_depo - abs(tot_vol_ero),
+                    "location_m3_m": location_m3_m,
+                    "n_obs_valid": n_obs_valid,
+                }
             else:
-                df_dict = {"location": loc,
-                           "dt": dt,
-
-                           "abs_in": abs_in,
-                           "abs_out": abs_out,
-                           "abs_net_change": abs_net_change,
-                           "mec_m": mec_m,
-
-                           "norm_in": norm_in,
-                           "norm_out": norm_out,
-                           "norm_net_change": norm_net_change,
-
-                           "tot_vol_depo": tot_vol_depo,
-                           "tot_vol_ero": tot_vol_ero,
-                           "net_vol_change": tot_vol_depo - abs(tot_vol_ero),
-                           "location_m3_m": location_m3_m,
-
-                           "n_obs_valid": n_obs_valid
-                           }
+                df_dict = {
+                    "location": loc,
+                    "dt": dt,
+                    "abs_in": abs_in,
+                    "abs_out": abs_out,
+                    "abs_net_change": abs_net_change,
+                    "mec_m": mec_m,
+                    "norm_in": norm_in,
+                    "norm_out": norm_out,
+                    "norm_net_change": norm_net_change,
+                    "tot_vol_depo": tot_vol_depo,
+                    "tot_vol_ero": tot_vol_ero,
+                    "net_vol_change": tot_vol_depo - abs(tot_vol_ero),
+                    "location_m3_m": location_m3_m,
+                    "n_obs_valid": n_obs_valid,
+                }
 
             df = pd.DataFrame(df_dict, index=[0])
 
@@ -343,8 +357,14 @@ def get_state_vol_table(sand_pts, lod, full_specs_table,
     return tr_df_full
 
 
-def get_transects_vol_table(sand_pts, lod, full_specs_table, transect_spacing=20,  # INTEGRATED
-                                outliers=False, sigma_n=3):
+def get_transects_vol_table(
+    sand_pts,
+    lod,
+    full_specs_table,
+    transect_spacing=20,  # INTEGRATED
+    outliers=False,
+    sigma_n=3,
+):
     """
     Function to compute transect-level altimetric change statistics from the multitemporal table.
     By default, only sand points beyond LoD are accounted for. Optionally, LoD filter can be turned off.
@@ -397,10 +417,11 @@ def get_transects_vol_table(sand_pts, lod, full_specs_table, transect_spacing=20
             tr_df = pd.DataFrame(trs_volumes)
             # normalise the volume change computed in the transect by its cross-shore
             # length
-            tr_df['m3_m'] = (trs_volumes.values * transect_spacing) / \
-                beach_lengths.values
+            tr_df["m3_m"] = (
+                trs_volumes.values * transect_spacing
+            ) / beach_lengths.values
             tr_df = tr_df.reset_index()
-            tr_df.rename({'int_tr': 'tr_id'}, axis=1, inplace=True)
+            tr_df.rename({"int_tr": "tr_id"}, axis=1, inplace=True)
 
             tr_df["n_obs_valid"] = data_in.count().values
             tr_df["abs_in"] = data_in[data_in > 0].sum().values
@@ -411,8 +432,9 @@ def get_transects_vol_table(sand_pts, lod, full_specs_table, transect_spacing=20
 
             tr_df["norm_in"] = tr_df.abs_in.values / tr_df.n_obs_valid.values
             tr_df["norm_out"] = tr_df.abs_out.values / tr_df.n_obs_valid.values
-            tr_df["norm_net_change"] = tr_df.abs_net_change.values / \
-                tr_df.n_obs_valid.values
+            tr_df["norm_net_change"] = (
+                tr_df.abs_net_change.values / tr_df.n_obs_valid.values
+            )
 
             tr_df["dt"] = dt
             tr_df["location"] = loc
@@ -431,32 +453,31 @@ def get_transects_vol_table(sand_pts, lod, full_specs_table, transect_spacing=20
     return transects_df_full
 
 
-def plot_alongshore_change(sand_pts,
-                               mode,
-                               lod,
-                               full_specs_table,
-                               return_data=False,
-                               location_subset=['wbl'],
-                               dt_subset=['dt_0'],
-                               ax2_y_lims=(-8,
-                                           5),
-                               save=False,
-                               save_path="C:\\your\\preferred\\folder\\",
-                               dpi=300,
-                               img_type=".png",
-                               from_land=True,
-                               from_origin=True,
-                               add_orient=False,
-                               fig_size=(7.3,
-                                         3),
-                               font_scale=1,
-                               plots_spacing=0,
-                               bottom=False,
-                               y_heat_bottom_limit=80,
-                               transect_spacing=20,
-                               outliers=False,
-                               sigma_n=3,
-                               ):
+def plot_alongshore_change(
+    sand_pts,
+    mode,
+    lod,
+    full_specs_table,
+    return_data=False,
+    location_subset=["wbl"],
+    dt_subset=["dt_0"],
+    ax2_y_lims=(-8, 5),
+    save=False,
+    save_path="C:\\your\\preferred\\folder\\",
+    dpi=300,
+    img_type=".png",
+    from_land=True,
+    from_origin=True,
+    add_orient=False,
+    fig_size=(7.3, 3),
+    font_scale=1,
+    plots_spacing=0,
+    bottom=False,
+    y_heat_bottom_limit=80,
+    transect_spacing=20,
+    outliers=False,
+    sigma_n=3,
+):
     """
     Display and optionally save alongshore altimetric and volumetric beach changes plots.
     A subset of locations and periods can be plotted.
@@ -499,28 +520,35 @@ def plot_alongshore_change(sand_pts,
         if bool(full_specs_table) == False:
             skip_details = True
         else:
-            raise TypeError("Not a DataFrame, nor a valid path to the .csv file for the specs table.")
+            raise TypeError(
+                "Not a DataFrame, nor a valid path to the .csv file for the specs table."
+            )
     elif isinstance(full_specs_table, str):
         if os.path.isfile(full_specs_table):
             table_details = pd.read_csv(full_specs_table)
             skip_details = False
         else:
-            TypeError("The path provided in full_spec_table is not a valid path to the .csv file.")
+            TypeError(
+                "The path provided in full_spec_table is not a valid path to the .csv file."
+            )
     elif isinstance(full_specs_table, pd.DataFrame):
         table_details = full_specs_table
         skip_details = False
     else:
-        raise TypeError("Not a DataFrame, nor a valid path to the .csv file for the specs table.")
+        raise TypeError(
+            "Not a DataFrame, nor a valid path to the .csv file for the specs table."
+        )
 
-    land_limits = pd.DataFrame(sand_pts.groupby(
-        ["location"]).distance.max()).reset_index()
+    land_limits = pd.DataFrame(
+        sand_pts.groupby(["location"]).distance.max()
+    ).reset_index()
 
     locations_to_analyse = sand_pts.location.unique()
 
     if bool(from_origin):
-        xlabel = ''
+        xlabel = ""
     else:
-        xlabel = 'Transect ID'
+        xlabel = "Transect ID"
 
     if mode == "subset":
         locations_to_analyse = location_subset
@@ -543,8 +571,12 @@ def plot_alongshore_change(sand_pts,
                 pass
 
             # prepare axes and figure
-            f, (ax, ax2) = plt.subplots(nrows=2, figsize=fig_size, sharex=True,
-                                        gridspec_kw={'hspace': plots_spacing})
+            f, (ax, ax2) = plt.subplots(
+                nrows=2,
+                figsize=fig_size,
+                sharex=True,
+                gridspec_kw={"hspace": plots_spacing},
+            )
 
             # _____________data_preparation______________
 
@@ -569,14 +601,17 @@ def plot_alongshore_change(sand_pts,
                 if os.path.isfile(lod):
                     table = pd.read_csv(lod_table_path)
                     lod = np.round(
-                        lod_table.query(f"location == '{loc}' and dt == '{dt}'").nmad.values[0],
-                        2)  # extract nmad
+                        lod_table.query(
+                            f"location == '{loc}' and dt == '{dt}'"
+                        ).nmad.values[0],
+                        2,
+                    )  # extract nmad
             elif isinstance(lod, (float, int)):
                 lod = lod
             else:
                 lod = 0.05
 
-    # FIGURE_______________________________________________________________________
+            # FIGURE_______________________________________________________________________
 
             #
             axins = ax.inset_axes(bounds=[1.02, 0, 0.04, 1])
@@ -597,42 +632,42 @@ def plot_alongshore_change(sand_pts,
             data_in_filled = fill_gaps(data_in, y_heat_bottom_limit, bottom=bottom)
             print(f"Working on {loc} at {dt}")
 
-        # _______AX__________________________________________________________________
+            # _______AX__________________________________________________________________
 
             sb.heatmap(
                 data=data_in_filled,
                 yticklabels=50,
                 xticklabels=10,
-                facecolor='w',
+                facecolor="w",
                 robust=True,
                 center=0,
                 ax=ax,
-                cbar_kws={
-                    'label': u'Δh m AHD'},
+                cbar_kws={"label": "Δh m AHD"},
                 cbar=True,
                 cbar_ax=axins,
                 cmap="seismic_r",
                 vmin=-0.8,
-                vmax=0.8)
+                vmax=0.8,
+            )
 
             # _________________________________BACKGROUND COLOR AND TRANSPARENCY_____
-            ax.patch.set_facecolor('grey')
+            ax.patch.set_facecolor("grey")
             ax.patch.set_alpha(0.2)
 
             # _________________________________AXIS LABELS_____
             ax.set_xlabel("")
             ax.set_ylabel("Cross. distance (m)")
-            ax.set_title(f'')
+            ax.set_title(f"")
 
             # __________________________________SPINES,TICKS_AND_GRIDS_________________________________
             ax.get_xaxis().set_visible(True)
-            ax.spines['bottom'].set_visible(True)
-            ax.spines['left'].set_visible(True)
-            ax.spines['right'].set_visible(True)
-            ax.spines['top'].set_visible(True)
+            ax.spines["bottom"].set_visible(True)
+            ax.spines["left"].set_visible(True)
+            ax.spines["right"].set_visible(True)
+            ax.spines["top"].set_visible(True)
 
-            ax.grid(b=True, which='minor', linewidth=0.3, ls='-')
-            ax.grid(b=True, which='major', linewidth=0.8, ls='-')
+            ax.grid(b=True, which="minor", linewidth=0.3, ls="-")
+            ax.grid(b=True, which="major", linewidth=0.8, ls="-")
 
             ax.set_xticks(ax.get_xticks() - 0.5)
 
@@ -648,22 +683,22 @@ def plot_alongshore_change(sand_pts,
             ax.yaxis.set_major_formatter(y_formatter)
             ax.yaxis.set_major_locator(y_locator)
             ax.yaxis.set_minor_locator(AutoMinorLocator(4))
-            ax.grid(which='minor', axis='y')
+            ax.grid(which="minor", axis="y")
 
             ax.set_ylim(y_heat_bottom_limit * 10, 0)
-            ax.tick_params(axis=u'x', which=u'both', length=0)
+            ax.tick_params(axis="x", which="both", length=0)
 
-        # __AX2___________________________________________________________________
+            # __AX2___________________________________________________________________
 
-            red_patch = mpatches.Patch(color='orange', label='Erosion')
-            blue_patch = mpatches.Patch(color='skyblue', label='Deposition')
+            red_patch = mpatches.Patch(color="orange", label="Erosion")
+            blue_patch = mpatches.Patch(color="skyblue", label="Deposition")
 
             trs_volumes = data_in.apply(interpol_integrate, axis=0)
             beach_lengths = data_in.apply(get_beachface_length, axis=0)
 
             m3_m = (trs_volumes * transect_spacing) / beach_lengths
 
-            trs_volumes.reset_index().rename({'int_tr': 'tr_id'}, axis=1, inplace=True)
+            trs_volumes.reset_index().rename({"int_tr": "tr_id"}, axis=1, inplace=True)
             trs_volumes.name = "dh"
             tr_df = pd.DataFrame(trs_volumes)
 
@@ -674,7 +709,7 @@ def plot_alongshore_change(sand_pts,
             tr_df.set_index("int_tr")
             tr_df.reset_index(inplace=True)
 
-            sb.lineplot(data=tr_df, x='index', y='net_balance_m3_m', ax=ax2, color='k')
+            sb.lineplot(data=tr_df, x="index", y="net_balance_m3_m", ax=ax2, color="k")
             ax2.set_ylim(ax2_y_lims)
             ax2.yaxis.set_minor_locator(AutoMinorLocator(4))
 
@@ -682,7 +717,7 @@ def plot_alongshore_change(sand_pts,
 
             if bool(add_orient):
                 ax3 = ax2.twinx()
-                ax3.set_ylabel('Transect Orientation (° TN)')
+                ax3.set_ylabel("Transect Orientation (° TN)")
 
                 if bool(from_origin):
                     ax3.scatter(tr_or.tr_id, tr_or.tr_orientation, alpha=0.5, c="k")
@@ -695,32 +730,45 @@ def plot_alongshore_change(sand_pts,
 
             line_x, line_y = ax2.lines[0].get_data()
 
-            ax2.fill_between(line_x, line_y, where=(line_y > 0),
-                             interpolate=True, color='skyblue', alpha=0.3)
+            ax2.fill_between(
+                line_x,
+                line_y,
+                where=(line_y > 0),
+                interpolate=True,
+                color="skyblue",
+                alpha=0.3,
+            )
 
-            ax2.fill_between(line_x, line_y, where=(line_y < 0),
-                             interpolate=True, color='orange', alpha=0.3)
+            ax2.fill_between(
+                line_x,
+                line_y,
+                where=(line_y < 0),
+                interpolate=True,
+                color="orange",
+                alpha=0.3,
+            )
 
-            ax2.grid(b=True, which='minor', linewidth=0.5, ls='-')
-            ax2.grid(b=True, which='major', linewidth=0.8, ls='-')
+            ax2.grid(b=True, which="minor", linewidth=0.5, ls="-")
+            ax2.grid(b=True, which="major", linewidth=0.8, ls="-")
 
             ax2.set_xlabel("Along. distance (m)")
-            ax2.set_ylabel(u'Net Δv (m³/m)')
-            ax2.axhline(0, color='k', ls="--", zorder=1)
-            ax2.set_title(f'')
+            ax2.set_ylabel("Net Δv (m³/m)")
+            ax2.axhline(0, color="k", ls="--", zorder=1)
+            ax2.set_title(f"")
 
-            ax2.spines['top'].set_visible(False)
-            ax2.spines['right'].set_visible(True)
-            ax2.spines['left'].set_visible(True)
-            ax2.spines['bottom'].set_visible(True)
-            ax2.grid(which='minor', axis='y')
+            ax2.spines["top"].set_visible(False)
+            ax2.spines["right"].set_visible(True)
+            ax2.spines["left"].set_visible(True)
+            ax2.spines["bottom"].set_visible(True)
+            ax2.grid(which="minor", axis="y")
 
             if bool(skip_details) == False:
                 date_from_str = pd.to_datetime(str(date_from)).strftime("%d %b '%y")
                 date_to_str = pd.to_datetime(str(date_to)).strftime("%d %b '%y")
 
                 f.suptitle(
-                    f"Beachface change in {full_loc} from {date_from_str} to {date_to_str} (LoD = {lod} m)")
+                    f"Beachface change in {full_loc} from {date_from_str} to {date_to_str} (LoD = {lod} m)"
+                )
             else:
 
                 f.suptitle(f"Beachface change in {loc} for {dt} (LoD = {lod} m)")
@@ -736,7 +784,7 @@ def plot_alongshore_change(sand_pts,
             ax2.set_zorder(0)
 
             if bool(save):
-                savetxt = save_path + loc + '_' + dt + "_AlongChange" + img_type
+                savetxt = save_path + loc + "_" + dt + "_AlongChange" + img_type
                 f.savefig(savetxt, dpi=dpi, bbox_inches="tight")
             else:
                 pass
@@ -745,27 +793,28 @@ def plot_alongshore_change(sand_pts,
     if return_data:
         return data_in_filled
 
-def plot_mec_evolution(volumetrics,
-                       location_field,
-                       loc_order,
-                       date_from_field="date_pre",
-                       date_to_field="date_post",
-                       date_format="%d.%m.%y",
-                       scale_mode="equal",
-                       x_diff=None,
-                       dates_step=50,
-                       x_limits=(-0.41,
-                                 0.41),
-                       x_binning=5,
-                       figure_size=(7,
-                                    4),
-                       font_scale=0.75,
-                       sort_locations=True,
-                       dpi=300,
-                       img_type=".png",
-                       save_fig=False,
-                       name_fig=f"Mean Elevation Changes",
-                       save_path=None):
+
+def plot_mec_evolution(
+    volumetrics,
+    location_field,
+    loc_order,
+    date_from_field="date_pre",
+    date_to_field="date_post",
+    date_format="%d.%m.%y",
+    scale_mode="equal",
+    x_diff=None,
+    dates_step=50,
+    x_limits=(-0.41, 0.41),
+    x_binning=5,
+    figure_size=(7, 4),
+    font_scale=0.75,
+    sort_locations=True,
+    dpi=300,
+    img_type=".png",
+    save_fig=False,
+    name_fig=f"Mean Elevation Changes",
+    save_path=None,
+):
     """
     Display and optionally save global volumetric timeseries plots, displaying period-specific Mean Elevation Change (mec, in m) and cumulative mec (since start of the monitoring), across lcoations.
 
@@ -795,14 +844,14 @@ def plot_mec_evolution(volumetrics,
 
     pd.options.mode.chained_assignment = None  # default='warn'
 
-    sb.set_context('paper', font_scale=font_scale)
+    sb.set_context("paper", font_scale=font_scale)
     myFmt = DateFormatter("%d.%m.%y")
 
     # sort the locations
     if bool(sort_locations):
 
         sorterIndex = dict(zip(loc_order, range(len(loc_order))))
-        volumetrics['loc_rank'] = volumetrics['location'].map(sorterIndex)
+        volumetrics["loc_rank"] = volumetrics["location"].map(sorterIndex)
         volumetrics.sort_values(["loc_rank", "dt"], inplace=True)
 
     else:
@@ -811,10 +860,14 @@ def plot_mec_evolution(volumetrics,
     num_subplots = volumetrics.location.unique().shape[0]
     if num_subplots > 1:
 
-        fig, axs = plt.subplots(1, num_subplots,
-                                sharey=True, sharex=False,
-                                squeeze=True,
-                                figsize=figure_size)
+        fig, axs = plt.subplots(
+            1,
+            num_subplots,
+            sharey=True,
+            sharex=False,
+            squeeze=True,
+            figsize=figure_size,
+        )
 
         for ax_i, loc in zip(axs.flatten(), volumetrics.location.unique()):
 
@@ -846,17 +899,17 @@ def plot_mec_evolution(volumetrics,
             ax_i.plot(x_start, y_start, lw=1, c="k", zorder=3)
 
             # Vertical Line
-            ax_i.axvline(0, color='grey', ls='-', lw=0.8, zorder=0)
+            ax_i.axvline(0, color="grey", ls="-", lw=0.8, zorder=0)
 
             # Spines
-            ax_i.spines['right'].set_visible(False)
-            ax_i.spines['left'].set_visible(False)
-            ax_i.spines['top'].set_visible(False)
-            ax_i.spines['bottom'].set_linewidth(0.8)
-            ax_i.spines['bottom'].set_color("k")
+            ax_i.spines["right"].set_visible(False)
+            ax_i.spines["left"].set_visible(False)
+            ax_i.spines["top"].set_visible(False)
+            ax_i.spines["bottom"].set_linewidth(0.8)
+            ax_i.spines["bottom"].set_color("k")
 
             # Grid
-            ax_i.grid(color='grey', linestyle='-', linewidth=0.8, alpha=0.3)
+            ax_i.grid(color="grey", linestyle="-", linewidth=0.8, alpha=0.3)
 
             # ScatterPlots
             ax_i.scatter(x, y, c="k", s=5, zorder=5)
@@ -874,19 +927,24 @@ def plot_mec_evolution(volumetrics,
                     tick_step = 0.1
 
                 ticks_value = np.arange(
-                    round_special(
-                        min(x), 0.05), round_special(
-                        max(x), 0.05) + tick_step, tick_step)
+                    round_special(min(x), 0.05),
+                    round_special(max(x), 0.05) + tick_step,
+                    tick_step,
+                )
                 ax_i.set_xticks(ticks_value)
 
             elif scale_mode == "equal":
-                if isinstance(x_diff,dict):
+                if isinstance(x_diff, dict):
 
                     if loc in x_diff.keys():
-                        print(f"x_diff provided. Setting xlims of {loc} = {x_diff[loc][0],x_diff[loc][1]} ")
-                        ax_i.set_xlim(x_diff[loc][0],x_diff[loc][1])
+                        print(
+                            f"x_diff provided. Setting xlims of {loc} = {x_diff[loc][0],x_diff[loc][1]} "
+                        )
+                        ax_i.set_xlim(x_diff[loc][0], x_diff[loc][1])
                     else:
-                        print(f"x_diff provided but {loc} not found. Setting xlims= {x_limits} ")
+                        print(
+                            f"x_diff provided but {loc} not found. Setting xlims= {x_limits} "
+                        )
                         ax_i.set_xlim(x_limits)
                 else:
                     ax_i.set_xlim(x_limits)
@@ -895,13 +953,13 @@ def plot_mec_evolution(volumetrics,
             ax_i.yaxis.set_ticks(np.arange(start, end, dates_step))
 
             # SubPlot Title
-            ax_i.set_title(f'{full_loc}')
+            ax_i.set_title(f"{full_loc}")
             ax_i.yaxis.grid(True)
             ax_i.yaxis.set_major_formatter(myFmt)
 
         for ax in fig.axes:
             plt.sca(ax)
-            plt.locator_params(axis='x', nbins=x_binning)
+            plt.locator_params(axis="x", nbins=x_binning)
 
             plt.xticks(rotation=90)
 
@@ -937,17 +995,17 @@ def plot_mec_evolution(volumetrics,
         ax.plot(x_start, y_start, lw=1, c="k", zorder=3)
 
         # Vertical Line
-        ax.axvline(0, color='grey', ls='-', lw=0.8, zorder=0)
+        ax.axvline(0, color="grey", ls="-", lw=0.8, zorder=0)
 
         # Spines
-        ax.spines['right'].set_visible(False)
-        ax.spines['left'].set_visible(False)
-        ax.spines['top'].set_visible(False)
-        ax.spines['bottom'].set_linewidth(0.8)
-        ax.spines['bottom'].set_color("k")
+        ax.spines["right"].set_visible(False)
+        ax.spines["left"].set_visible(False)
+        ax.spines["top"].set_visible(False)
+        ax.spines["bottom"].set_linewidth(0.8)
+        ax.spines["bottom"].set_color("k")
 
         # Grid
-        ax.grid(color='grey', linestyle='-', linewidth=0.8, alpha=0.3)
+        ax.grid(color="grey", linestyle="-", linewidth=0.8, alpha=0.3)
 
         # ScatterPlots
         ax.scatter(x, y, c="k", s=5, zorder=5)
@@ -965,13 +1023,14 @@ def plot_mec_evolution(volumetrics,
                 tick_step = 0.1
 
             ticks_value = np.arange(
-                round_special(
-                    min(x), 0.05), round_special(
-                    max(x), 0.05) + tick_step, tick_step)
+                round_special(min(x), 0.05),
+                round_special(max(x), 0.05) + tick_step,
+                tick_step,
+            )
             ax.set_xticks(ticks_value)
 
-        elif scale_mode == "equal":             # Inverloch different scale, for display purposes
-            if loc != 'inv':
+        elif scale_mode == "equal":  # Inverloch different scale, for display purposes
+            if loc != "inv":
 
                 ax.set_xlim(x_limits)
             else:
@@ -984,13 +1043,13 @@ def plot_mec_evolution(volumetrics,
         ax.yaxis.set_ticks(np.arange(start, end, dates_step))
 
         # SubPlot Title
-        ax.set_title(f'{full_loc}')
+        ax.set_title(f"{full_loc}")
         ax.yaxis.grid(True)
         ax.yaxis.set_major_formatter(myFmt)
 
     for ax in fig.axes:
         plt.sca(ax)
-        plt.locator_params(axis='x', nbins=x_binning)
+        plt.locator_params(axis="x", nbins=x_binning)
 
         plt.xticks(rotation=90)
 
@@ -1004,15 +1063,18 @@ def plot_mec_evolution(volumetrics,
     else:
         pass
 
-def plot_single_loc (df,
-                    loc_subset,
-                    figsize,
-                    colors_dict,
-                    linewidth,
-                    out_date_format,
-                    xlabel,
-                    ylabel,
-                    suptitle):
+
+def plot_single_loc(
+    df,
+    loc_subset,
+    figsize,
+    colors_dict,
+    linewidth,
+    out_date_format,
+    xlabel,
+    ylabel,
+    suptitle,
+):
     """
     Display Mean Elevation Change (mec, in m) and cumulative mec (since start of the monitoring), for a single location.
 
@@ -1029,58 +1091,75 @@ def plot_single_loc (df,
     Returns:
         An matplotlib.ax containing the plot.
     """
-    f,ax=plt.subplots(figsize=figsize)
+    f, ax = plt.subplots(figsize=figsize)
 
     if isinstance(colors_dict, dict):
         print("Color dictionary provided.")
-        color_mode="dictionary"
+        color_mode = "dictionary"
 
     elif colors_dict == None:
 
-        num_colors=len(loc_subset)
-        cmapa = plt.cm.get_cmap('tab20c')
-        cs=[cmapa(i) for i in np.linspace(0, 0.5, num_colors)]
-        color_mode="auto"
+        num_colors = len(loc_subset)
+        cmapa = plt.cm.get_cmap("tab20c")
+        cs = [cmapa(i) for i in np.linspace(0, 0.5, num_colors)]
+        color_mode = "auto"
 
     else:
         raise TypeError("Error in specifying color dictionary.")
 
-    dataset_in=df.query(f"location in {loc_subset}")
+    dataset_in = df.query(f"location in {loc_subset}")
 
-    for i,location in enumerate(dataset_in.location.unique()):
+    for i, location in enumerate(dataset_in.location.unique()):
 
-        dataset=dataset_in.query(f"location=='{location}'")
+        dataset = dataset_in.query(f"location=='{location}'")
 
-        if color_mode=="dictionary":
-            color_i=colors_dict[location]
-        elif color_mode=="auto":
-            color_i=cs[i]
+        if color_mode == "dictionary":
+            color_i = colors_dict[location]
+        elif color_mode == "auto":
+            color_i = cs[i]
 
         # Calculate the cumulative net volumetric change and mean elevation change from start of monitoring
-        dataset["cum"]=dataset.net_vol_change.cumsum()
-        dataset["cum_mec"]=dataset.norm_net_change.cumsum()
+        dataset["cum"] = dataset.net_vol_change.cumsum()
+        dataset["cum_mec"] = dataset.norm_net_change.cumsum()
 
-        dataset["date_post"]=pd.to_datetime(dataset.date_post, dayfirst=False)
-        dataset["date_pre"]=pd.to_datetime(dataset.date_pre, dayfirst=False)
+        dataset["date_post"] = pd.to_datetime(dataset.date_post, dayfirst=False)
+        dataset["date_pre"] = pd.to_datetime(dataset.date_pre, dayfirst=False)
 
-        ax=sb.lineplot(data=dataset, x="date_post", color=color_i, y="net_vol_change",label=f"{location}: period",
-                      lw=linewidth)
-        ax=sb.lineplot(data=dataset, x="date_post", color=color_i, y="cum", label=f"{location}: cumulative",
-                       linestyle="--",lw=linewidth)
+        ax = sb.lineplot(
+            data=dataset,
+            x="date_post",
+            color=color_i,
+            y="net_vol_change",
+            label=f"{location}: period",
+            lw=linewidth,
+        )
+        ax = sb.lineplot(
+            data=dataset,
+            x="date_post",
+            color=color_i,
+            y="cum",
+            label=f"{location}: cumulative",
+            linestyle="--",
+            lw=linewidth,
+        )
 
-        ax=sb.scatterplot(data=dataset, color=color_i, x="date_post", y="net_vol_change")
-        ax=sb.scatterplot(data=dataset, color=color_i, x="date_post", y="cum")
+        ax = sb.scatterplot(
+            data=dataset, color=color_i, x="date_post", y="net_vol_change"
+        )
+        ax = sb.scatterplot(data=dataset, color=color_i, x="date_post", y="cum")
 
-        x_start=np.array([dataset.iloc[0].date_pre,dataset.iloc[0].date_post])
-        y_start=np.array([0,dataset.iloc[0].cum])
+        x_start = np.array([dataset.iloc[0].date_pre, dataset.iloc[0].date_post])
+        y_start = np.array([0, dataset.iloc[0].cum])
 
-        ax.plot(x_start,y_start, c=color_i)
-        ax.scatter(dataset.iloc[0].date_pre,0, c=color_i, marker="*")
+        ax.plot(x_start, y_start, c=color_i)
+        ax.scatter(dataset.iloc[0].date_pre, 0, c=color_i, marker="*")
 
     # the zero horizontal line
-    ax.axhline(0,c="k",lw=0.5)
+    ax.axhline(0, c="k", lw=0.5)
 
-    ax.set(xticks=np.append(dataset_in.date_pre.values,dataset_in.date_post.values[-1]))
+    ax.set(
+        xticks=np.append(dataset_in.date_pre.values, dataset_in.date_post.values[-1])
+    )
     ax.xaxis.set_major_formatter(dates.DateFormatter(out_date_format))
 
     plt.xticks(rotation=90)
@@ -1089,8 +1168,7 @@ def plot_single_loc (df,
     ax.set_xlabel(xlabel)
     ax.set_ylabel(ylabel)
 
-
     # the title of the plot
-    f.suptitle(suptitle);
+    f.suptitle(suptitle)
 
     return ax

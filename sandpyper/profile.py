@@ -14,7 +14,13 @@ import os
 import time
 import warnings
 
-from sandpyper.outils import create_id, filter_filename_list, getListOfFiles, getDate, getLoc
+from sandpyper.outils import (
+    create_id,
+    filter_filename_list,
+    getListOfFiles,
+    getDate,
+    getLoc,
+)
 
 
 def get_terrain_info(x_coord, y_coord, rdarray):
@@ -29,13 +35,12 @@ def get_terrain_info(x_coord, y_coord, rdarray):
         rdarray pixel value.
     """
 
-
     geotransform = rdarray.geotransform
 
-    xOrigin = geotransform[0]                         # top-left X
-    yOrigin = geotransform[3]                         # top-left y
-    pixelWidth = geotransform[1]                      # horizontal pixel resolution
-    pixelHeight = geotransform[5]                     # vertical pixel resolution
+    xOrigin = geotransform[0]  # top-left X
+    yOrigin = geotransform[3]  # top-left y
+    pixelWidth = geotransform[1]  # horizontal pixel resolution
+    pixelHeight = geotransform[5]  # vertical pixel resolution
     px = int((x_coord - xOrigin) / pixelWidth)  # transform geographic to image coords
     py = int((y_coord - yOrigin) / pixelHeight)  # transform geographic to image coords
 
@@ -60,7 +65,7 @@ def get_elevation(x_coord, y_coord, raster, bands, transform):
     elevation = []
     row, col = rowcol(transform, x_coord, y_coord, round)
 
-    for j in np.arange(bands):                  # we could iterate thru multiple bands
+    for j in np.arange(bands):  # we could iterate thru multiple bands
 
         try:
             data_z = raster.read(1, window=Window(col, row, 1, 1))
@@ -71,17 +76,21 @@ def get_elevation(x_coord, y_coord, raster, bands, transform):
     return elevation
 
 
-def get_raster_px (x_coord, y_coord, raster, bands=None, transform=None):
+def get_raster_px(x_coord, y_coord, raster, bands=None, transform=None):
 
     if isinstance(raster, richdem.rdarray):
         transform = rdarray.geotransform
 
-        xOrigin = transform[0]                         # top-left X
-        yOrigin = transform[3]                         # top-left y
-        pixelWidth = transform[1]                      # horizontal pixel resolution
-        pixelHeight = transform[5]                     # vertical pixel resolution
-        px = int((x_coord - xOrigin) / pixelWidth)  # transform geographic to image coords
-        py = int((y_coord - yOrigin) / pixelHeight)  # transform geographic to image coords
+        xOrigin = transform[0]  # top-left X
+        yOrigin = transform[3]  # top-left y
+        pixelWidth = transform[1]  # horizontal pixel resolution
+        pixelHeight = transform[5]  # vertical pixel resolution
+        px = int(
+            (x_coord - xOrigin) / pixelWidth
+        )  # transform geographic to image coords
+        py = int(
+            (y_coord - yOrigin) / pixelHeight
+        )  # transform geographic to image coords
 
         try:
             return rdarray[py, px]
@@ -90,17 +99,17 @@ def get_raster_px (x_coord, y_coord, raster, bands=None, transform=None):
 
     else:
         if bands == None:
-            bands=raster.count()
+            bands = raster.count()
 
-        if bands==1:
+        if bands == 1:
             try:
                 px_data = raster.read(1, window=Window(col, row, 1, 1))
                 return px_data[0][0]
             except BaseException:
                 return np.nan
         elif bands > 1:
-            px_data=[]
-            for band in range(1,bands+1):
+            px_data = []
+            for band in range(1, bands + 1):
                 try:
                     px_data_band = raster.read(band, window=Window(col, row, 1, 1))
                     px_data.append(px_data_band[0][0])
@@ -111,35 +120,36 @@ def get_raster_px (x_coord, y_coord, raster, bands=None, transform=None):
 
 
 def get_profiles(
-        dsm,
-        transect_file,
-        transect_index,
-        step,
-        location,
-        date_string,
-        add_xy=False,
-        add_terrain=False):
+    dsm,
+    transect_file,
+    transect_index,
+    step,
+    location,
+    date_string,
+    add_xy=False,
+    add_terrain=False,
+):
     """
-        Returns a tidy GeoDataFrame of profile data, extracting raster information
-        at a user-defined (step) meters gap along each transect.
+    Returns a tidy GeoDataFrame of profile data, extracting raster information
+    at a user-defined (step) meters gap along each transect.
 
-        Args:
-        dsm (str): path to the DSM raster.
-        transect_file (str): path to the transect file.
-        transect_index (int): index of the transect to extract information from.
-        step (int,float): sampling distance from one point to another in meters along the transect.
-        location (str): location code
-        date_string: raw format of the survey date (20180329)
-        add_xy (bool): True to add X and Y coordinates fields.
-        add_terrain (bool): True to add slope in degrees. Default to False.
+    Args:
+    dsm (str): path to the DSM raster.
+    transect_file (str): path to the transect file.
+    transect_index (int): index of the transect to extract information from.
+    step (int,float): sampling distance from one point to another in meters along the transect.
+    location (str): location code
+    date_string: raw format of the survey date (20180329)
+    add_xy (bool): True to add X and Y coordinates fields.
+    add_terrain (bool): True to add slope in degrees. Default to False.
 
-        Returns:
-        gdf (GeoDataFrame) : Profile data extracted from the raster.
+    Returns:
+    gdf (GeoDataFrame) : Profile data extracted from the raster.
     """
 
-    ds = ras.open(dsm, 'r')
-    bands = ds.count                      # get raster bands. One, in a classic DEM
-    transform = ds.transform            # get geotransform info
+    ds = ras.open(dsm, "r")
+    bands = ds.count  # get raster bands. One, in a classic DEM
+    transform = ds.transform  # get geotransform info
 
     # index each transect and store it a "line" object
     line = transect_file.loc[transect_index]
@@ -158,16 +168,21 @@ def get_profiles(
     # the foredunes.
 
     distance = []
-    tr_count = 0       # a variable used as "counter", to stop the FOR loop
+    tr_count = 0  # a variable used as "counter", to stop the FOR loop
     # when has gone thru all the transects
 
     for currentdistance in np.arange(0, int(length_m), step):
 
         # creation of the point on the line
         point = line.geometry.interpolate(currentdistance)
-        xp, yp = point.x, point.y    # storing point xy coordinates into xp,xy objects, respectively
+        xp, yp = (
+            point.x,
+            point.y,
+        )  # storing point xy coordinates into xp,xy objects, respectively
         x.append(xp)  # see below
-        y.append(yp)  # append point coordinates to previously created and empty x,y lists
+        y.append(
+            yp
+        )  # append point coordinates to previously created and empty x,y lists
         # extraction of the elevation value from DSM
         z.append(get_elevation(xp, yp, ds, bands, transform)[0])
         if str(type(add_terrain)) == "<class 'richdem.rdarray'>":
@@ -204,8 +219,9 @@ def get_profiles(
         ds4 = pd.Series((v[3] for v in profile_x_z))
         ds5 = pd.Series((v[4] for v in profile_x_z))
 
-        df = pd.DataFrame({"distance": ds1, "z": ds2, "tr_id": ds3,
-                           "raw_date": ds4, "slope": ds5})
+        df = pd.DataFrame(
+            {"distance": ds1, "z": ds2, "tr_id": ds3, "raw_date": ds4, "slope": ds5}
+        )
 
     else:
         profile_x_z = tuple(zip(distance, z, tr_id_list, date_list))
@@ -221,14 +237,12 @@ def get_profiles(
     # and coordinates of the points are added to a new column called "coordinates".
     # At last, we create a Pandas GeoDataFrame and set the geometry column = coordinates
 
-    df['coordinates'] = list(zip(x, y))
-    df['coordinates'] = df['coordinates'].apply(Point)
-    df['location'] = location
-    df['survey_date'] = pd.to_datetime(
-        date_string,
-        yearfirst=True,
-        dayfirst=False,
-        format='%Y%m%d')
+    df["coordinates"] = list(zip(x, y))
+    df["coordinates"] = df["coordinates"].apply(Point)
+    df["location"] = location
+    df["survey_date"] = pd.to_datetime(
+        date_string, yearfirst=True, dayfirst=False, format="%Y%m%d"
+    )
     gdf = gpd.GeoDataFrame(df, geometry="coordinates")
 
     # The proj4 info (coordinate reference system) is gathered with
@@ -270,7 +284,7 @@ def get_dn(x_coord, y_coord, raster, bands, transform):
     dn_val = []
     row, col = rowcol(transform, x_coord, y_coord, round)
 
-    for j in range(1, 4):                  # we could iterate thru multiple bands
+    for j in range(1, 4):  # we could iterate thru multiple bands
 
         try:
             data = raster.read(j, window=Window(col, row, 1, 1))
@@ -281,31 +295,26 @@ def get_dn(x_coord, y_coord, raster, bands, transform):
 
 
 def get_profile_dn(
-        ortho,
-        transect_file,
-        transect_index,
-        step,
-        location,
-        date_string,
-        add_xy=False):
+    ortho, transect_file, transect_index, step, location, date_string, add_xy=False
+):
     """
-        Returns a tidy GeoDataFrame of profile data, extracting raster information
-        at a user-defined (step) meters gap along each transect.
+    Returns a tidy GeoDataFrame of profile data, extracting raster information
+    at a user-defined (step) meters gap along each transect.
 
-        Args:
-        ortho (str): path to the DSM raster.
-        transect_file (str): path to the transect file.
-        transect_index (int): index of the transect to extract information from.
-        step (int,float): sampling distance from one point to another in meters along the transect.
-        location (str): location code
-        date_string: raw format of the survey date (20180329)
-        add_xy (bool): True to add X and Y coordinates fields.
+    Args:
+    ortho (str): path to the DSM raster.
+    transect_file (str): path to the transect file.
+    transect_index (int): index of the transect to extract information from.
+    step (int,float): sampling distance from one point to another in meters along the transect.
+    location (str): location code
+    date_string: raw format of the survey date (20180329)
+    add_xy (bool): True to add X and Y coordinates fields.
 
-        Returns:
-        gdf (GeoDataFrame) : Profile data extracted from the raster.
+    Returns:
+    gdf (GeoDataFrame) : Profile data extracted from the raster.
     """
 
-    ds = ras.open(ortho, 'r')
+    ds = ras.open(ortho, "r")
 
     bands = ds.count
 
@@ -322,9 +331,14 @@ def get_profile_dn(
     for currentdistance in np.arange(0, int(length_m), step):
         # creation of the point on the line
         point = line.geometry.interpolate(currentdistance)
-        xp, yp = point.x, point.y    # storing point xy coordinates into xp,xy objects, respectively
+        xp, yp = (
+            point.x,
+            point.y,
+        )  # storing point xy coordinates into xp,xy objects, respectively
         x.append(xp)  # see below
-        y.append(yp)  # append point coordinates to previously created and empty x,y lists
+        y.append(
+            yp
+        )  # append point coordinates to previously created and empty x,y lists
         dn.append(get_dn(xp, yp, ds, bands, transform))
 
         distance.append(currentdistance)
@@ -333,22 +347,22 @@ def get_profile_dn(
     dn2 = pd.Series((v[1] for v in dn))
     dn3 = pd.Series((v[2] for v in dn))
     df = pd.DataFrame({"distance": distance, "band1": dn1, "band2": dn2, "band3": dn3})
-    df['coordinates'] = list(zip(x, y))
-    df['coordinates'] = df['coordinates'].apply(Point)
-    df['location'] = location
-    df['survey_date'] = pd.to_datetime(date_string, format='%Y%m%d')
-    df['tr_id'] = transect_index
+    df["coordinates"] = list(zip(x, y))
+    df["coordinates"] = df["coordinates"].apply(Point)
+    df["location"] = location
+    df["survey_date"] = pd.to_datetime(date_string, format="%Y%m%d")
+    df["tr_id"] = transect_index
     gdf_rgb = gpd.GeoDataFrame(df, geometry="coordinates")
 
     # Last touch, the proj4 info (coordinate reference system) is gathered with
     # Geopandas and applied to the newly created one.
     gdf_rgb.crs = str(transect_file.crs)
 
-
     # Let's create unique IDs from the coordinates values, so that the Ids
     # follows the coordinates
-    gdf_rgb["point_id"] = [create_id(gdf_rgb.iloc[i])
-                           for i in range(0, gdf_rgb.shape[0])]
+    gdf_rgb["point_id"] = [
+        create_id(gdf_rgb.iloc[i]) for i in range(0, gdf_rgb.shape[0])
+    ]
 
     if bool(add_xy):
         # Adding long/lat fields
@@ -360,10 +374,16 @@ def get_profile_dn(
     return gdf_rgb
 
 
-
-def extract_from_folder(dataset_folder, transect_folder, list_loc_codes,
-                        mode, sampling_step,
-                        add_xy=False, add_slope=False, nan_values=-10000):
+def extract_from_folder(
+    dataset_folder,
+    transect_folder,
+    list_loc_codes,
+    mode,
+    sampling_step,
+    add_xy=False,
+    add_slope=False,
+    nan_values=-10000,
+):
     """
     Wrapper to extract profiles from all rasters inside a folder.
 
@@ -387,8 +407,8 @@ def extract_from_folder(dataset_folder, transect_folder, list_loc_codes,
 
     # Get a list of all the filenames and path
     list_files = filter_filename_list(
-        getListOfFiles(dataset_folder), fmt=[
-            '.tif', '.tiff'])
+        getListOfFiles(dataset_folder), fmt=[".tif", ".tiff"]
+    )
 
     dates = [getDate(dsm_in) for dsm_in in list_files]
 
@@ -407,7 +427,8 @@ def extract_from_folder(dataset_folder, transect_folder, list_loc_codes,
 
     if bool(add_slope):
         warnings.warn(
-            f'WARNING: add_terrain increases running time to up to {len(list_files)*3} minutes.')
+            f"WARNING: add_terrain increases running time to up to {len(list_files)*3} minutes."
+        )
 
     for dsm in tqdm(list_files):
 
@@ -418,8 +439,9 @@ def extract_from_folder(dataset_folder, transect_folder, list_loc_codes,
 
             terr = rd.LoadGDAL(dsm)
             print(
-                f"Computing slope DSM in degrees in {location} at date: {date_string} . . .")
-            slope = rd.TerrainAttribute(terr, attrib='slope_degrees')
+                f"Computing slope DSM in degrees in {location} at date: {date_string} . . ."
+            )
+            slope = rd.TerrainAttribute(terr, attrib="slope_degrees")
         else:
             slope = False
 
@@ -428,7 +450,7 @@ def extract_from_folder(dataset_folder, transect_folder, list_loc_codes,
 
         tr_list = np.arange(0, transect_file.shape[0])
         for i in tqdm(tr_list):
-            if mode == 'dsm':
+            if mode == "dsm":
                 temp = get_profiles(
                     dsm,
                     transect_file,
@@ -437,8 +459,9 @@ def extract_from_folder(dataset_folder, transect_folder, list_loc_codes,
                     location,
                     date_string=date_string,
                     add_xy=add_xy,
-                    add_terrain=slope)
-            elif mode == 'ortho':
+                    add_terrain=slope,
+                )
+            elif mode == "ortho":
                 temp = get_profile_dn(
                     dsm,
                     transect_file,
@@ -446,39 +469,44 @@ def extract_from_folder(dataset_folder, transect_folder, list_loc_codes,
                     sampling_step,
                     location,
                     date_string=date_string,
-                    add_xy=add_xy)
+                    add_xy=add_xy,
+                )
 
             gdf = pd.concat([temp, gdf], ignore_index=True)
 
         counter += 1
 
     if counter == len(list_files):
-        print('Extraction succesfull')
+        print("Extraction succesfull")
     else:
         print(f"There is something wrong with this dataset: {list_files[counter]}")
 
-    end = time. time()
+    end = time.time()
     timepassed = end - start
 
     print(
-        f"Number of points extracted:{gdf.shape[0]}\nTime for processing={timepassed} seconds\nFirst 10 rows are printed below")
+        f"Number of points extracted:{gdf.shape[0]}\nTime for processing={timepassed} seconds\nFirst 10 rows are printed below"
+    )
 
-    if mode == 'dsm':
-        nan_out = np.count_nonzero(np.isnan(np.array(gdf.z).astype('f')))
+    if mode == "dsm":
+        nan_out = np.count_nonzero(np.isnan(np.array(gdf.z).astype("f")))
         nan_raster = np.count_nonzero(gdf.z == nan_values)
         gdf.z.replace(-10000, np.nan, inplace=True)
 
     elif mode == "ortho":
         nan_out = np.count_nonzero(
-            np.isnan(np.array(gdf[["band1", "band2", "band3"]]).astype('f')))
+            np.isnan(np.array(gdf[["band1", "band2", "band3"]]).astype("f"))
+        )
         nan_raster = np.count_nonzero(gdf.band1 == nan_values)
         gdf.band1.replace(0.0, np.nan, inplace=True)
         gdf.band2.replace(0.0, np.nan, inplace=True)
         gdf.band3.replace(0.0, np.nan, inplace=True)
 
     print(
-        f"Number of points outside the raster extents: {nan_out}\nThe extraction assigns NaN.")
+        f"Number of points outside the raster extents: {nan_out}\nThe extraction assigns NaN."
+    )
     print(
-        f"Number of points in NoData areas within the raster extents: {nan_raster}\nThe extraction assigns NaN.")
+        f"Number of points in NoData areas within the raster extents: {nan_raster}\nThe extraction assigns NaN."
+    )
 
     return gdf

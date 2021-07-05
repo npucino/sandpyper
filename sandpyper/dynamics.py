@@ -1,11 +1,9 @@
-"""Dynamics module."""
-
 import numpy as np
 from tqdm.notebook import tqdm
 import pandas as pd
 import geopandas as gpd
 import itertools
-from itertools import product,combinations
+from itertools import product, combinations
 
 from pysal.explore.giddy.markov import Markov
 import matplotlib.pyplot as plt
@@ -15,7 +13,7 @@ from sandpyper.outils import getListOfFiles, getLoc
 
 
 def attach_trs_geometry(markov_transects_df, dirNameTrans, list_loc_codes):
-    """ Attach transect geometries to the transect-specific BCDs dataframe.
+    """Attach transect geometries to the transect-specific BCDs dataframe.
     Args:
         markov_transects_df (Pandas dataframe): Dataframe storing BCDs at the transect level.
         dirNameTrans (str): Full path to the folder where the transects are stored.
@@ -30,22 +28,20 @@ def attach_trs_geometry(markov_transects_df, dirNameTrans, list_loc_codes):
     for i in list_trans:
 
         transect_in = gpd.read_file(i)
-        transect_in.rename({'TR_ID': 'tr_id'}, axis=1, inplace=True)
-        loc = getLoc(i,list_loc_codes)
+        transect_in.rename({"TR_ID": "tr_id"}, axis=1, inplace=True)
+        loc = getLoc(i, list_loc_codes)
 
         sub_markovs_trs = markov_transects_df.query(f"location=='{loc}'")
         sub_markovs_trs["geometry"] = pd.merge(
-            sub_markovs_trs,
-            transect_in,
-            how="left",
-            on='tr_id')["geometry"].values
+            sub_markovs_trs, transect_in, how="left", on="tr_id"
+        )["geometry"].values
 
         return_df = pd.concat([return_df, sub_markovs_trs], ignore_index=True)
     return return_df
 
 
-def infer_weights(data, markov_tag_field='markov_tag'):
-    """ Compute weights from dataset with markov labels to use for e-BCDs computation.
+def infer_weights(data, markov_tag_field="markov_tag"):
+    """Compute weights from dataset with markov labels to use for e-BCDs computation.
         The medians of each magnitude class will be used as weight.
 
     Args:
@@ -62,16 +58,16 @@ def infer_weights(data, markov_tag_field='markov_tag'):
     for i in range(data.shape[0]):
 
         letter = data.loc[i, markov_tag_field][0]
-        if letter == 'u':
-            mag = 'undefined'
-        elif letter == 's':
-            mag = 'slight'
-        elif letter == 'm':
-            mag = 'medium'
-        elif letter == 'h':
-            mag = 'high'
-        elif letter == 'e':
-            mag = 'extreme'
+        if letter == "u":
+            mag = "undefined"
+        elif letter == "s":
+            mag = "slight"
+        elif letter == "m":
+            mag = "medium"
+        elif letter == "h":
+            mag = "high"
+        elif letter == "e":
+            mag = "extreme"
         mags.append(mag)
 
     data["magnitude_class"] = mags
@@ -81,33 +77,38 @@ def infer_weights(data, markov_tag_field='markov_tag'):
     for classe in data.magnitude_class.unique():
         class_in = data.query(f"magnitude_class=='{classe}'")
         class_median = np.median(np.abs(class_in.dh))
-        if classe == 'undefined':
+        if classe == "undefined":
 
-            dict_medians.update({"ue": np.round(class_median, 2),
-                                 "ud": np.round(class_median, 2)})
-        elif classe == 'slight':
+            dict_medians.update(
+                {"ue": np.round(class_median, 2), "ud": np.round(class_median, 2)}
+            )
+        elif classe == "slight":
 
-            dict_medians.update({"se": np.round(class_median, 2),
-                                 "sd": np.round(class_median, 2)})
+            dict_medians.update(
+                {"se": np.round(class_median, 2), "sd": np.round(class_median, 2)}
+            )
 
-        elif classe == 'medium':
+        elif classe == "medium":
 
-            dict_medians.update({"me": np.round(class_median, 2),
-                                 "md": np.round(class_median, 2)})
-        elif classe == 'high':
+            dict_medians.update(
+                {"me": np.round(class_median, 2), "md": np.round(class_median, 2)}
+            )
+        elif classe == "high":
 
-            dict_medians.update({"he": np.round(class_median, 2),
-                                 "hd": np.round(class_median, 2)})
-        elif classe == 'extreme':
+            dict_medians.update(
+                {"he": np.round(class_median, 2), "hd": np.round(class_median, 2)}
+            )
+        elif classe == "extreme":
 
-            dict_medians.update({"ee": np.round(class_median, 2),
-                                 "ed": np.round(class_median, 2)})
+            dict_medians.update(
+                {"ee": np.round(class_median, 2), "ed": np.round(class_median, 2)}
+            )
 
     return dict_medians
 
 
 def get_coastal_Markov(arr_markov, weights_dict, store_neg=True):
-    """ Compute BCDs from first-order transition matrices of dh magnitude classes (as states).
+    """Compute BCDs from first-order transition matrices of dh magnitude classes (as states).
 
     Args:
         arr_markov (array): Numpy array of markov transition matrix.
@@ -133,32 +134,32 @@ def get_coastal_Markov(arr_markov, weights_dict, store_neg=True):
 
             if bool(store_neg):
                 weigth_adhoc = state_1_w * state_2_w
-                weigth_adhoc_trend = state_1_w * (- (state_2_w))
+                weigth_adhoc_trend = state_1_w * (-(state_2_w))
 
             else:
                 weigth_adhoc = state_1_w * ((state_2_w))
 
             value_trans += value
-            value_trend += (value * weigth_adhoc_trend)
+            value_trend += value * weigth_adhoc_trend
 
         elif state_1_w < state_2_w:
             weigth_adhoc_trend = state_1_w * state_2_w
 
             value_trans += value
-            value_trend += (value * weigth_adhoc_trend)
+            value_trend += value * weigth_adhoc_trend
 
         else:
             weigth_adhoc_trend = state_1_w * state_2_w
 
             value_trans += value
-            value_trend += (value * weigth_adhoc_trend)
+            value_trend += value * weigth_adhoc_trend
 
     if value_trend > 0:
-        sign = '+'
+        sign = "+"
     elif value_trend < 0:
-        sign = '-'
+        sign = "-"
     elif value_trend == 0:
-        sign = '0'
+        sign = "0"
     else:
         sign = np.nan
 
@@ -166,34 +167,22 @@ def get_coastal_Markov(arr_markov, weights_dict, store_neg=True):
 
 
 def BCDs_compute(
-        dataset,
-        weights_dict,
-        mode,
-        unique_field="geometry",
-        label_order=[
-            'ed',
-            'hd',
-            'md',
-            'sd',
-            'ud',
-            'nnn',
-            'ue',
-            'se',
-            'me',
-            'he',
-            'ee'],
+    dataset,
+    weights_dict,
+    mode,
+    unique_field="geometry",
+    label_order=["ed", "hd", "md", "sd", "ud", "nnn", "ue", "se", "me", "he", "ee"],
     store_neg=True,
     plot_it=False,
-    fig_size=(
-            6,
-            4),
+    fig_size=(6, 4),
     heat_annot_size=10,
     font_scale=0.75,
     dpi=300,
     save_it=False,
-    save_output="C:\\your\\preferred\\folder\\"):
+    save_output="C:\\your\\preferred\\folder\\",
+):
 
-    """ It computes all the first order stochastic transition matrices, based on the timeseries
+    """It computes all the first order stochastic transition matrices, based on the timeseries
     of elevation change magnituteds across the beachface dataset (markov_tag dataframe), at the site level.
 
     Warning: changing label order is not supported as submatrix partitioning is hard-coded.
@@ -229,10 +218,11 @@ def BCDs_compute(
     for loc in dataset.location.unique():
 
         dataset_piv = dataset.query(f"location=='{loc}'").pivot(
-            values="markov_tag", index=unique_field, columns="dt")
+            values="markov_tag", index=unique_field, columns="dt"
+        )
 
         if mode == "all":
-            dataset_piv.fillna('nnn', inplace=True)
+            dataset_piv.fillna("nnn", inplace=True)
 
         elif mode == "drop":
             dataset_piv.dropna(axis="index", how="any", inplace=True)
@@ -242,12 +232,13 @@ def BCDs_compute(
             dts = len(dataset_piv.columns)
             thrsh = int(mode * dts)
 
-            dataset_piv.dropna(axis=0, how='any', thresh=7, inplace=True)
-            dataset_piv.fillna('nnn', inplace=True)
+            dataset_piv.dropna(axis=0, how="any", thresh=7, inplace=True)
+            dataset_piv.fillna("nnn", inplace=True)
 
         else:
             raise NameError(
-                " Specify the mode ('drop', 'all', or a float number (0.5,1.0,0.95)")
+                " Specify the mode ('drop', 'all', or a float number (0.5,1.0,0.95)"
+            )
 
         n = dataset_piv.shape[0]
         t = dataset_piv.shape[1]
@@ -267,15 +258,18 @@ def BCDs_compute(
         if markov_df.columns.all != 11:  # must be 11, 5 for process plus nnn
             # which one is missing?
             missing_states = [
-                state for state in label_order if state not in markov_df.columns]
-            for miss in missing_states:                 # for all missing states, add columns with zeroes
+                state for state in label_order if state not in markov_df.columns
+            ]
+            for (
+                miss
+            ) in missing_states:  # for all missing states, add columns with zeroes
                 markov_df[f"{miss}"] = float(0)
                 # # at the end of the (squared) dataframe
                 last_idx = markov_df.shape[0]
                 markov_df.loc[last_idx + 1] = [float(0) for i in markov_df.columns]
 
             # get a list of str of the missing states
-            to_rename = markov_df.index.to_list()[-len(missing_states):]
+            to_rename = markov_df.index.to_list()[-len(missing_states) :]
             for i, j in zip(to_rename, missing_states):
                 markov_df.rename({i: j}, inplace=True)
 
@@ -304,31 +298,41 @@ def BCDs_compute(
         for arr_markov in dict_markovs.keys():
 
             idx, trend, sign = get_coastal_Markov(
-                dict_markovs[arr_markov], weights_dict=weights_dict, store_neg=store_neg)
+                dict_markovs[arr_markov], weights_dict=weights_dict, store_neg=store_neg
+            )
 
-            idx_coastal_markov_dict = {"location": loc,
-                                       "sub_matrix": arr_markov,
-                                       "coastal_markov_idx": idx,
-                                       "trend": trend,
-                                       "sign": sign}
+            idx_coastal_markov_dict = {
+                "location": loc,
+                "sub_matrix": arr_markov,
+                "coastal_markov_idx": idx,
+                "trend": trend,
+                "sign": sign,
+            }
 
             idx_coastal_markov_df = pd.DataFrame(idx_coastal_markov_dict, index=[0])
             markov_indexes_victoria = pd.concat(
-                [idx_coastal_markov_df, markov_indexes_victoria], ignore_index=True)
+                [idx_coastal_markov_df, markov_indexes_victoria], ignore_index=True
+            )
 
         if bool(plot_it):
 
             titles = ["Erosional", "Recovery", "Depositional", "Vulnerability"]
             cmaps = ["Reds", "Greens", "Blues", "PuRd"]
 
-            std_excluding_nnn = markov_ordered.loc[markov_ordered.index !=
-                                                   "nnn", markov_ordered.columns != "nnn"].values.flatten().std()
+            std_excluding_nnn = (
+                markov_ordered.loc[
+                    markov_ordered.index != "nnn", markov_ordered.columns != "nnn"
+                ]
+                .values.flatten()
+                .std()
+            )
             exclude_outliers = np.round(3 * std_excluding_nnn, 1)
 
             f2, axs = plt.subplots(nrows=2, ncols=2, figsize=fig_size)
 
             for ax_i, heat, title, cmap_i in zip(
-                    axs.flatten(), list_markovs, titles, cmaps):
+                axs.flatten(), list_markovs, titles, cmaps
+            ):
                 sb.heatmap(
                     heat,
                     cmap=cmap_i,
@@ -337,12 +341,12 @@ def BCDs_compute(
                     linecolor="white",
                     vmin=0,
                     vmax=exclude_outliers,
-                    annot_kws={
-                        'size': heat_annot_size},
-                    ax=ax_i)
+                    annot_kws={"size": heat_annot_size},
+                    ax=ax_i,
+                )
                 ax_i.set_title(f"{title}", size=9)
                 title = f2.suptitle(f"{loc} (n={n},t={t}, trans:{int(n_transitions)}) ")
-                title.set_position([.5, 1.03])
+                title.set_position([0.5, 1.03])
                 f2.tight_layout(pad=1)
 
             if bool(save_it):
@@ -355,10 +359,18 @@ def BCDs_compute(
     return markov_indexes_victoria, steady_state_victoria
 
 
-def steady_state_transect(dataset, mode="nnn", unreal='drop', thresh=8, min_points=20,
-                          field_markov_tags="markov_tag", field_unique_id="geometry",
-                          field_discrete_time="dt", use_neg=True):
-    """ It computes the r-BCDs at the transect level, based on the timeseries
+def steady_state_transect(
+    dataset,
+    mode="nnn",
+    unreal="drop",
+    thresh=8,
+    min_points=20,
+    field_markov_tags="markov_tag",
+    field_unique_id="geometry",
+    field_discrete_time="dt",
+    use_neg=True,
+):
+    """It computes the r-BCDs at the transect level, based on the timeseries
     of elevation change magnituteds across the beachface dataset (markov_tag dataframe).
 
     Args:
@@ -400,17 +412,19 @@ def steady_state_transect(dataset, mode="nnn", unreal='drop', thresh=8, min_poin
             data_piv = data_tr.pivot(
                 values=field_markov_tags,
                 index=field_unique_id,
-                columns=field_discrete_time)
+                columns=field_discrete_time,
+            )
 
             if mode == "nnn":
                 # drop all rows with less than specified cluster transitions
                 data_piv.dropna(axis=0, thresh=thresh, inplace=True)
                 # all the remaining NaN will be named 'nnn'
-                data_piv.fillna('nnn', inplace=True)
+                data_piv.fillna("nnn", inplace=True)
 
                 if data_piv.shape[0] < min_points:
                     print(
-                        f"Threshold of points per transect {tr_id} not reached. It has {data_piv.shape[0]} points.")
+                        f"Threshold of points per transect {tr_id} not reached. It has {data_piv.shape[0]} points."
+                    )
                     unreliable_trs.append(tr_id)
 
                 else:
@@ -428,60 +442,54 @@ def steady_state_transect(dataset, mode="nnn", unreal='drop', thresh=8, min_poin
             try:
                 steady_state = m.steady_state
                 steady_state = pd.DataFrame(
-                    m.steady_state, index=m.classes, columns=[tr_id])
+                    m.steady_state, index=m.classes, columns=[tr_id]
+                )
 
                 steady_state.reset_index(inplace=True)
                 steady_state.rename({"index": "markov_tag"}, axis=1, inplace=True)
                 steady_state = steady_state.melt(
-                    id_vars="markov_tag", value_name="p", var_name="tr_id")
+                    id_vars="markov_tag", value_name="p", var_name="tr_id"
+                )
                 steady_state["location"] = loc
                 steady_state["thresh"] = thresh
                 steady_state["min_pts"] = min_points
                 steady_state["valid_pts"] = n
 
                 steady_state_tr = pd.concat(
-                    [steady_state, steady_state_tr], ignore_index=True)
+                    [steady_state, steady_state_tr], ignore_index=True
+                )
 
             except BaseException:
                 print(f"tr_id {tr_id} has not enough points. Go ahead...")
                 pass
 
-        if unreal == 'drop':
+        if unreal == "drop":
 
             print("eliminating unreliable transects . . . ")
             for i in unreliable_trs:
 
                 indexa = steady_state_tr.query(f"tr_id =={i}").index
                 steady_state_tr.drop(indexa, inplace=True)
-        elif unreal == 'keep':
+        elif unreal == "keep":
             pass
         else:
             raise NameError(
-                " Specify what to do with unreliable transects ('drop' or 'keep' ?)")
+                " Specify what to do with unreliable transects ('drop' or 'keep' ?)"
+            )
 
     return steady_state_tr
 
 
 def compute_rBCD_transects(
-        dirNameTrans,
-        steady_state_tr,
-        loc,
-        crs_dict_string,
-        weights_dict,
-        label_order=[
-            'ed',
-            'hd',
-            'md',
-            'sd',
-            'ud',
-            'nnn',
-            'ue',
-            'se',
-            'me',
-            'he',
-            'ee'],
-        geo=True):
-    """ It computes transect-level r-BCDs, based on the steady-state dataframe returned by steady_state_transect function.
+    dirNameTrans,
+    steady_state_tr,
+    loc,
+    crs_dict_string,
+    weights_dict,
+    label_order=["ed", "hd", "md", "sd", "ud", "nnn", "ue", "se", "me", "he", "ee"],
+    geo=True,
+):
+    """It computes transect-level r-BCDs, based on the steady-state dataframe returned by steady_state_transect function.
 
     Warning: changing label order is not supported as submatrix partitioning is hard-coded (TO UPDATe)
 
@@ -541,41 +549,50 @@ def compute_rBCD_transects(
 
         # Put all into one table
         deposition["erosion"] = erosion.erosion
-        to_plot = deposition.reset_index()[["index", "deposition", "erosion"]].rename({
-            "index": "tr_id"}, axis=1)
+        to_plot = deposition.reset_index()[["index", "deposition", "erosion"]].rename(
+            {"index": "tr_id"}, axis=1
+        )
 
         to_print_table = to_plot.merge(indexes_vic, on="tr_id", how="left")
         to_plot = to_print_table.melt(
-            id_vars=["tr_id"],
-            var_name="process",
-            value_name="coastal_index")
+            id_vars=["tr_id"], var_name="process", value_name="coastal_index"
+        )
 
         to_plot["location"] = loc
 
-        coastal_markov_trs_steady = attach_trs_geometry(to_plot, dirNameTrans, list_loc_codes=loc_codes)
+        coastal_markov_trs_steady = attach_trs_geometry(
+            to_plot, dirNameTrans, list_loc_codes=loc_codes
+        )
 
         piv_markov_trs = pd.pivot_table(
-            coastal_markov_trs_steady, index=["location", "tr_id"],
-            columns="process", values=["coastal_index"]).reset_index(col_level=1)
+            coastal_markov_trs_steady,
+            index=["location", "tr_id"],
+            columns="process",
+            values=["coastal_index"],
+        ).reset_index(col_level=1)
 
         piv_markov_trs.columns = piv_markov_trs.columns.droplevel(0)
-        trs_markov_idx = attach_trs_geometry(piv_markov_trs, dirNameTrans, list_loc_codes=loc_codes)
+        trs_markov_idx = attach_trs_geometry(
+            piv_markov_trs, dirNameTrans, list_loc_codes=loc_codes
+        )
 
         ss_transects_idx = pd.concat(
-            [trs_markov_idx, ss_transects_idx], ignore_index=True)
+            [trs_markov_idx, ss_transects_idx], ignore_index=True
+        )
 
         if bool(geo):
             ss_transects_idx = gpd.GeoDataFrame(
-                ss_transects_idx, geometry='geometry', crs=crs_dict_string[loc])
+                ss_transects_idx, geometry="geometry", crs=crs_dict_string[loc]
+            )
         else:
             pass
 
     return ss_transects_idx, to_plot
 
-def compute_multitemporal (df,
-                           date_field='survey_date',
-                          sand_label_field='label_sand',
-                          common_field="geometry"):
+
+def compute_multitemporal(
+    df, date_field="survey_date", sand_label_field="label_sand", common_field="geometry"
+):
     """
     From a dataframe containing the extracted points and a column specifying wether they are sand or non-sand, returns a multitemporal dataframe
     with time-periods sand-specific elevation changes.
@@ -589,41 +606,55 @@ def compute_multitemporal (df,
         A multitemporal dataframe of sand-specific elevation changes.
     """
 
-    fusion_long=pd.DataFrame()
+    fusion_long = pd.DataFrame()
 
     for location in full_dataset.location.unique():
         print(f"working on {location}")
-        loc_data=full_dataset.query(f"location=='{location}'")
-        list_dates=loc_data.loc[:,date_field].unique()
+        loc_data = full_dataset.query(f"location=='{location}'")
+        list_dates = loc_data.loc[:, date_field].unique()
         list_dates.sort()
-
 
         for i in tqdm(range(list_dates.shape[0])):
 
-            if i < list_dates.shape[0]-1:
-                date_pre=list_dates[i]
-                date_post=list_dates[i+1]
-                print(f"Calculating dt{i}, from {date_pre} to {date_post} in {location}.")
+            if i < list_dates.shape[0] - 1:
+                date_pre = list_dates[i]
+                date_post = list_dates[i + 1]
+                print(
+                    f"Calculating dt{i}, from {date_pre} to {date_post} in {location}."
+                )
 
-                df_pre=loc_data.query(f"{date_field} =='{date_pre}' & {sand_label_field} == 0").dropna(subset=['z'])
-                df_post=loc_data.query(f"{date_field} =='{date_post}' & {sand_label_field} == 0").dropna(subset=['z'])
+                df_pre = loc_data.query(
+                    f"{date_field} =='{date_pre}' & {sand_label_field} == 0"
+                ).dropna(subset=["z"])
+                df_post = loc_data.query(
+                    f"{date_field} =='{date_post}' & {sand_label_field} == 0"
+                ).dropna(subset=["z"])
 
-                merged=pd.merge(df_pre,df_post, how='inner', on=common_field,validate="one_to_one",suffixes=('_pre','_post'))
-                merged["dh"]=merged.z_post.astype(float) - merged.z_pre.astype(float)
+                merged = pd.merge(
+                    df_pre,
+                    df_post,
+                    how="inner",
+                    on=common_field,
+                    validate="one_to_one",
+                    suffixes=("_pre", "_post"),
+                )
+                merged["dh"] = merged.z_post.astype(float) - merged.z_pre.astype(float)
 
-                dict_short={"geometry": merged.geometry,
-                            "location":location,
-                            "tr_id":merged.tr_id_pre,
-                            "distance":merged.distance_pre,
-                            "dt":  f"dt_{i}",
-                            "date_pre":date_pre,
-                            "date_post":date_post,
-                            "z_pre":merged.z_pre.astype(float),
-                            "z_post":merged.z_post.astype(float),
-                            "dh":merged.dh}
+                dict_short = {
+                    "geometry": merged.geometry,
+                    "location": location,
+                    "tr_id": merged.tr_id_pre,
+                    "distance": merged.distance_pre,
+                    "dt": f"dt_{i}",
+                    "date_pre": date_pre,
+                    "date_post": date_post,
+                    "z_pre": merged.z_pre.astype(float),
+                    "z_post": merged.z_post.astype(float),
+                    "dh": merged.dh,
+                }
 
-                short_df=pd.DataFrame(dict_short)
-                fusion_long=pd.concat([short_df,fusion_long],ignore_index=True)
+                short_df = pd.DataFrame(dict_short)
+                fusion_long = pd.concat([short_df, fusion_long], ignore_index=True)
 
     print("done")
     return fusion_long
