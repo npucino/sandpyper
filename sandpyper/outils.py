@@ -6,15 +6,10 @@ import random
 
 import numpy as np
 import pandas as pd
-<<<<<<< HEAD
 
 from fuzzywuzzy import fuzz
 from itertools import chain
 
-=======
-import geopandas as gpd
-from scipy.spatial import distance_matrix
->>>>>>> a2edd02e56ac6e9712c651d7212603c80ecc6d2a
 from shapely.geometry import Point, Polygon
 
 import rasterio as ras
@@ -305,7 +300,7 @@ def extract_loc_date(name, loc_search_dict, split_by="_"):
 
     Get the location code (e.g. wbl, por) and raw dates (e.g. 20180902) from filenames using the search dictionary.
     If no location is found using exact matches, a fuzzy word match is implemented, searching closest matches
-    between locations in filenames and search candidates provided in the loc_search_dict dictionary. 
+    between locations in filenames and search candidates provided in the loc_search_dict dictionary.
 
     Args:
 
@@ -320,17 +315,12 @@ def extract_loc_date(name, loc_search_dict, split_by="_"):
     """
 
     try:
-<<<<<<< HEAD
 
         date=getDate(name)
-=======
-        date = getDate(name)
->>>>>>> a2edd02e56ac6e9712c651d7212603c80ecc6d2a
 
     except:
 
         print("Proceeding with automated regular expression match")
-<<<<<<< HEAD
 
         date=find_date_string(name)
 
@@ -345,16 +335,6 @@ def extract_loc_date(name, loc_search_dict, split_by="_"):
 
     for loc_code, raw_strings_loc in zip(locations_codes, locations_search_names):  # loop trhough all possible lists of raw strings
 
-=======
-        date = find_date_string(name)
-        print(f"Date found: {date}")
-
-    names = set((os.path.split(name)[-1].split(split_by)))
-
-    for loc_code, raw_strings_loc in zip(
-        loc_search_dict.keys(), list(loc_search_dict.values())
-    ):  # loop trhough all possible lists of raw strings
->>>>>>> a2edd02e56ac6e9712c651d7212603c80ecc6d2a
         raw_str_set = set(raw_strings_loc)
 
         match = raw_str_set.intersection(names)
