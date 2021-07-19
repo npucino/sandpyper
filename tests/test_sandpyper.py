@@ -4,6 +4,7 @@
 
 
 import unittest
+import os
 import numpy as np
 import geopandas as gpd
 import pandas as pd
@@ -18,11 +19,12 @@ loc_codes=["mar","leo"]
 loc_search_dict = {'leo': ['St', 'Leonards', 'leonards', 'leo'], 'mar': ['Marengo', 'marengo', 'mar'] }
 crs_dict_string = {'mar': {'init': 'epsg:32754'}, 'leo':{'init': 'epsg:32755'} }
 
-shoreline_leo_path = r'test_data/shorelines/leo_shoreline_short.gpkg'
-shoreline_mar_path = r'test_data/shorelines/mar_shoreline_short.gpkg'
-dsms_dir_path = r'test_data/dsm_1m'
-orthos_dir_path = r'test_data/orthos_1m'
-transects_path = r'test_data/transects'
+shoreline_leo_path = os.path.abspath("test_data/shorelines/leo_shoreline_short.gpkg")
+print(shoreline_leo_path)
+shoreline_mar_path = os.path.abspath('test_data/shorelines/mar_shoreline_short.gpkg')
+dsms_dir_path = os.path.abspath('test_data/dsm_1m/')
+orthos_dir_path = os.path.abspath('test_data/orthos_1m/')
+transects_path = os.path.abspath('test_data/transects/')
 
 
 class TestCreateProfiles(unittest.TestCase):
