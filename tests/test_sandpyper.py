@@ -19,12 +19,21 @@ loc_codes=["mar","leo"]
 loc_search_dict = {'leo': ['St', 'Leonards', 'leonards', 'leo'], 'mar': ['Marengo', 'marengo', 'mar'] }
 crs_dict_string = {'mar': {'init': 'epsg:32754'}, 'leo':{'init': 'epsg:32755'} }
 
-shoreline_leo_path = os.path.abspath("test_data/shorelines/leo_shoreline_short.gpkg")
-print(shoreline_leo_path)
-shoreline_mar_path = os.path.abspath('test_data/shorelines/mar_shoreline_short.gpkg')
-dsms_dir_path = os.path.abspath('test_data/dsm_1m/')
-orthos_dir_path = os.path.abspath('test_data/orthos_1m/')
-transects_path = os.path.abspath('test_data/transects/')
+if os.getcwdb() != b'C:\\my_packages\\sandpyper\\tests': # if the script is running in github action as a workflow and not locally
+
+    shoreline_leo_path = os.path.abspath("tests/test_data/shorelines/leo_shoreline_short.gpkg")
+    shoreline_mar_path = os.path.abspath('tests/test_data/shorelines/mar_shoreline_short.gpkg')
+    dsms_dir_path = os.path.abspath('tests/test_data/dsm_1m/')
+    orthos_dir_path = os.path.abspath('tests/test_data/orthos_1m')
+    transects_path = os.path.abspath('tests/test_data/transects')
+
+else:
+
+    shoreline_leo_path = os.path.abspath("test_data/shorelines/leo_shoreline_short.gpkg")
+    shoreline_mar_path = os.path.abspath('test_data/shorelines/mar_shoreline_short.gpkg')
+    dsms_dir_path = os.path.abspath('test_data/dsm_1m/')
+    orthos_dir_path = os.path.abspath('test_data/orthos_1m/')
+    transects_path = os.path.abspath('test_data/transects/')
 
 
 class TestCreateProfiles(unittest.TestCase):
@@ -97,26 +106,31 @@ class TestCreateProfiles(unittest.TestCase):
                                   )
         self.assertTrue(right.touches(left).all())
 
-class TestExtractProfiles(unittest.TestCase):
+class TestSandpyperPipeline(unittest.TestCase):
     """Tests the extraction from profiles function."""
 
     @classmethod
     def setUpClass(cls):
-        cls.gdf=extract_from_folder(dataset_folder=dsms_dir_path,
+        cls.gdf = extract_from_folder(dataset_folder=dsms_dir_path,
                         transect_folder=transects_path,
                         mode="dsm",sampling_step=1,
                         list_loc_codes=loc_codes,
                         add_xy=True)
 
-        cls.gdf_rgb=extract_from_folder(dataset_folder=orthos_dir_path,
+        cls.gdf_rgb = extract_from_folder(dataset_folder=orthos_dir_path,
                         transect_folder=transects_path,
                         mode="ortho",sampling_step=1,
                         list_loc_codes=loc_codes,
                         add_xy=True)
+
+
+        cls.rgbz_gdf = pd.merge(cls.gdf,cls.gdf_rgb[["band1","band2","band3","point_id"]],on="point_id",validate="one_to_one")
+
     @classmethod
     def tearDownClass(cls):
         cls.gdf
         cls.gdf_rgb
+        cls.rgbz_gdf
 
 
     def test_004_extract_DSM(self):
@@ -184,6 +198,10 @@ class TestExtractProfiles(unittest.TestCase):
     def test_006_point_IDs(self):
         """Test extracted point IDs are the same"""
         self.assertTrue((self.gdf_rgb.point_id==self.gdf.point_id).all())
+        print(f"CIAO!! {self.rgbz_gdf.shape}")
+
+
+
 
 if __name__ == '__main__':
     unittest.main()
