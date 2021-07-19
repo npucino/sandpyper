@@ -184,4 +184,4 @@ class TestExtractProfiles(unittest.TestCase):
         self.assertTrue((self.gdf_rgb.point_id==self.gdf.point_id).all())
 
 if __name__ == '__main__':
-unittest.main()
+    unittest.main()
