@@ -528,7 +528,7 @@ def getPoint2(pt, bearing, dist):
 def split_transects(geom, side="left"):
     """Helper function to split transects geometry normal to shoreline, retaining only their left (default) or right side."""
 
-    side_dict = {"left": 1, "right": 0}
+    side_dict = {"left": 0, "right": 1}
     snapped = snap(geom, geom.centroid, 0.001)
     result = split(snapped, geom.centroid)
     return result[side_dict[side]]
@@ -538,10 +538,14 @@ def create_transects(baseline, sampling_step, tick_length, location, crs, side="
     """Creates a GeoDataFrame with transects normal to the baseline, with defined spacing and length.
 
     Args:
-        baseline (str): Local path of the timeseries files, as returned by the multitemporal extraction.
-        list_loc_codes (list): list of strings containing location codes.
+        baseline (gdf): baseline geodataframe.
+        sampling_step (int,float): alognshore spacing of transects in the CRS reference unit.
+        tick_length (int,float): transects length
+        location (str): location code
+        crs (): coordinate reference system to georeference the transects. It must be in dictionary form.
+        side ("both", "left", "right"): If "both", the transects will be centered on the baseline. If "left" or "right", transects will start from the baseline and extend to the left/right of it.
     Returns:
-        Geodataframe.
+        Geodataframe of transects.
     """
 
     if side != "both":
@@ -549,78 +553,81 @@ def create_transects(baseline, sampling_step, tick_length, location, crs, side="
     else:
         pass
 
-    try:
-        dists = np.arange(0, baseline.geometry.length[0], sampling_step)
-    except BaseException:
-        try:
-            dists = np.arange(0, baseline.geometry.length, sampling_step)
-        except BaseException:
-            dists = np.arange(0, baseline.geometry.length.values[0], sampling_step)
-
-    points_coords = []
-    try:
-        for j in [baseline.geometry.interpolate(i) for i in dists]:
-            points_coords.append((j.geometry.x[0], j.geometry.y[0]))
-    except BaseException:
-        for j in [baseline.geometry.interpolate(i) for i in dists]:
-            points_coords.append((j.geometry.x, j.geometry.y))
-
-            # create transects as Shapely linestrings
-
-    ticks = []
-    for num, pt in enumerate(points_coords, 1):
-        # start chainage 0
-        if num == 1:
-            angle = getAngle(pt, points_coords[num])
-            line_end_1 = getPoint1(pt, angle, tick_length / 2)
-            angle = getAngle([line_end_1.x, line_end_1.y], pt)
-            line_end_2 = getPoint2([line_end_1.x, line_end_1.y], angle, tick_length)
-            tick = LineString(
-                [(line_end_1.x, line_end_1.y), (line_end_2.x, line_end_2.y)]
-            )
-
-        ## everything in between
-        if num < len(points_coords) - 1:
-            angle = getAngle(pt, points_coords[num])
-            line_end_1 = getPoint1(points_coords[num], angle, tick_length / 2)
-            angle = getAngle([line_end_1.x, line_end_1.y], points_coords[num])
-            line_end_2 = getPoint2([line_end_1.x, line_end_1.y], angle, tick_length)
-            tick = LineString(
-                [(line_end_1.x, line_end_1.y), (line_end_2.x, line_end_2.y)]
-            )
-
-        # end chainage
-        if num == len(points_coords):
-            angle = getAngle(points_coords[num - 2], pt)
-            line_end_1 = getPoint1(pt, angle, tick_length / 2)
-            angle = getAngle([line_end_1.x, line_end_1.y], pt)
-            line_end_2 = getPoint2([line_end_1.x, line_end_1.y], angle, tick_length)
-            tick = LineString(
-                [(line_end_1.x, line_end_1.y), (line_end_2.x, line_end_2.y)]
-            )
-
-        ticks.append(tick)
-
-    gdf_transects = gpd.GeoDataFrame(
-        {
-            "tr_id": range(len(ticks)),
-            "geometry": ticks,
-            "location": [location for i in range(len(ticks))],
-        },
-        crs=crs,
-    )
-
-    # clip the transects
-
-    if side == "both":
-        pass
+    if sampling_step == 0 or sampling_step >= baseline.length.values[0]:
+        raise ValueError(f"Sampling step provided ({sampling_step}) cannot be zero or equal or greater than the baseline length ({baseline.length.values[0]}).")
     else:
+        try:
+            dists = np.arange(0, baseline.geometry.length[0], sampling_step)
+        except BaseException:
+            try:
+                dists = np.arange(0, baseline.geometry.length, sampling_step)
+            except BaseException:
+                dists = np.arange(0, baseline.geometry.length.values[0], sampling_step)
 
-        gdf_transects["geometry"] = gdf_transects.geometry.apply(
-            split_transects, **{"side": side}
+        points_coords = []
+        try:
+            for j in [baseline.geometry.interpolate(i) for i in dists]:
+                points_coords.append((j.geometry.x[0], j.geometry.y[0]))
+        except BaseException:
+            for j in [baseline.geometry.interpolate(i) for i in dists]:
+                points_coords.append((j.geometry.x, j.geometry.y))
+
+                # create transects as Shapely linestrings
+
+        ticks = []
+        for num, pt in enumerate(points_coords, 1):
+            # start chainage 0
+            if num == 1:
+                angle = getAngle(pt, points_coords[num])
+                line_end_1 = getPoint1(pt, angle, tick_length / 2)
+                angle = getAngle([line_end_1.x, line_end_1.y], pt)
+                line_end_2 = getPoint2([line_end_1.x, line_end_1.y], angle, tick_length)
+                tick = LineString(
+                    [(line_end_1.x, line_end_1.y), (line_end_2.x, line_end_2.y)]
+                )
+
+            ## everything in between
+            if num < len(points_coords) - 1:
+                angle = getAngle(pt, points_coords[num])
+                line_end_1 = getPoint1(points_coords[num], angle, tick_length / 2)
+                angle = getAngle([line_end_1.x, line_end_1.y], points_coords[num])
+                line_end_2 = getPoint2([line_end_1.x, line_end_1.y], angle, tick_length)
+                tick = LineString(
+                    [(line_end_1.x, line_end_1.y), (line_end_2.x, line_end_2.y)]
+                )
+
+            # end chainage
+            if num == len(points_coords):
+                angle = getAngle(points_coords[num - 2], pt)
+                line_end_1 = getPoint1(pt, angle, tick_length / 2)
+                angle = getAngle([line_end_1.x, line_end_1.y], pt)
+                line_end_2 = getPoint2([line_end_1.x, line_end_1.y], angle, tick_length)
+                tick = LineString(
+                    [(line_end_1.x, line_end_1.y), (line_end_2.x, line_end_2.y)]
+                )
+
+            ticks.append(tick)
+
+        gdf_transects = gpd.GeoDataFrame(
+            {
+                "tr_id": range(len(ticks)),
+                "geometry": ticks,
+                "location": [location for i in range(len(ticks))],
+            },
+            crs=crs,
         )
 
-    return gdf_transects
+        # clip the transects
+
+        if side == "both":
+            pass
+        else:
+
+            gdf_transects["geometry"] = gdf_transects.geometry.apply(
+                split_transects, **{"side": side}
+            )
+
+        return gdf_transects
 
 
 def correct_multi_detections(shore_pts, transects):

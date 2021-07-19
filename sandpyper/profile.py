@@ -351,6 +351,7 @@ def get_profile_dn(
     df["coordinates"] = df["coordinates"].apply(Point)
     df["location"] = location
     df["survey_date"] = pd.to_datetime(date_string, format="%Y%m%d")
+    df["raw_date"] = date_string
     df["tr_id"] = transect_index
     gdf_rgb = gpd.GeoDataFrame(df, geometry="coordinates")
 
@@ -382,7 +383,7 @@ def extract_from_folder(
     sampling_step,
     add_xy=False,
     add_slope=False,
-    nan_values=-10000,
+    default_nan_values=-10000,
 ):
     """
     Wrapper to extract profiles from all rasters inside a folder.
@@ -427,17 +428,25 @@ def extract_from_folder(
 
     if bool(add_slope):
         warnings.warn(
-            f"WARNING: add_terrain increases running time to up to {len(list_files)*3} minutes."
+            "WARNING: add_terrain could increas processing time considerably for fine scale DSMs."
         )
 
     for dsm in tqdm(list_files):
+        with ras.open(dsm, 'r') as ds:
+            nan_values = ds.nodata
+            if nan_values:
+                pass
+            else:
+                nan_values=default_nan_values
+                print(nan_values)
 
         date_string = getDate(dsm)
         location = getLoc(dsm, list_loc_codes)
 
+
         if bool(add_slope):
 
-            terr = rd.LoadGDAL(dsm)
+            terr = rd.LoadGDAL(dsm, no_data=nan_values)
             print(
                 f"Computing slope DSM in degrees in {location} at date: {date_string} . . ."
             )
