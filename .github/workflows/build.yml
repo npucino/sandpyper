@@ -21,7 +21,7 @@ jobs:
                     - { os: ubuntu-latest, py: "3.8" }
         env:
             SDKROOT: /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk
-            
+
         steps:
             - name: CHECKOUT CODE
               uses: actions/checkout@v2
@@ -29,9 +29,9 @@ jobs:
               uses: actions/setup-python@v1
               with:
                   python-version: ${{ matrix.config.py }}
-            
+
             - name: SETUP CONDA
-              uses: s-weigand/setup-conda@v1 
+              uses: s-weigand/setup-conda@v1
 
             - name: Install dependencies
               run: |
@@ -41,8 +41,7 @@ jobs:
                   conda config --set channel_priority strict
                   conda install --file requirements.txt
                   pip install --user -r requirements_dev.txt
-                  
-            #- name: PKG-TEST
-             # run: |
-              #    python -m unittest discover tests/
-                  
+
+            - name: PKG-TEST
+              run: |
+                  python -m unittest discover tests/
