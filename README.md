@@ -123,7 +123,7 @@ To get a local copy up and running follow these simple steps.
   ```
 * Now, always in the (base) environment, create a new environment called **sandpyper_env** and install the required packages by typing:
   ```sh
-  conda create --name sandpyper_env geopandas=0.8.2 matplotlib=3.3.4 numpy=1.20.1 pandas=1.2.2 tqdm pysal=2.1 rasterio=1.2.0 richdem=0.3.4 scikit-image=0.18.1 scikit-learn=0.24.1 scipy=1.6 seaborn=0.11.1 tqdm=4.56.2
+  conda create --name sandpyper_env geopandas=0.8.2 matplotlib=3.3.4 numpy=1.20.1 pandas=1.2.2 tqdm pysal=2.1 rasterio=1.2.0 richdem=0.3.4 scikit-image=0.18.1 scikit-learn=0.24.1 scipy=1.6 seaborn=0.11.1 tqdm=4.56.2 fuzzywuzzy
   ```
 * If __rasterio__ package cannot be installed due to __GDAL binding issues__, follow the instructions in [rasterio installation webpage](https://rasterio.readthedocs.io/en/latest/installation.html).
 
