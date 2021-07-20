@@ -9,8 +9,7 @@ from pysal.explore.giddy.markov import Markov
 import matplotlib.pyplot as plt
 import seaborn as sb
 
-from sandpyper.outils import getListOfFiles, getLoc
-
+from sandpyper.outils import getListOfFiles, getLoc, create_spatial_id
 
 def attach_trs_geometry(markov_transects_df, dirNameTrans, list_loc_codes):
     """Attach transect geometries to the transect-specific BCDs dataframe.
@@ -589,72 +588,65 @@ def compute_rBCD_transects(
 
     return ss_transects_idx, to_plot
 
-
-def compute_multitemporal(
-    df, date_field="survey_date", sand_label_field="label_sand", common_field="geometry"
-):
+def compute_multitemporal (df,
+                           filter_sand=True,
+                           date_field='survey_date',
+                          sand_label_field='label_sand',
+                           filter_classes=[0]):
     """
     From a dataframe containing the extracted points and a column specifying wether they are sand or non-sand, returns a multitemporal dataframe
     with time-periods sand-specific elevation changes.
 
     Args:
         date_field (str): the name of the column storing the survey date.
-        sand_label_field (str): the name of the column storing the sand label (sand=0, no_sand=1).
+        sand_label_field (str): the name of the column storing the sand label (usually sand=0, no_sand=1).
+        filter_classes (list): list of integers specifiying the label numbers of the sand_label_field that are sand. Default [0].
         common_field (str): name of the field where the points share the same name. It is usually the geometry or spatial IDs.
 
     Returns:
         A multitemporal dataframe of sand-specific elevation changes.
     """
 
-    fusion_long = pd.DataFrame()
+    df["spatial_id"]=[create_spatial_id(df.iloc[i]) for i in range(df.shape[0])]
+    fusion_long=pd.DataFrame()
 
-    for location in full_dataset.location.unique():
+    for location in df.location.unique():
         print(f"working on {location}")
-        loc_data = full_dataset.query(f"location=='{location}'")
-        list_dates = loc_data.loc[:, date_field].unique()
+        loc_data=df.query(f"location=='{location}'")
+        list_dates=loc_data.loc[:,date_field].unique()
         list_dates.sort()
+
 
         for i in tqdm(range(list_dates.shape[0])):
 
-            if i < list_dates.shape[0] - 1:
-                date_pre = list_dates[i]
-                date_post = list_dates[i + 1]
-                print(
-                    f"Calculating dt{i}, from {date_pre} to {date_post} in {location}."
-                )
+            if i < list_dates.shape[0]-1:
+                date_pre=list_dates[i]
+                date_post=list_dates[i+1]
+                print(f"Calculating dt{i}, from {date_pre} to {date_post} in {location}.")
 
-                df_pre = loc_data.query(
-                    f"{date_field} =='{date_pre}' & {sand_label_field} == 0"
-                ).dropna(subset=["z"])
-                df_post = loc_data.query(
-                    f"{date_field} =='{date_post}' & {sand_label_field} == 0"
-                ).dropna(subset=["z"])
+                if filter_sand:
+                    df_pre=loc_data.query(f"{date_field} =='{date_pre}' & {sand_label_field} in {filter_classes}").dropna(subset=['z'])
+                    df_post=loc_data.query(f"{date_field} =='{date_post}' & {sand_label_field} in {filter_classes}").dropna(subset=['z'])
+                else:
+                    df_pre=loc_data.query(f"{date_field} =='{date_pre}'").dropna(subset=['z'])
+                    df_post=loc_data.query(f"{date_field} =='{date_post}'").dropna(subset=['z'])
 
-                merged = pd.merge(
-                    df_pre,
-                    df_post,
-                    how="inner",
-                    on=common_field,
-                    validate="one_to_one",
-                    suffixes=("_pre", "_post"),
-                )
-                merged["dh"] = merged.z_post.astype(float) - merged.z_pre.astype(float)
+                merged=pd.merge(df_pre,df_post, how='inner', on='spatial_id', validate="one_to_one",suffixes=('_pre','_post'))
+                merged["dh"]=merged.z_post.astype(float) - merged.z_pre.astype(float)
 
-                dict_short = {
-                    "geometry": merged.geometry,
-                    "location": location,
-                    "tr_id": merged.tr_id_pre,
-                    "distance": merged.distance_pre,
-                    "dt": f"dt_{i}",
-                    "date_pre": date_pre,
-                    "date_post": date_post,
-                    "z_pre": merged.z_pre.astype(float),
-                    "z_post": merged.z_post.astype(float),
-                    "dh": merged.dh,
-                }
+                dict_short={"geometry": merged.geometry_pre,
+                            "location":location,
+                            "tr_id":merged.tr_id_pre,
+                            "distance":merged.distance_pre,
+                            "dt":  f"dt_{i}",
+                            "date_pre":date_pre,
+                            "date_post":date_post,
+                            "z_pre":merged.z_pre.astype(float),
+                            "z_post":merged.z_post.astype(float),
+                            "dh":merged.dh}
 
-                short_df = pd.DataFrame(dict_short)
-                fusion_long = pd.concat([short_df, fusion_long], ignore_index=True)
+                short_df=pd.DataFrame(dict_short)
+                fusion_long=pd.concat([short_df,fusion_long],ignore_index=True)
 
     print("done")
     return fusion_long

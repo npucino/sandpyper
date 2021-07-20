@@ -3,10 +3,11 @@
 import os
 import re
 import random
+from datetime import datetime
 
 import numpy as np
 import pandas as pd
-
+import geopandas as gpd
 from fuzzywuzzy import fuzz
 from itertools import chain
 
@@ -660,3 +661,29 @@ def cross_ref(
         print(f"\nNUMBER OF DATASETS TO PROCESS: {len(list_rasters)}")
 
     return matched
+
+
+def create_details_df (dh_df, loc_full, fmt='%Y%m%d'):
+
+
+    locs_dt_str=pd.DataFrame()
+    for location in dh_df.location.unique():
+
+        df_time_tmp=dh_df.query(f"location=='{location}'").groupby(['dt'])[['date_pre','date_post']].first().reset_index()
+        df_time_tmp["orderid"]=[int(i.split("_")[1]) for i in df_time_tmp.dt]
+        df_time_tmp.sort_values(["orderid"], inplace=True)
+        df_time_tmp["location"]=location
+        locs_dt_str=pd.concat([df_time_tmp,locs_dt_str], ignore_index=True)
+
+    # add days between dates
+    deltas=[(datetime.strptime(d_to, fmt) - datetime.strptime(d_from, fmt)).days
+            for d_to,d_from in zip(locs_dt_str.date_post,locs_dt_str.date_pre)]
+    locs_dt_str['n_days']=deltas
+
+    # add full names to codes
+    locs_dt_str['loc_full']=locs_dt_str.location.map(loc_full)
+
+    # some cleaning and renaming
+    locs_dt_str.drop('orderid',1,inplace=True)
+
+    return locs_dt_str

@@ -1,0 +1,14 @@
+dt,date_pre,date_post,location,n_days,loc_full
+dt_0,20180606,20180713,leo,37,St. Leonards
+dt_1,20180713,20180920,leo,69,St. Leonards
+dt_2,20180920,20190211,leo,144,St. Leonards
+dt_3,20190211,20190328,leo,45,St. Leonards
+dt_4,20190328,20190731,leo,125,St. Leonards
+dt_0,20180601,20180621,mar,20,Marengo
+dt_1,20180621,20180727,mar,36,Marengo
+dt_2,20180727,20180925,mar,60,Marengo
+dt_3,20180925,20181113,mar,49,Marengo
+dt_4,20181113,20181211,mar,28,Marengo
+dt_5,20181211,20190205,mar,56,Marengo
+dt_6,20190205,20190313,mar,36,Marengo
+dt_7,20190313,20190516,mar,64,Marengo

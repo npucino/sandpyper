@@ -8,14 +8,18 @@ import os
 import numpy as np
 import geopandas as gpd
 import pandas as pd
-from sandpyper.outils import cross_ref
 from sandpyper.profile import extract_from_folder
+from sandpyper.dynamics import compute_multitemporal
 from sandpyper.space import create_transects
+from sandpyper.labels import get_sil_location, get_opt_k, kmeans_sa
+from sandpyper.outils import coords_to_points
 
 pd.options.mode.chained_assignment = None  # default='warn'
 
 # create global variables used across the test analysis
 loc_codes=["mar","leo"]
+loc_full={'mar': 'Marengo',
+         'leo': 'St. Leonards'}
 loc_search_dict = {'leo': ['St', 'Leonards', 'leonards', 'leo'], 'mar': ['Marengo', 'marengo', 'mar'] }
 crs_dict_string = {'mar': {'init': 'epsg:32754'}, 'leo':{'init': 'epsg:32755'} }
 
@@ -89,6 +93,7 @@ class TestCreateProfiles(unittest.TestCase):
                            side='both'
                           )
         the_exception = cm.exception
+        print(the_exception)
         self.assertEqual(the_exception.args, ("Maximum allowed size exceeded",))
 
     def test_003_CreateTransects(self):
@@ -106,11 +111,13 @@ class TestCreateProfiles(unittest.TestCase):
                                   )
         self.assertTrue(right.touches(left).all())
 
-class TestSandpyperProfileBasedPipeline(unittest.TestCase):
+class TestSandpyper(unittest.TestCase):
     """Tests the extraction from profiles function."""
 
     @classmethod
     def setUpClass(cls):
+        ############################# Profile extraction module ######################
+
         cls.gdf = extract_from_folder(dataset_folder=dsms_dir_path,
                         transect_folder=transects_path,
                         mode="dsm",sampling_step=1,
@@ -124,7 +131,17 @@ class TestSandpyperProfileBasedPipeline(unittest.TestCase):
                         add_xy=True)
 
 
+        ############################# Silhouette Analysis and KMeans clustering module ######################
+
+        # necessary to mock the opening of a csv file and a gemetry field in string form (processed with coords_to_points)
+        #cls.gdf_rgb['coordinates']=[str(geom) for geom in cls.gdf_rgb.coordinates]
+        #cls.gdf['coordinates']=[str(geom) for geom in cls.gdf.coordinates]
+        #cls.gdf_rgb['geometry']=cls.gdf_rgb.coordinates.apply(coords_to_points)
+        #cls.gdf['geometry']=cls.gdf.coordinates.apply(coords_to_points)
+
+
         cls.rgbz_gdf = pd.merge(cls.gdf,cls.gdf_rgb[["band1","band2","band3","point_id"]],on="point_id",validate="one_to_one")
+        cls.rgbz_gdf['geometry']=cls.rgbz_gdf.coordinates
 
         # replace empty values with np.NaN
         cls.rgbz_gdf = cls.rgbz_gdf.replace("", np.NaN)
@@ -132,15 +149,45 @@ class TestSandpyperProfileBasedPipeline(unittest.TestCase):
         # and convert the z column into floats.
         cls.rgbz_gdf['z'] = cls.rgbz_gdf.z.astype("float")
 
+        # Our rasters have NaN values set to -32767.0. Thus, we replace them with np.Nan.
+        cls.rgbz_gdf.z.replace(-32767.0,np.nan,inplace=True)
 
-        
+        # Our rasters have NaN values set to -32767.0. Thus, we replace them with np.Nan.
+        feature_set=["band1","band2","band3","distance"]
+        cls.sil_df = get_sil_location(cls.rgbz_gdf,
+                                ks=(2,15),
+                                feature_set=feature_set,
+                               random_state=10)
+
+        cls.opt_k = get_opt_k(cls.sil_df, sigma=0 )
+        cls.data_classified = kmeans_sa(cls.rgbz_gdf, cls.opt_k, feature_set=feature_set)
+
+        print(cls.data_classified.columns)
+
+        cls.dh_df=compute_multitemporal(cls.data_classified,
+                              date_field='raw_date', filter_sand=False,
+                              sand_label_field='label_sand')
+
+        #cls.dt_details = create_details_df(cls.dh_df, loc_full)
+
+
+        ############################# HotSpot module ######################
+
+
+
+        ############################# Volumetric module ######################
+
+
+
 
     @classmethod
     def tearDownClass(cls):
         cls.gdf
         cls.gdf_rgb
         cls.rgbz_gdf
-
+        cls.sil_df
+        cls.opt_k
+        cls.data_classified
 
     def test_004_extract_DSM(self):
         """Test extraction from folders of DSMs."""
@@ -156,9 +203,9 @@ class TestSandpyperProfileBasedPipeline(unittest.TestCase):
         test_slice_last=test_slice.query(f"tr_id=={max(test_slice.tr_id.unique())}").copy()
         test_slice_rand=test_slice.query(f"tr_id=={np.random.randint(min(test_slice.tr_id.unique()),max(test_slice.tr_id.unique()))}").iloc[1:,:].copy()
 
-        pts_spacing_0=np.nanmean(test_slice_tr0.coordinates.distance(test_slice_tr0.next_point.set_crs(test_slice.crs)))
-        pts_spacing_last=np.nanmean(test_slice_last.coordinates.distance(test_slice_last.next_point.set_crs(test_slice_last.crs)))
-        pts_spacing_rand=np.nanmean(test_slice_rand.coordinates.distance(test_slice_rand.next_point.set_crs(test_slice_rand.crs)))
+        pts_spacing_0=np.nanmean(test_slice_tr0.coordinates.set_crs(32754).distance(test_slice_tr0.next_point.set_crs(32754)))
+        pts_spacing_last=np.nanmean(test_slice_last.coordinates.set_crs(32754).distance(test_slice_last.next_point.set_crs(32754)))
+        pts_spacing_rand=np.nanmean(test_slice_rand.coordinates.set_crs(32754).distance(test_slice_rand.next_point.set_crs(32754)))
 
 
         self.assertEqual(self.gdf.shape, (32805, 10))
@@ -192,7 +239,9 @@ class TestSandpyperProfileBasedPipeline(unittest.TestCase):
         pts_spacing_last=np.nanmean(test_slice_last.coordinates.distance(test_slice_last.next_point.set_crs(test_slice_last.crs)))
         pts_spacing_rand=np.nanmean(test_slice_rand.coordinates.distance(test_slice_rand.next_point.set_crs(test_slice_rand.crs)))
 
-        self.assertEqual(self.gdf_rgb.shape, (32805, 12))
+        print(f"DTYPES gdf_rgb {self.gdf_rgb.dtypes}")
+
+        self.assertEqual(self.gdf_rgb.shape, (32805, 11))
         self.assertEqual(nan_out, 27954)
         self.assertEqual(nan_raster, 0)
         self.assertEqual(self.gdf_rgb.band1.sum(), 3178389.0) # check if the values are returned as expected by evaluating their summed value
