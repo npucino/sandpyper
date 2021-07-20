@@ -106,7 +106,7 @@ class TestCreateProfiles(unittest.TestCase):
                                   )
         self.assertTrue(right.touches(left).all())
 
-class TestSandpyperPipeline(unittest.TestCase):
+class TestSandpyperProfileBasedPipeline(unittest.TestCase):
     """Tests the extraction from profiles function."""
 
     @classmethod
@@ -125,6 +125,15 @@ class TestSandpyperPipeline(unittest.TestCase):
 
 
         cls.rgbz_gdf = pd.merge(cls.gdf,cls.gdf_rgb[["band1","band2","band3","point_id"]],on="point_id",validate="one_to_one")
+
+        # replace empty values with np.NaN
+        cls.rgbz_gdf = cls.rgbz_gdf.replace("", np.NaN)
+
+        # and convert the z column into floats.
+        cls.rgbz_gdf['z'] = cls.rgbz_gdf.z.astype("float")
+
+
+        
 
     @classmethod
     def tearDownClass(cls):
@@ -198,7 +207,6 @@ class TestSandpyperPipeline(unittest.TestCase):
     def test_006_point_IDs(self):
         """Test extracted point IDs are the same"""
         self.assertTrue((self.gdf_rgb.point_id==self.gdf.point_id).all())
-        print(f"CIAO!! {self.rgbz_gdf.shape}")
 
 
 
