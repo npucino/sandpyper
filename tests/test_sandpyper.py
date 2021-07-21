@@ -12,7 +12,8 @@ from sandpyper.profile import extract_from_folder
 from sandpyper.dynamics import compute_multitemporal
 from sandpyper.space import create_transects
 from sandpyper.labels import get_sil_location, get_opt_k, kmeans_sa
-from sandpyper.outils import coords_to_points
+from sandpyper.outils import coords_to_points, create_details_df
+from sandpyper.hotspot import LISA_site_level
 
 pd.options.mode.chained_assignment = None  # default='warn'
 
@@ -133,12 +134,6 @@ class TestSandpyper(unittest.TestCase):
 
         ############################# Silhouette Analysis and KMeans clustering module ######################
 
-        # necessary to mock the opening of a csv file and a gemetry field in string form (processed with coords_to_points)
-        #cls.gdf_rgb['coordinates']=[str(geom) for geom in cls.gdf_rgb.coordinates]
-        #cls.gdf['coordinates']=[str(geom) for geom in cls.gdf.coordinates]
-        #cls.gdf_rgb['geometry']=cls.gdf_rgb.coordinates.apply(coords_to_points)
-        #cls.gdf['geometry']=cls.gdf.coordinates.apply(coords_to_points)
-
 
         cls.rgbz_gdf = pd.merge(cls.gdf,cls.gdf_rgb[["band1","band2","band3","point_id"]],on="point_id",validate="one_to_one")
         cls.rgbz_gdf['geometry']=cls.rgbz_gdf.coordinates
@@ -162,17 +157,33 @@ class TestSandpyper(unittest.TestCase):
         cls.opt_k = get_opt_k(cls.sil_df, sigma=0 )
         cls.data_classified = kmeans_sa(cls.rgbz_gdf, cls.opt_k, feature_set=feature_set)
 
-        print(cls.data_classified.columns)
 
         cls.dh_df=compute_multitemporal(cls.data_classified,
                               date_field='raw_date', filter_sand=False,
                               sand_label_field='label_sand')
 
-        #cls.dt_details = create_details_df(cls.dh_df, loc_full)
+        cls.dt_details = create_details_df(cls.dh_df, loc_full)
 
 
         ############################# HotSpot module ######################
 
+        cls.lisa_df_dist=LISA_site_level(dh_df=cls.dh_df,
+                                mode='distance',
+                                distance_value=35,
+                                geometry_column="geometry",
+                                crs_dict_string=crs_dict_string)
+
+        cls.lisa_df_knn=LISA_site_level(dh_df=cls.dh_df,
+                                mode='knn',k_value=50,
+                                distance_value=0,
+                                geometry_column="geometry",
+                                crs_dict_string=crs_dict_string)
+
+        cls.lisa_df_idw=LISA_site_level(dh_df=cls.dh_df,
+                        mode='idw',k_value=0,
+                        distance_value=35,
+                        geometry_column="geometry",
+                        crs_dict_string=crs_dict_string)
 
 
         ############################# Volumetric module ######################
@@ -188,6 +199,11 @@ class TestSandpyper(unittest.TestCase):
         cls.sil_df
         cls.opt_k
         cls.data_classified
+        cls.dh_df
+        cls.dt_details
+        cls.lisa_df_dist
+        cls.lisa_df_knn
+        cls.lisa_df_idw
 
     def test_004_extract_DSM(self):
         """Test extraction from folders of DSMs."""
@@ -239,7 +255,6 @@ class TestSandpyper(unittest.TestCase):
         pts_spacing_last=np.nanmean(test_slice_last.coordinates.distance(test_slice_last.next_point.set_crs(test_slice_last.crs)))
         pts_spacing_rand=np.nanmean(test_slice_rand.coordinates.distance(test_slice_rand.next_point.set_crs(test_slice_rand.crs)))
 
-        print(f"DTYPES gdf_rgb {self.gdf_rgb.dtypes}")
 
         self.assertEqual(self.gdf_rgb.shape, (32805, 11))
         self.assertEqual(nan_out, 27954)
