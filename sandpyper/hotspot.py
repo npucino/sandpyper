@@ -25,6 +25,7 @@ from pysal.viz.mapclassify import (EqualInterval,
 from pysal.explore.giddy.markov import Markov
 import matplotlib.pyplot as plt
 import seaborn as sb
+import re
 
 
 class Discretiser:

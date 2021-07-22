@@ -13,7 +13,8 @@ from sandpyper.dynamics import compute_multitemporal
 from sandpyper.space import create_transects
 from sandpyper.labels import get_sil_location, get_opt_k, kmeans_sa
 from sandpyper.outils import coords_to_points, create_details_df
-from sandpyper.hotspot import LISA_site_level
+from sandpyper.hotspot import LISA_site_level, Discretiser
+import re
 
 pd.options.mode.chained_assignment = None  # default='warn'
 
@@ -288,7 +289,7 @@ class TestSandpyper(unittest.TestCase):
         self.assertTrue((self.gdf_rgb.point_id==self.gdf.point_id).all())
 
     def test_007_Dynamics_Class(self):
-        self.D.fit(lisa_df, absolute=True, print_summary=True)
+        self.D.fit(self.lisa_df_dist, absolute=True, print_summary=True)
         self.D.infer_weights()
         self.D.BCD_compute_location("geometry","all",True)
         self.D.plot_trans_matrices(relabel_dict)
