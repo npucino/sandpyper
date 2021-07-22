@@ -24,6 +24,20 @@ loc_full={'mar': 'Marengo',
 loc_search_dict = {'leo': ['St', 'Leonards', 'leonards', 'leo'], 'mar': ['Marengo', 'marengo', 'mar'] }
 crs_dict_string = {'mar': {'init': 'epsg:32754'}, 'leo':{'init': 'epsg:32755'} }
 
+labels=["Undefined", "Small", "Medium", "High", "Extreme"]
+appendix=["_deposition", "_erosion"]
+relabel_dict={"Undefined_erosion":"ue",
+            "Small_erosion":"se",
+            "Medium_erosion":"me",
+            "High_erosion":"he",
+            "Extreme_erosion":"ee",
+             "Undefined_deposition":"ud",
+             "Small_deposition":"sd",
+             "Medium_deposition":"md",
+             "High_deposition":"hd",
+             "Extreme_deposition":"ed"
+            }
+
 if os.getcwdb() != b'C:\\my_packages\\sandpyper\\tests': # if the script is running in github action as a workflow and not locally
 
     shoreline_leo_path = os.path.abspath("tests/test_data/shorelines/leo_shoreline_short.gpkg")
@@ -186,9 +200,10 @@ class TestSandpyper(unittest.TestCase):
                         crs_dict_string=crs_dict_string)
 
 
-        ############################# Volumetric module ######################
+        ############################# Dynamics module ######################
 
 
+        cls.D = Discretiser(bins=5, method="JenksCaspall", labels=labels)
 
 
     @classmethod
@@ -272,8 +287,12 @@ class TestSandpyper(unittest.TestCase):
         """Test extracted point IDs are the same"""
         self.assertTrue((self.gdf_rgb.point_id==self.gdf.point_id).all())
 
-
-
+    def test_007_Dynamics_Class(self):
+        self.D.fit(lisa_df, absolute=True, print_summary=True)
+        self.D.infer_weights()
+        self.D.BCD_compute_location("geometry","all",True)
+        self.D.plot_trans_matrices(relabel_dict)
+        self.D.plot_location_ebcds()
 
 if __name__ == '__main__':
     unittest.main()

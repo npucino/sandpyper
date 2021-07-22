@@ -10,6 +10,7 @@ from pysal.lib import weights
 import pysal.explore.esda.moran as moran
 from pysal.explore.esda.util import fdr
 from sandpyper.outils import coords_to_points, getListOfFiles, getLoc, create_spatial_id
+from sandpyper.dynamics import get_coastal_Markov
 from itertools import product as prod
 from pysal.viz.mapclassify import (EqualInterval,
                                    FisherJenks,
