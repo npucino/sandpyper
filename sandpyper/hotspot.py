@@ -143,14 +143,36 @@ class Discretiser:
         depo_class_names=[i[0]+i[1] for i in list(prod(self.labels,[appendix[0]]))]
         ero_class_names=[i[0]+i[1] for i in list(prod(self.labels,[appendix[1]]))]
 
+        # a general list of tags
+        self.tags=[i[0]+i[1] for i in list(prod(self.labels,appendix))]
+
         states_depo={yb:class_name for yb,class_name in enumerate(depo_class_names)}
         states_ero={yb*-1:class_name for yb,class_name in enumerate(ero_class_names, start=-len(ero_class_names)+1)}
 
         data_ero["markov_tag"]=[states_ero[i] for i in class_erosion]
         data_depo["markov_tag"]=[states_depo[i] for i in class_deposition]
 
+        self.df_labelled= pd.concat([data_ero,data_depo],ignore_index=False)
 
-        return pd.concat([data_ero,data_depo],ignore_index=False)
+    def infer_weights(self, markov_tag_field="markov_tag"):
+        """Compute weights from dataset with markov labels to use for e-BCDs computation.
+            The medians of each magnitude class will be used as weight.
+
+        Args:
+            data (Pandas Dataframe): Pandas dataframe.
+            markov_tag_field (str): Name of the column where markov tags are stored.
+
+        Returns:
+            dict, containing the markov tags and associated weights.
+        """
+        joined_re = r"|".join(self.labels)
+        self.df_labelled["magnitude_class"] = [re.findall(joined_re,tag)[0] for tag in self.df_labelled.loc[:,markov_tag_field]]
+
+        # create a dictionary with all the medians of the magnitude classes
+        class_abs_medians=dict(self.df_labelled.groupby(["magnitude_class"]).dh.apply(lambda x : np.round(np.median(np.abs(x)),2)))
+
+        # create a dictionary with all the weights in each tag
+        self.weights_dict={tag:class_abs_medians[re.findall(joined_re,tag)[0]] for tag in self.tags}
 
 
 def LISA_site_level(
