@@ -9,7 +9,7 @@ import numpy as np
 from pysal.lib import weights
 import pysal.explore.esda.moran as moran
 from pysal.explore.esda.util import fdr
-from sandpyper.outils import coords_to_points
+from sandpyper.outils import coords_to_points, getListOfFiles, getLoc, create_spatial_id
 from itertools import product as prod
 from pysal.viz.mapclassify import (EqualInterval,
                                    FisherJenks,
@@ -19,6 +19,11 @@ from pysal.viz.mapclassify import (EqualInterval,
                                    Quantiles,
                                    Percentiles,
                                    UserDefined)
+
+
+from pysal.explore.giddy.markov import Markov
+import matplotlib.pyplot as plt
+import seaborn as sb
 
 
 class Discretiser:
@@ -145,6 +150,8 @@ class Discretiser:
 
         # a general list of tags
         self.tags=[i[0]+i[1] for i in list(prod(self.labels,appendix))]
+        reverse_tags=list(reversed(self.tags))
+        self.tags_order=[reverse_tags[i] for i in range(1,len(reverse_tags),2)]+[self.tags[i] for i in range(1,len(self.tags),2)]
 
         states_depo={yb:class_name for yb,class_name in enumerate(depo_class_names)}
         states_ero={yb*-1:class_name for yb,class_name in enumerate(ero_class_names, start=-len(ero_class_names)+1)}
@@ -173,6 +180,256 @@ class Discretiser:
 
         # create a dictionary with all the weights in each tag
         self.weights_dict={tag:class_abs_medians[re.findall(joined_re,tag)[0]] for tag in self.tags}
+
+    def BCD_compute_location(self,unique_field, mode,store_neg):
+
+        steady_state_victoria = pd.DataFrame()
+        markov_indexes_victoria = pd.DataFrame()
+        transitions_matrices=dict()
+
+        for loc in self.df_labelled.location.unique():
+
+            if "nnn" not in self.tags_order:
+                self.tags_order.insert(len(self.tags)//2,"nnn")
+
+            if isinstance(self.df_labelled.loc[0,unique_field], shapely.geometry.point.Point):
+                self.df_labelled['spatial_id']=self.df_labelled.loc[:,unique_field].apply(str)
+                unique_field='spatial_id'
+            else:
+                pass
+
+            dataset_piv = self.df_labelled.query(f"location=='{loc}'").pivot(
+                values="markov_tag", index=unique_field, columns="dt"
+            )
+
+            if mode == "all":
+                dataset_piv.fillna("nnn", inplace=True)
+
+            elif mode == "drop":
+                dataset_piv.dropna(axis="index", how="any", inplace=True)
+
+            elif isinstance(mode, float):
+
+                dts = len(dataset_piv.columns)
+                thrsh = int(mode * dts)
+
+                dataset_piv.dropna(axis=0, how="any", thresh=7, inplace=True)
+                dataset_piv.fillna("nnn", inplace=True)
+
+            else:
+                raise NameError(
+                    " Specify the mode ('drop', 'all', or a float number (0.5,1.0,0.95)"
+                )
+
+            self.n = dataset_piv.shape[0]
+            self.t = dataset_piv.shape[1]
+
+            arr = np.array(dataset_piv)
+
+            m = Markov(arr)
+            self.n_transitions = m.transitions.sum().sum()
+
+            steady_state = pd.DataFrame(m.steady_state, index=m.classes, columns=[loc])
+            steady_state_victoria = pd.concat([steady_state, steady_state_victoria], axis=1)
+
+            markov_df = pd.DataFrame(np.round(m.p, 3), index=m.classes, columns=m.classes)
+
+            # if any column is missing from label_order, then add both row and column
+            # and populate with zeroes
+            if markov_df.columns.all != len(self.tags)+1:  # plus nnn
+                # which one is missing?
+                missing_states = [
+                    state for state in self.tags_order if state not in markov_df.columns
+                ]
+                for (
+                    miss
+                ) in missing_states:  # for all missing states, add columns with zeroes
+                    markov_df[f"{miss}"] = float(0)
+                    # # at the end of the (squared) dataframe
+                    last_idx = markov_df.shape[0]
+                    markov_df.loc[last_idx + 1] = [float(0) for i in markov_df.columns]
+
+                # get a list of str of the missing states
+                to_rename = markov_df.index.to_list()[-len(missing_states) :]
+                for i, j in zip(to_rename, missing_states):
+                    markov_df.rename({i: j}, inplace=True)
+
+            markov_ordered = markov_df.loc[self.tags_order, self.tags_order]
+
+            # When no transition occurred, replace NaN with a 0.
+            markov_ordered.fillna(0, inplace=True)
+
+            idx_matrix=len(self.tags)//2
+
+            dd = markov_ordered.iloc[:idx_matrix, :idx_matrix]
+            dd = dd[dd.columns[::-1]]
+
+            ee = markov_ordered.iloc[idx_matrix+1:, idx_matrix+1:]
+            ee = ee.reindex(index=ee.index[::-1])
+
+            de = markov_ordered.iloc[:idx_matrix, idx_matrix+1:]
+
+            ed = markov_ordered.iloc[idx_matrix+1:, :idx_matrix]
+            ed = ed.reindex(index=ed.index[::-1])
+            ed = ed[ed.columns[::-1]]
+
+            list_markovs = [ee, ed, dd, de]
+            transitions_matrices.update({loc:list_markovs})
+            dict_markovs = {"ee": ee, "ed": ed, "dd": dd, "de": de}
+
+
+            # create index dataframe
+
+            for arr_markov in dict_markovs.keys():
+
+                idx, trend, sign = get_coastal_Markov(
+                    dict_markovs[arr_markov], weights_dict=self.weights_dict, store_neg=store_neg
+                )
+
+                idx_coastal_markov_dict = {
+                    "location": loc,
+                    "sub_matrix": arr_markov,
+                    "coastal_markov_idx": idx,
+                    "trend": trend,
+                    "sign": sign,
+                }
+
+                idx_coastal_markov_df = pd.DataFrame(idx_coastal_markov_dict, index=[0])
+                markov_indexes_victoria = pd.concat(
+                    [idx_coastal_markov_df, markov_indexes_victoria], ignore_index=True
+                )
+
+
+            # here I translate the submatrix codes into the names and store them in a column
+
+            titles=["Erosional", "Recovery", "Depositional","Vulnerability"]
+            translation=dict(zip(["ee","ed","dd","de"],titles))
+            markov_indexes_victoria["states_labels"]=markov_indexes_victoria["sub_matrix"].map(translation)
+
+            self.location_ebcds=markov_indexes_victoria
+            self.transitions_matrices=transitions_matrices
+
+
+            ss_victoria_ordered=steady_state_victoria.loc[self.tags_order,:]
+            ss_victoria_ordered.drop("nnn",inplace=True)
+
+            # Create erosion and deposition sub-matrix
+            erosion=ss_victoria_ordered.iloc[idx_matrix:,:].transpose()
+            erosion["total_erosion"]=erosion.sum(axis=1)
+            erosion=erosion.reset_index().rename({"index":"location"},axis=1)
+
+            deposition=ss_victoria_ordered.iloc[:-idx_matrix,:].transpose()
+            deposition["total_deposition"]=deposition.sum(axis=1)
+            deposition=deposition.reset_index().rename({"index":"location"},axis=1)
+
+            merged=pd.concat([deposition,erosion.iloc[:,1:]], axis=1)
+            merged["r_bcds"]=(merged.total_deposition- merged.total_erosion)*100
+            merged=merged.set_index("location").transpose().rename_axis('', axis=1)
+
+            self.location_ss=merged
+
+
+
+
+
+
+    def plot_trans_matrices(self,
+                        relabel_dict,
+                        titles = ["Erosional", "Recovery", "Depositional", "Vulnerability"],
+                        cmaps = ["Reds", "Greens", "Blues", "PuRd"],
+                        fig_size=(6, 4),
+                        heat_annot_size=10,
+                        font_scale=0.75,
+                        dpi=300,
+                        save_it=False,
+                        save_output="C:\\your\\preferred\\folder\\"):
+
+        for loc in self.df_labelled.location.unique():
+            std_excluding_nnn = np.array(D.transitions_matrices[f"{loc}"]).flatten().std()
+            exclude_outliers = np.round(3 * std_excluding_nnn, 1)
+
+            f, axs = plt.subplots(nrows=2, ncols=2, figsize=fig_size)
+
+            for ax_i, heat, title, cmap_i in zip(
+                axs.flatten(), self.transitions_matrices[f"{loc}"], titles, cmaps
+            ):
+                if isinstance(relabel_dict,dict):
+                    heat=heat.rename(columns=relabel_dict, index=relabel_dict)
+                else:
+                    pass
+
+                sb.heatmap(
+                    heat,
+                    cmap=cmap_i,
+                    annot=True,
+                    linewidths=1,
+                    linecolor="white",
+                    vmin=0,
+                    vmax=exclude_outliers,
+                    annot_kws={"size": heat_annot_size},
+                    ax=ax_i,
+                )
+                ax_i.set_title(f"{title}", size=9)
+                title = f.suptitle(f"{loc} (n={self.n}, t={self.t}, trans:{int(self.n_transitions)}) ")
+                title.set_position([0.5, 1.03])
+                f.tight_layout(pad=1)
+
+            if bool(save_it):
+                f.savefig(f"{save_output}{loc}_sub_matrices_.png", dpi=dpi)
+            else:
+                pass
+
+
+    def plot_location_ebcds(self,
+                        loc_order=["mar","leo"],
+                        palette_dyn_states ={"Erosional":"r","Recovery":"g","Depositional":"b","Vulnerability":"purple"},
+                        orders=["Erosional","Recovery","Depositional","Vulnerability"],
+                        xticks_labels=["Marengo","St. Leo."],
+                           figsize=(8,4),
+                           font_scale=0.8):
+
+
+        f,ax=plt.subplots(figsize=figsize)
+
+        sb.set_context("paper", font_scale=font_scale)
+        sb.set_style("whitegrid")
+
+        plot_bars=sb.barplot(data=self.location_ebcds,x="location", y=self.location_ebcds.coastal_markov_idx,hue="states_labels", hue_order=orders,
+                  order=loc_order, palette=palette_dyn_states)
+
+
+        ax.set_xticklabels(labels=xticks_labels)
+        ax.set_xlabel("")
+        ax.set_ylabel("e-BCD")
+
+
+        txt_heights=[i.get_height() for i in ax.patches]
+
+        signs=[]
+        for i in orders:
+            for j in loc_order:
+                sign=self.location_ebcds.query(f"location == '{j}' & states_labels=='{i}'").sign.values
+                signs.append(sign)
+
+
+        for p,txt_height,sign in zip(ax.patches,txt_heights,signs):
+            width, height = p.get_width(), p.get_height()
+            x, y = p.get_xy()
+            ax.text(x+width/2,
+                 txt_height - 0.095,
+                 sign[0],
+                 horizontalalignment='center',
+                 verticalalignment='center',
+                    color="white",
+                   fontsize=13,
+                   fontweight='heavy')
+
+        handles, labels = ax.get_legend_handles_labels()
+        ax.legend(handles=handles[:], labels=labels[:], loc=0)
+
+        plt.tight_layout()
+
+    #f.savefig(r'E:\\path\\to\\save\\picture.png', dpi=600);
 
 
 def LISA_site_level(
