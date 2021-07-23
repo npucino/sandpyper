@@ -377,15 +377,15 @@ class ProfileDynamics():
                                         outliers=outliers,sigma_n=sigma_n,
                                         full_specs_table=self.dh_details)
 
-    def def plot_single_loc(self,
-                            loc_subset,
-                            figsize,
-                            colors_dict,
-                            linewidth,
-                            out_date_format,
-                            xlabel,
-                            ylabel,
-                            suptitle):
+    def plot_single_loc(self,
+                        loc_subset,
+                        figsize,
+                        colors_dict,
+                        linewidth,
+                        out_date_format,
+                        xlabel,
+                        ylabel,
+                        suptitle):
 
         plot_single_loc(self.location_volumetrics,
                         loc_subset,
@@ -396,9 +396,6 @@ class ProfileDynamics():
                         xlabel,
                         ylabel,
                         suptitle)
-
-
-
 
 
     def plot_trans_matrices(self,
