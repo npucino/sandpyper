@@ -2,6 +2,7 @@
 
 from tqdm.notebook import tqdm
 import pandas as pd
+import shapely
 from shapely.geometry import Point
 from shapely import wkt
 import geopandas as gpd
@@ -10,7 +11,7 @@ from pysal.lib import weights
 import pysal.explore.esda.moran as moran
 from pysal.explore.esda.util import fdr
 from sandpyper.outils import coords_to_points, getListOfFiles, getLoc, create_spatial_id
-from sandpyper.dynamics import get_coastal_Markov
+from sandpyper.dynamics import get_coastal_Markov,  compute_multitemporal
 from itertools import product as prod
 from pysal.viz.mapclassify import (EqualInterval,
                                    FisherJenks,
@@ -28,7 +29,7 @@ import seaborn as sb
 import re
 
 
-class Discretiser:
+class ProfileDynamics():
     """
     Create a Discretiser instance that classify a numeric field of a dataframe (with its fit method) into bins, using a specific method.
 
@@ -61,7 +62,7 @@ class Discretiser:
      'Percentiles':Percentiles,
      'UserDefined':UserDefined}
 
-    def __init__(self, bins, method, labels=None):
+    def __init__(self, ProfileSet, bins, method, labels=None):
 
         if method not in self.dict_classifiers.keys():
             raise NameError(f"{method} not a valid method name. Supported method in this docstring.")
@@ -104,10 +105,30 @@ class Discretiser:
         self.method=method
         self.labels=labels
         self.bins_size=bins_size
+        self.ProfileSet=ProfileSet
 
 
 
-    def fit(self, df, absolute = True, field="dh", appendix = ("_deposition","_erosion"), print_summary=False):
+    def compute_multitemporal(self, geometry_column="coordinates", date_field='raw_date', filter_sand=False, sand_label_field='label_sand'):
+        self.dh_df = compute_multitemporal(self.ProfileSet.profiles,
+            geometry_column=geometry_column,
+            date_field=date_field,
+            filter_sand=filter_sand,
+            sand_label_field=sand_label_field)
+
+
+    def LISA_site_level(self,
+                        mode,
+                        distance_value,
+                        geometry_column="geometry"):
+
+        self.hotspots = LISA_site_level(self.dh_df,
+                                    mode=mode,
+                                    distance_value=distance_value,
+                                    geometry_column=geometry_column,
+                                    crs_dict_string=self.ProfileSet.crs_dict_string)
+
+    def discretise(self, absolute = True, field="dh", appendix = ("_deposition","_erosion"), print_summary=False):
         """
         Fit discretiser to the dataframe containing the field of interest.
 
@@ -121,6 +142,7 @@ class Discretiser:
         returns:
             Input dataframe with added columns containing the bins and a column with the labels (if provided).
         """
+        df=self.hotspots
 
         if absolute:
             data_ero=df[df.loc[:,field] < 0]
@@ -161,7 +183,7 @@ class Discretiser:
         data_ero["markov_tag"]=[states_ero[i] for i in class_erosion]
         data_depo["markov_tag"]=[states_depo[i] for i in class_deposition]
 
-        self.df_labelled= pd.concat([data_ero,data_depo],ignore_index=False)
+        self.df_labelled = pd.concat([data_ero,data_depo],ignore_index=False)
 
     def infer_weights(self, markov_tag_field="markov_tag"):
         """Compute weights from dataset with markov labels to use for e-BCDs computation.
@@ -336,7 +358,7 @@ class Discretiser:
 
 
     def plot_trans_matrices(self,
-                        relabel_dict,
+                        relabel_dict=None,
                         titles = ["Erosional", "Recovery", "Depositional", "Vulnerability"],
                         cmaps = ["Reds", "Greens", "Blues", "PuRd"],
                         fig_size=(6, 4),
@@ -347,7 +369,7 @@ class Discretiser:
                         save_output="C:\\your\\preferred\\folder\\"):
 
         for loc in self.df_labelled.location.unique():
-            std_excluding_nnn = np.array(D.transitions_matrices[f"{loc}"]).flatten().std()
+            std_excluding_nnn = np.array(self.transitions_matrices[f"{loc}"]).flatten().std()
             exclude_outliers = np.round(3 * std_excluding_nnn, 1)
 
             f, axs = plt.subplots(nrows=2, ncols=2, figsize=fig_size)

@@ -14,7 +14,14 @@ import os
 import time
 import warnings
 
-from sandpyper.outils import (
+
+from sandpyper.dynamics import compute_multitemporal
+from sandpyper.hotspot import LISA_site_level
+from sandpyper.labels import kmeans_sa
+
+
+
+from sandpyper.outils import (cross_ref,create_spatial_id,
     create_id,
     filter_filename_list,
     getListOfFiles,
@@ -89,15 +96,6 @@ class ProfileSet():
 
             profiles["distance"]=np.round(profiles.loc[:,"distance"].values.astype("float"),2)
 
-
-            if mode=="dsm":
-
-                self.profiles_z=profiles
-
-            else:
-
-                self.profiles_rgb=profiles
-
         elif mode == "all":
 
             print("Extracting elevation from DSMs . . .")
@@ -132,6 +130,16 @@ class ProfileSet():
 
         self.sampling_step=sampling_step
 
+
+
+    def kmeans_sa(self, ks, feature_set, thresh_k=5, random_state=10 ):
+        labels_df=kmeans_sa(merged_df=self.profiles,
+            ks=ks,
+            feature_set=feature_set,
+            thresh_k=thresh_k,
+            random_state=random_state)
+
+        self.profiles = pd.merge(labels_df[["point_id","label_k"]], self.profiles, how="left", on="point_id", validate="one_to_one")
 
 def get_terrain_info(x_coord, y_coord, rdarray):
     """

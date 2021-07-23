@@ -303,16 +303,16 @@ def get_opt_k(sil_df, sigma=1):
     return opt_k
 
 
-def kmeans_sa(merged_df, opt_k_dict, feature_set, thresh_k=5, random_state=10):
+def kmeans_sa(merged_df, ks, feature_set, thresh_k=5, random_state=10):
     """
     Function to use KMeans on all surveys with the optimal k obtained from the Silhouette Analysis.
     It uses KMeans as a clusterer.
 
     Args:
         merged_df (Pandas dataframe): The clean and merged dataframe containing the features. Must contain the columns point_id, location and survey_date, as well as the
-        opt_k_dict (dict): Dictionary containing the optimal k for each survey. See get_opt_k function.
-        feature_set (list): List of strings of features in the dataframe to use for clustering.
-        thresh_k (int): Minimim k to be used. If optimal k is below, then k equals the average k of all above threshold values.
+        opt_k_dict (int, dict): number of clusters (k) or dictionary containing the optimal k for each survey. See get_opt_k function.
+        feature_set (list): List of names of features in the dataframe to use for clustering.
+        thresh_k (int): Minimim k to be used. If survey-specific optimal k is below this value, then k equals the average k of all above threshold values.
         random_state (int): Random seed used to make the randomisation deterministic.
 
     Returns:
@@ -331,8 +331,11 @@ def kmeans_sa(merged_df, opt_k_dict, feature_set, thresh_k=5, random_state=10):
     threshold = 5
 
     # # Compute the mean optimal k of above threshold ks
-    arr_k = np.array([i for i in opt_k_dict.values() if i > threshold])
-    threshold_k = np.int(np.round(np.mean(arr_k), 0))
+    if isinstance(ks, dict):
+        arr_k = np.array([i for i in ks.values() if i > thresh_k])
+        mean_threshold_k = np.int(np.round(np.mean(arr_k), 0))
+    else:
+        pass
 
     for location in tqdm(list_locs):
 
@@ -345,12 +348,15 @@ def kmeans_sa(merged_df, opt_k_dict, feature_set, thresh_k=5, random_state=10):
             )
             data_clean = data_in[feature_set].apply(pd.to_numeric)
 
-            k = opt_k_dict[f"{location}_{survey_date_in}"]
-
-            if k < threshold:
-                k = threshold
+            if isinstance(ks, dict):
+                k = ks[f"{location}_{survey_date_in}"]
             else:
-                k = k
+                k=ks
+
+            if k < thresh_k:
+                k = mean_threshold_k
+            else:
+                pass
 
             minmax_scaled_df = scaler.fit_transform(np.nan_to_num(data_clean))
 
