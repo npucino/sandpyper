@@ -9,6 +9,7 @@ from shapely.geometry import Point
 import pandas as pd
 import geopandas as gpd
 from tqdm.notebook import tqdm
+import datetime
 
 import os
 import time
@@ -39,6 +40,7 @@ class ProfileSet():
                  dirNameDSM,
                  dirNameOrtho,
                  dirNameTrans,
+                 transects_spacing,
                  loc_codes,
                  loc_search_dict,
                  crs_dict_string,
@@ -48,6 +50,7 @@ class ProfileSet():
         self.dirNameDSM=dirNameDSM
         self.dirNameOrtho=dirNameOrtho
         self.dirNameTrans=dirNameTrans
+        self.transects_spacing=transects_spacing
 
         self.loc_codes=loc_codes
         self.loc_search_dict=loc_search_dict

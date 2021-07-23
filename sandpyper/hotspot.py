@@ -10,7 +10,7 @@ import numpy as np
 from pysal.lib import weights
 import pysal.explore.esda.moran as moran
 from pysal.explore.esda.util import fdr
-from sandpyper.outils import coords_to_points, getListOfFiles, getLoc, create_spatial_id
+from sandpyper.outils import coords_to_points, getListOfFiles, getLoc, create_spatial_id, create_details_df
 from sandpyper.dynamics import get_coastal_Markov,  compute_multitemporal
 from itertools import product as prod
 from pysal.viz.mapclassify import (EqualInterval,
@@ -27,6 +27,7 @@ from pysal.explore.giddy.markov import Markov
 import matplotlib.pyplot as plt
 import seaborn as sb
 import re
+import datetime
 
 
 class ProfileDynamics():
@@ -109,12 +110,17 @@ class ProfileDynamics():
 
 
 
-    def compute_multitemporal(self, geometry_column="coordinates", date_field='raw_date', filter_sand=False, sand_label_field='label_sand'):
+    def compute_multitemporal(self, loc_full, geometry_column="coordinates", date_field='raw_date', filter_sand=False, sand_label_field='label_sand'):
         self.dh_df = compute_multitemporal(self.ProfileSet.profiles,
             geometry_column=geometry_column,
             date_field=date_field,
             filter_sand=filter_sand,
             sand_label_field=sand_label_field)
+
+
+        self.dh_details = create_details_df(self.dh_df, loc_full)
+        self.land_limits=pd.DataFrame(self.dh_df.groupby(["location"]).distance.max()).reset_index()
+
 
 
     def LISA_site_level(self,
@@ -352,6 +358,44 @@ class ProfileDynamics():
 
             self.location_ss=merged
 
+
+
+
+
+
+
+    def compute_volumetrics(self, lod, outliers=False, sigma_n=3):
+
+        self.dh_df["date_pre_dt"]=[datetime.datetime.strptime(str(pre),'%Y-%m-%d') for pre in self.dh_df.date_pre]
+        self.dh_df["date_post_dt"]=[datetime.datetime.strptime(str(post),'%Y-%m-%d') for post in self.dh_df.date_post]
+
+        self.location_volumetrics = get_state_vol_table(self.dh_df, lod=lod,
+                                              full_specs_table=self.dh_details)
+
+        self.location_volumetrics = get_transects_vol_table(self.dh_df, lod=lod,
+                                        transect_spacing=self.P.transects_spacing,
+                                        outliers=outliers,sigma_n=sigma_n,
+                                        full_specs_table=self.dh_details)
+
+    def def plot_single_loc(self,
+                            loc_subset,
+                            figsize,
+                            colors_dict,
+                            linewidth,
+                            out_date_format,
+                            xlabel,
+                            ylabel,
+                            suptitle):
+
+        plot_single_loc(self.location_volumetrics,
+                        loc_subset,
+                        figsize,
+                        colors_dict,
+                        linewidth,
+                        out_date_format,
+                        xlabel,
+                        ylabel,
+                        suptitle)
 
 
 
