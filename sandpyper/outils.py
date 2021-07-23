@@ -589,6 +589,13 @@ def getCrs_from_raster_path(ras_path):
     with ras.open(r"{}".format(ras_path)) as raster:
         return raster.crs.to_epsg()
 
+def filepath_raster_type(ras_path):
+        """Returns 'dsm' if ras_path is of a DSM (1 single band) or 'ortho' if has multiple bands."""
+        with ras.open(r"{}".format(ras_path)) as raster:
+            if raster.count==1:
+                return "dsm"
+            else:
+                return "ortho"
 
 def getCrs_from_transect(trs_path):
     """Returns the EPSG code of the input transect file (geopackage).
@@ -603,7 +610,7 @@ def getCrs_from_transect(trs_path):
 
 
 def cross_ref(
-    dirNameDSM, dirNameTrans, loc_search_dict, list_loc_codes, print_info=False
+    dir_inputs, dirNameTrans, loc_search_dict, list_loc_codes, print_info=False
 ):
     """
     Returns a dataframe with location, raw_date, filenames (paths)
@@ -620,45 +627,55 @@ def cross_ref(
         Dataframe and information about raster-transect files matches.
     """
 
-    list_rasters = filter_filename_list(
-        getListOfFiles(dirNameDSM), fmt=[".tif", ".tiff"]
-    )
-    list_transects = filter_filename_list(getListOfFiles(dirNameTrans), fmt=[".gpkg"])
-
-    loc_date_labels_raster = [
-        extract_loc_date(file1, loc_search_dict=loc_search_dict)
-        for file1 in list_rasters
-    ]
+    # DF transects
+    list_transects = glob.glob(f"{dirNameTrans}\*.gpkg")
     locs_transects = pd.DataFrame(
         pd.Series(
             [getLoc(trs, list_loc_codes) for trs in list_transects], name="location"
         )
     )
 
-    df_tmp_raster = pd.DataFrame(
-        loc_date_labels_raster, columns=["location", "raw_date"]
-    )
-    df_tmp_raster["filename_raster"] = list_rasters
-    df_tmp_raster["crs_raster"] = df_tmp_raster.filename_raster.apply(
-        getCrs_from_raster_path
-    )
-
     df_tmp_trd = pd.DataFrame(locs_transects, columns=["location"])
     df_tmp_trd["filename_trs"] = list_transects
     df_tmp_trd["crs_transect"] = df_tmp_trd.filename_trs.apply(getCrs_from_transect)
 
-    matched = pd.merge(df_tmp_raster, df_tmp_trd, on="location", how="left").set_index(
+    if isinstance(dir_inputs, list):
+        dirs=dir_inputs
+    else:
+        dirs=[dir_inputs]
+
+    rasters_df=pd.DataFrame()
+
+    for path_in in dirs:
+
+        list_rasters = glob.glob(f"{path_in}\*.ti*")
+        loc_date_labels_raster = [
+            extract_loc_date(file1, loc_search_dict=loc_search_dict)
+            for file1 in list_rasters
+        ]
+
+        df_tmp_raster = pd.DataFrame(
+            loc_date_labels_raster, columns=["location", "raw_date"]
+        )
+        df_tmp_raster["filename_raster"] = list_rasters
+        df_tmp_raster["crs_raster"] = df_tmp_raster.filename_raster.apply(
+            getCrs_from_raster_path
+        )
+        df_tmp_raster["raster_type"]=[filepath_raster_type(i) for i in list_rasters]
+
+        rasters_df=pd.concat([rasters_df,df_tmp_raster], ignore_index=True)
+
+    matched = pd.merge(rasters_df, df_tmp_trd, on="location", how="left").set_index(
         ["location"]
     )
 
     if bool(print_info) is True:
-        counts = matched.groupby("location")["raw_date"].count().reset_index()
-        for i in range(counts.shape[0]):
-            print(
-                f"DSM from {counts.iloc[i]['location']} = {counts.iloc[i]['raw_date']}\n"
-            )
+        counts=check.groupby(["location","raster_type"]).count().reset_index()
 
-        print(f"\nNUMBER OF DATASETS TO PROCESS: {len(list_rasters)}")
+        for i,row in counts.iterrows():
+            print(f"{row['raster_type']} from {row['location']} = {row['raw_date']}\n")
+
+        print(f"\nNUMBER OF DATASETS TO PROCESS: {counts.raw_date.sum()}")
 
     return matched
 
