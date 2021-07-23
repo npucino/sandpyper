@@ -23,6 +23,106 @@ from sandpyper.outils import (
 )
 
 
+
+class ProfileSet():
+    """
+    ciao
+    """
+    def __init__(self,
+                 dirNameDSM,
+                 dirNameOrtho,
+                 dirNameTrans,
+                 loc_codes,
+                 loc_search_dict,
+                 crs_dict_string,
+                check='all'):
+
+
+        self.dirNameDSM=dirNameDSM
+        self.dirNameOrtho=dirNameOrtho
+        self.dirNameTrans=dirNameTrans
+
+        self.loc_codes=loc_codes
+        self.loc_search_dict=loc_search_dict
+        self.crs_dict_string=crs_dict_string
+
+        if check=="dsm":
+            path_in=self.dirNameDSM
+        elif check == "ortho":
+            path_in=self.dirNameOrtho
+        elif check == "all":
+            path_in=[self.dirNameDSM, self.dirNameOrtho]
+
+
+        self.check=cross_ref(path_in,
+                        self.dirNameTrans,
+                        print_info=True,
+                        loc_search_dict=self.loc_search_dict,
+                        list_loc_codes=self.loc_codes)
+
+
+    def extract_profiles(self,
+                         mode,
+                         sampling_step,
+                         add_xy,
+                         add_slope=False,
+                         default_nan_values=-10000):
+
+        if mode=="dsm":
+            path_in=self.dirNameDSM
+        elif mode == "ortho":
+            path_in=self.dirNameOrtho
+        elif mode == "all":
+            path_in=[self.dirNameDSM,self.dirNameOrtho]
+        else:
+            raise NameError("mode must be either 'dsm','ortho' or 'all'.")
+
+        if mode in ["dsm","ortho"]:
+
+            profiles=extract_from_folder(dataset_folder=path_in,
+                transect_folder=self.dirNameTrans,
+                mode=mode,sampling_step=sampling_step,
+                list_loc_codes=self.loc_codes,
+                add_xy=add_xy,
+                add_slope=add_slope,
+                default_nan_values=default_nan_values)
+
+            if mode=="dsm":
+
+                self.profiles_z=profiles
+
+            else:
+
+                self.profiles_rgb=profiles
+
+        elif mode == "all":
+
+            profiles_z=extract_from_folder( dataset_folder=path_in[0],
+                    transect_folder=self.dirNameTrans,
+                    mode=mode,
+                    sampling_step=sampling_step,
+                    list_loc_codes=self.loc_codes,
+                    add_xy=add_xy,
+                    add_slope=add_slope,
+                    default_nan_values=default_nan_values )
+
+            self.profiles_z=profiles_z
+
+            profiles_rgb=extract_from_folder(dataset_folder=path_in[1],
+                transect_folder=self.dirNameTrans,
+                mode=mode,sampling_step=sampling_step,
+                list_loc_codes=self.loc_codes,
+                add_xy=add_xy,
+                default_nan_values=default_nan_values)
+
+            self.profiles_rgb=profiles_rgb
+
+        else:
+            raise NameError("mode must be either 'dsm','ortho' or 'all'.")
+
+        self.sampling_step=sampling_step
+        
+
 def get_terrain_info(x_coord, y_coord, rdarray):
     """
     Returns the value of the rdarray rasters.
@@ -383,7 +483,7 @@ def extract_from_folder(
     sampling_step,
     add_xy=False,
     add_slope=False,
-    default_nan_values=-10000,
+    default_nan_values=-10000
 ):
     """
     Wrapper to extract profiles from all rasters inside a folder.
@@ -438,7 +538,6 @@ def extract_from_folder(
                 pass
             else:
                 nan_values=default_nan_values
-                print(nan_values)
 
         date_string = getDate(dsm)
         location = getLoc(dsm, list_loc_codes)

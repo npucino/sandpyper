@@ -3,6 +3,7 @@
 import os
 import re
 import random
+import glob
 from datetime import datetime
 
 import numpy as np
@@ -627,6 +628,9 @@ def cross_ref(
         Dataframe and information about raster-transect files matches.
     """
 
+    ras_type_dict={0:"dsm",
+                  1:"ortho"}
+
     # DF transects
     list_transects = glob.glob(f"{dirNameTrans}\*.gpkg")
     locs_transects = pd.DataFrame(
@@ -641,14 +645,27 @@ def cross_ref(
 
     if isinstance(dir_inputs, list):
         dirs=dir_inputs
+        list_rasters_check_dsm=[]
+        list_rasters_check_orthos=[]
     else:
         dirs=[dir_inputs]
 
     rasters_df=pd.DataFrame()
 
-    for path_in in dirs:
+    for i,path_in in enumerate(dirs):
 
         list_rasters = glob.glob(f"{path_in}\*.ti*")
+        raster_types=[filepath_raster_type(i) for i in list_rasters]
+
+        if len(set(raster_types)) != 1:
+            raise ValueError(f"Mixed input types have been found in {ras_type_dict[i]} folder. Each folder has to contain either DSMs or orthos only.")
+
+        if isinstance(dir_inputs, list):
+            if i == 0:
+                list_rasters_check_dsm.append([extract_loc_date(os.path.split(i)[-1],loc_search_dict) for i in list_rasters])
+            else:
+                list_rasters_check_orthos.append([extract_loc_date(os.path.split(i)[-1],loc_search_dict) for i in list_rasters])
+
         loc_date_labels_raster = [
             extract_loc_date(file1, loc_search_dict=loc_search_dict)
             for file1 in list_rasters
@@ -661,23 +678,47 @@ def cross_ref(
         df_tmp_raster["crs_raster"] = df_tmp_raster.filename_raster.apply(
             getCrs_from_raster_path
         )
-        df_tmp_raster["raster_type"]=[filepath_raster_type(i) for i in list_rasters]
+        df_tmp_raster["raster_type"]=raster_types
 
         rasters_df=pd.concat([rasters_df,df_tmp_raster], ignore_index=True)
+
+
+    if isinstance(dir_inputs, list):
+
+            missing_dsms=set(*list_rasters_check_orthos).difference(set(*list_rasters_check_dsm))
+            missing_orthos=set(*list_rasters_check_dsm).difference(set(*list_rasters_check_orthos))
+
+            if len(missing_dsms) >0:
+                print(f"WARNING: {missing_dsms} missing or misnamed from the DSMs folder.\n")
+            else:
+                pass
+
+            if len(missing_orthos)>0:
+                print(f"WARNING: {missing_orthos} missing or misnamed from orthos folder.\n")
+            else:
+                pass
 
     matched = pd.merge(rasters_df, df_tmp_trd, on="location", how="left").set_index(
         ["location"]
     )
+    check_formatted=pd.merge(matched.query("raster_type=='ortho'").reset_index(),
+         matched.query("raster_type=='dsm'").reset_index(),
+        on=["location","raw_date"],suffixes=("_ortho","_dsm"))
+
+    check_formatted=check_formatted.loc[:,[ 'raw_date','location','filename_trs_ortho','crs_transect_dsm',
+     'filename_raster_dsm','filename_raster_ortho',
+    'crs_raster_dsm','crs_raster_ortho']]
+
 
     if bool(print_info) is True:
-        counts=check.groupby(["location","raster_type"]).count().reset_index()
+        counts=matched.groupby(["location","raster_type"]).count().reset_index()
 
         for i,row in counts.iterrows():
             print(f"{row['raster_type']} from {row['location']} = {row['raw_date']}\n")
 
         print(f"\nNUMBER OF DATASETS TO PROCESS: {counts.raw_date.sum()}")
 
-    return matched
+    return check_formatted
 
 
 def create_details_df (dh_df, loc_full, fmt='%Y%m%d'):
