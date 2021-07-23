@@ -87,6 +87,9 @@ class ProfileSet():
                 add_slope=add_slope,
                 default_nan_values=default_nan_values)
 
+            profiles["distance"]=np.round(profiles.loc[:,"distance"].values.astype("float"),2)
+
+
             if mode=="dsm":
 
                 self.profiles_z=profiles
@@ -97,31 +100,38 @@ class ProfileSet():
 
         elif mode == "all":
 
+            print("Extracting elevation from DSMs . . .")
             profiles_z=extract_from_folder( dataset_folder=path_in[0],
                     transect_folder=self.dirNameTrans,
-                    mode=mode,
+                    mode="dsm",
                     sampling_step=sampling_step,
                     list_loc_codes=self.loc_codes,
                     add_xy=add_xy,
                     add_slope=add_slope,
                     default_nan_values=default_nan_values )
 
-            self.profiles_z=profiles_z
-
+            print("Extracting rgb values from orthos . . .")
             profiles_rgb=extract_from_folder(dataset_folder=path_in[1],
                 transect_folder=self.dirNameTrans,
-                mode=mode,sampling_step=sampling_step,
+                mode="ortho",sampling_step=sampling_step,
                 list_loc_codes=self.loc_codes,
                 add_xy=add_xy,
                 default_nan_values=default_nan_values)
 
-            self.profiles_rgb=profiles_rgb
+            profiles_rgb["distance"]=np.round(profiles_rgb.loc[:,"distance"].values.astype("float"),2)
+            profiles_z["distance"]=np.round(profiles_z.loc[:,"distance"].values.astype("float"),2)
+
+            profiles_merged = pd.merge(profiles_z,profiles_rgb[["band1","band2","band3","point_id"]],on="point_id",validate="one_to_one")
+            profiles_merged=profiles_merged.replace("", np.NaN)
+            profiles_merged['z']=profiles_merged.z.astype("float")
+
+            self.profiles=profiles_merged
 
         else:
             raise NameError("mode must be either 'dsm','ortho' or 'all'.")
 
         self.sampling_step=sampling_step
-        
+
 
 def get_terrain_info(x_coord, y_coord, rdarray):
     """

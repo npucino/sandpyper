@@ -589,6 +589,7 @@ def compute_rBCD_transects(
     return ss_transects_idx, to_plot
 
 def compute_multitemporal (df,
+                            geometry_column="coordinates",
                            filter_sand=True,
                            date_field='survey_date',
                           sand_label_field='label_sand',
@@ -609,6 +610,7 @@ def compute_multitemporal (df,
 
     df["spatial_id"]=[create_spatial_id(df.iloc[i]) for i in range(df.shape[0])]
     fusion_long=pd.DataFrame()
+
 
     for location in df.location.unique():
         print(f"working on {location}")
@@ -634,7 +636,7 @@ def compute_multitemporal (df,
                 merged=pd.merge(df_pre,df_post, how='inner', on='spatial_id', validate="one_to_one",suffixes=('_pre','_post'))
                 merged["dh"]=merged.z_post.astype(float) - merged.z_pre.astype(float)
 
-                dict_short={"geometry": merged.geometry_pre,
+                dict_short={"geometry":merged.filter(like=geometry_column).iloc[:,0],
                             "location":location,
                             "tr_id":merged.tr_id_pre,
                             "distance":merged.distance_pre,
