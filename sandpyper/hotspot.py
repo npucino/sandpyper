@@ -366,8 +366,8 @@ class ProfileDynamics():
 
     def compute_volumetrics(self, lod, outliers=False, sigma_n=3):
 
-        self.dh_df["date_pre_dt"]=[datetime.datetime.strptime(str(pre),'%Y-%m-%d') for pre in self.dh_df.date_pre]
-        self.dh_df["date_post_dt"]=[datetime.datetime.strptime(str(post),'%Y-%m-%d') for post in self.dh_df.date_post]
+        self.dh_df["date_pre_dt"]=[datetime.datetime.strptime(str(pre),'%Y%m%d') for pre in self.dh_df.date_pre]
+        self.dh_df["date_post_dt"]=[datetime.datetime.strptime(str(post),'%Y%m%d') for post in self.dh_df.date_post]
 
         self.location_volumetrics = get_state_vol_table(self.dh_df, lod=lod,
                                               full_specs_table=self.dh_details)
