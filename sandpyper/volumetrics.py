@@ -1139,10 +1139,13 @@ def plot_single_loc(
         raise TypeError("Error in specifying color dictionary.")
 
     dataset_in = df.query(f"location in {loc_subset}")
+    dataset_in["date_from_dt"] = pd.to_datetime(dataset_in.date_from, dayfirst=False)
+    dataset_in["date_to_dt"] = pd.to_datetime(dataset_in.date_to, dayfirst=False)
 
     for i, location in enumerate(dataset_in.location.unique()):
 
         dataset = dataset_in.query(f"location=='{location}'")
+
 
         if color_mode == "dictionary":
             color_i = colors_dict[location]
@@ -1153,8 +1156,6 @@ def plot_single_loc(
         dataset["cum"] = dataset.net_vol_change.cumsum()
         dataset["cum_mec"] = dataset.norm_net_change.cumsum()
 
-        dataset["date_from_dt"] = pd.to_datetime(dataset.date_from, dayfirst=False)
-        dataset["date_to_dt"] = pd.to_datetime(dataset.date_to, dayfirst=False)
 
         ax = sb.lineplot(
             data=dataset,
@@ -1179,7 +1180,7 @@ def plot_single_loc(
         )
         ax = sb.scatterplot(data=dataset, color=color_i, x="date_to_dt", y="cum")
 
-        x_start = np.array([dataset.iloc[0].date_from_dt, dataset.iloc[0].date_to])
+        x_start = np.array([dataset.iloc[0].date_from_dt, dataset.iloc[0].date_to_dt])
         y_start = np.array([0, dataset.iloc[0].cum])
 
         ax.plot(x_start, y_start, c=color_i)
@@ -1189,7 +1190,7 @@ def plot_single_loc(
     ax.axhline(0, c="k", lw=0.5)
 
     ax.set(
-        xticks=np.append(dataset_in.date_from.values, dataset_in.date_to.values[-1])
+        xticks=np.append(dataset_in.date_from_dt.values, dataset_in.date_to_dt.values[-1])
     )
     ax.xaxis.set_major_formatter(dates.DateFormatter(out_date_format))
 

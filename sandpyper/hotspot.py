@@ -116,7 +116,7 @@ class ProfileDynamics():
     def save(self, name, out_dir):
         savetxt=f"{os.path.join(out_dir,name)}.p"
         pickle.dump( self, open( savetxt, "wb" ) )
-        print(f"ProfileSet object saved in {savetxt} .")
+        print(f"ProfileDynamics object saved in {savetxt} .")
 
     def compute_multitemporal(self, loc_full, geometry_column="coordinates", date_field='raw_date', filter_sand=False, sand_label_field='label_sand'):
         self.dh_df = compute_multitemporal(self.ProfileSet.profiles,
