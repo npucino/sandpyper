@@ -14,6 +14,7 @@ import datetime
 import os
 import time
 import warnings
+import pickle
 
 
 from sandpyper.dynamics import compute_multitemporal
@@ -70,6 +71,10 @@ class ProfileSet():
                         loc_search_dict=self.loc_search_dict,
                         list_loc_codes=self.loc_codes)
 
+    def save(self, name, out_dir):
+        savetxt=f"{os.path.join(out_dir,name)}.p"
+        pickle.dump( self, open( savetxt, "wb" ) )
+        print(f"ProfileSet object saved in {savetxt} .")
 
     def extract_profiles(self,
                          mode,

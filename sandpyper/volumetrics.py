@@ -252,11 +252,21 @@ def get_state_vol_table(
             skip_details = True
         else:
             print("Please provide the path to the specs table.")
-    elif os.path.isfile(full_specs_table):
-        table_details = pd.read_csv(full_specs_table)
+
+    elif isinstance(full_specs_table, str):
+        if os.path.isfile(full_specs_table):
+            table_details = pd.read_csv(full_specs_table)
+            skip_details = False
+        else:
+            raise TypeError("Not a valid path to the .csv file for the specs table.")
+
+    elif isinstance(full_specs_table, pd.DataFrame):
+        table_details = full_specs_table
         skip_details = False
+
     else:
         raise TypeError("Not a valid path to the .csv file for the specs table.")
+
 
     tr_df_full = pd.DataFrame()
 
@@ -276,7 +286,7 @@ def get_state_vol_table(
             if bool(skip_details):
                 pass
             else:
-                specs = table_details.query(f"loc_code=='{loc}' & dt=='{dt}'")
+                specs = table_details.query(f"location=='{loc}' & dt=='{dt}'")
                 full_loc = specs.loc_full.values[0]
                 date_from = specs.date_pre.values[0]
                 date_to = specs.date_post.values[0]
@@ -391,6 +401,27 @@ def get_transects_vol_table(
 
     locs = sand_pts.location.unique().tolist()
 
+    if isinstance(full_specs_table, bool):
+        if bool(full_specs_table) == False:
+            skip_details = True
+        else:
+            print("Please provide the path to the specs table.")
+
+    elif isinstance(full_specs_table, str):
+        if os.path.isfile(full_specs_table):
+            table_details = pd.read_csv(full_specs_table)
+            skip_details = False
+        else:
+            raise TypeError("Not a valid path to the .csv file for the specs table.")
+
+    elif isinstance(full_specs_table, pd.DataFrame):
+        table_details = full_specs_table
+        skip_details = False
+
+    else:
+        raise TypeError("Not a valid path to the .csv file for the specs table.")
+
+
     for loc in locs:
 
         test_loc = sand_pts.query(f"location == '{loc}'")
@@ -401,8 +432,8 @@ def get_transects_vol_table(
 
             tr_ids = sorted(data_in.columns.values)
 
-            if bool(full_specs_table):
-                specs = full_specs_table.query(f"loc_code=='{loc}' & dt=='{dt}'")
+            if skip_details != True:
+                specs = table_details.query(f"location=='{loc}' & dt=='{dt}'")
                 full_loc = specs.loc_full.values[0]
                 date_from = specs.date_pre.values[0]
                 date_to = specs.date_post.values[0]
@@ -439,7 +470,7 @@ def get_transects_vol_table(
             tr_df["dt"] = dt
             tr_df["location"] = loc
 
-            if bool(full_specs_table):
+            if skip_details != True:
                 tr_df["location_full"] = full_loc
                 tr_df["date_from"] = date_from
                 tr_df["date_to"] = date_to
@@ -798,7 +829,7 @@ def plot_mec_evolution(
     volumetrics,
     location_field,
     loc_order,
-    date_from_field="date_pre_dt", 
+    date_from_field="date_pre_dt",
     date_to_field="date_post_dt",
     date_format="%d.%m.%y",
     scale_mode="equal",
@@ -1122,12 +1153,12 @@ def plot_single_loc(
         dataset["cum"] = dataset.net_vol_change.cumsum()
         dataset["cum_mec"] = dataset.norm_net_change.cumsum()
 
-        dataset["date_post"] = pd.to_datetime(dataset.date_post, dayfirst=False)
-        dataset["date_pre"] = pd.to_datetime(dataset.date_pre, dayfirst=False)
+        dataset["date_from_dt"] = pd.to_datetime(dataset.date_from, dayfirst=False)
+        dataset["date_to_dt"] = pd.to_datetime(dataset.date_to, dayfirst=False)
 
         ax = sb.lineplot(
             data=dataset,
-            x="date_post",
+            x="date_to_dt",
             color=color_i,
             y="net_vol_change",
             label=f"{location}: period",
@@ -1135,7 +1166,7 @@ def plot_single_loc(
         )
         ax = sb.lineplot(
             data=dataset,
-            x="date_post",
+            x="date_to_dt",
             color=color_i,
             y="cum",
             label=f"{location}: cumulative",
@@ -1144,21 +1175,21 @@ def plot_single_loc(
         )
 
         ax = sb.scatterplot(
-            data=dataset, color=color_i, x="date_post", y="net_vol_change"
+            data=dataset, color=color_i, x="date_to_dt", y="net_vol_change"
         )
-        ax = sb.scatterplot(data=dataset, color=color_i, x="date_post", y="cum")
+        ax = sb.scatterplot(data=dataset, color=color_i, x="date_to_dt", y="cum")
 
-        x_start = np.array([dataset.iloc[0].date_pre, dataset.iloc[0].date_post])
+        x_start = np.array([dataset.iloc[0].date_from_dt, dataset.iloc[0].date_to])
         y_start = np.array([0, dataset.iloc[0].cum])
 
         ax.plot(x_start, y_start, c=color_i)
-        ax.scatter(dataset.iloc[0].date_pre, 0, c=color_i, marker="*")
+        ax.scatter(dataset.iloc[0].date_from_dt, 0, c=color_i, marker="*")
 
     # the zero horizontal line
     ax.axhline(0, c="k", lw=0.5)
 
     ax.set(
-        xticks=np.append(dataset_in.date_pre.values, dataset_in.date_post.values[-1])
+        xticks=np.append(dataset_in.date_from.values, dataset_in.date_to.values[-1])
     )
     ax.xaxis.set_major_formatter(dates.DateFormatter(out_date_format))
 

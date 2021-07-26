@@ -12,6 +12,8 @@ import pysal.explore.esda.moran as moran
 from pysal.explore.esda.util import fdr
 from sandpyper.outils import coords_to_points, getListOfFiles, getLoc, create_spatial_id, create_details_df
 from sandpyper.dynamics import get_coastal_Markov,  compute_multitemporal
+from sandpyper.volumetrics import (get_state_vol_table, get_transects_vol_table,
+                                   plot_alongshore_change, plot_mec_evolution, plot_single_loc)
 from itertools import product as prod
 from pysal.viz.mapclassify import (EqualInterval,
                                    FisherJenks,
@@ -28,6 +30,8 @@ import matplotlib.pyplot as plt
 import seaborn as sb
 import re
 import datetime
+import pickle
+import os
 
 
 class ProfileDynamics():
@@ -109,6 +113,9 @@ class ProfileDynamics():
         self.ProfileSet=ProfileSet
 
 
+    def save(self, name, out_dir):
+        savetxt=f"{os.path.join(out_dir,name)}.p"
+        pickle.dump( self, open( savetxt, "wb" ) )
 
     def compute_multitemporal(self, loc_full, geometry_column="coordinates", date_field='raw_date', filter_sand=False, sand_label_field='label_sand'):
         self.dh_df = compute_multitemporal(self.ProfileSet.profiles,
@@ -359,11 +366,6 @@ class ProfileDynamics():
             self.location_ss=merged
 
 
-
-
-
-
-
     def compute_volumetrics(self, lod, outliers=False, sigma_n=3):
 
         self.dh_df["date_pre_dt"]=[datetime.datetime.strptime(str(pre),'%Y%m%d') for pre in self.dh_df.date_pre]
@@ -372,30 +374,39 @@ class ProfileDynamics():
         self.location_volumetrics = get_state_vol_table(self.dh_df, lod=lod,
                                               full_specs_table=self.dh_details)
 
-        self.location_volumetrics = get_transects_vol_table(self.dh_df, lod=lod,
-                                        transect_spacing=self.P.transects_spacing,
+        self.transects_volumetrics = get_transects_vol_table(self.dh_df, lod=lod,
+                                        transect_spacing=self.ProfileSet.transects_spacing,
                                         outliers=outliers,sigma_n=sigma_n,
                                         full_specs_table=self.dh_details)
 
     def plot_single_loc(self,
                         loc_subset,
-                        figsize,
                         colors_dict,
-                        linewidth,
-                        out_date_format,
-                        xlabel,
-                        ylabel,
-                        suptitle):
+                        figsize=(8.5,4),
+                        linewidth=1.5,
+                        out_date_format="%d/%m/%Y",
+                        xlabel="Survey date" ,
+                        ylabel="Volume change (m³)",
+                        suptitle="Volumetric Timeseries"):
 
         plot_single_loc(self.location_volumetrics,
-                        loc_subset,
-                        figsize,
-                        colors_dict,
-                        linewidth,
-                        out_date_format,
-                        xlabel,
-                        ylabel,
-                        suptitle)
+                        loc_subset=loc_subset,
+                        figsize=figsize,
+                        colors_dict=colors_dict,
+                        linewidth=linewidth,
+                        out_date_format=out_date_format,
+                        xlabel=xlabel,
+                        ylabel=ylabel,
+                        suptitle=suptitle)
+
+    def plot_alongshore_change():
+        djdj
+
+
+    def plot_mec_evolution():
+        djnjd
+
+
 
 
     def plot_trans_matrices(self,
