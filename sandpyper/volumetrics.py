@@ -829,8 +829,8 @@ def plot_mec_evolution(
     volumetrics,
     location_field,
     loc_order,
-    date_from_field="date_pre_dt",
-    date_to_field="date_post_dt",
+    date_from_field="date_from",
+    date_to_field="date_to",
     date_format="%d.%m.%y",
     scale_mode="equal",
     x_diff=None,
@@ -888,8 +888,8 @@ def plot_mec_evolution(
     else:
         pass
 
-    volumetrics["date_from_dt"]=[datetime.datetime.strptime(str(pre),'%Y%m%d') for pre in volumetrics.date_from]
-    volumetrics["date_to_dt"]=[datetime.datetime.strptime(str(post),'%Y%m%d') for post in volumetrics.date_to]
+    volumetrics["date_from_dt"]=[datetime.datetime.strptime(str(pre),'%Y%m%d') for pre in volumetrics.loc[:, date_from_field]]
+    volumetrics["date_to_dt"]=[datetime.datetime.strptime(str(post),'%Y%m%d') for post in volumetrics.loc[:, date_to_field]]
 
     num_subplots = volumetrics.location.unique().shape[0]
     if num_subplots > 1:
@@ -906,17 +906,17 @@ def plot_mec_evolution(
         for ax_i, loc in zip(axs.flatten(), volumetrics.location.unique()):
 
             data_in = volumetrics.query(f"location=='{loc}'")
-            data_in.sort_values(date_to_field, inplace=True)
+            data_in.sort_values("date_to_dt", inplace=True)
             # add the cumulative change curve
             data_in["cum_change"] = data_in.norm_net_change.cumsum()
 
-            first_date_from = data_in.loc[:, date_from_field].iloc[0]
+            first_date_from = data_in.loc[:, "date_from_dt"].iloc[0]
 
             full_loc = data_in.loc[:, location_field].iloc[0]
             x = data_in.norm_net_change
             x2 = data_in.cum_change
-            y = dates.date2num(data_in.loc[:, date_to_field])
-            y_scatter = dates.date2num(data_in.loc[:, date_from_field])
+            y = dates.date2num(data_in.loc[:, "date_to_dt"])
+            y_scatter = dates.date2num(data_in.loc[:, "date_from_dt"])
 
             # LinePlots
 
@@ -1002,17 +1002,17 @@ def plot_mec_evolution(
         fig, ax = plt.subplots(figsize=figure_size)
 
         data_in = volumetrics
-        data_in.sort_values("date_to", inplace=True)
+        data_in.sort_values("date_to_dt", inplace=True)
         # add the cumulative change curve
         data_in["cum_change"] = data_in.norm_net_change.cumsum()
 
-        first_date_from = data_in.date_from.iloc[0]
+        first_date_from = data_in.date_from_dt.iloc[0]
 
         full_loc = data_in.loc[:, location_field].iloc[0]
         x = data_in.norm_net_change
         x2 = data_in.cum_change
-        y = dates.date2num(data_in.date_to)
-        y_scatter = dates.date2num(data_in.date_from)
+        y = dates.date2num(data_in.date_to_dt)
+        y_scatter = dates.date2num(data_in.date_from_dt)
 
         # LinePlots
 
