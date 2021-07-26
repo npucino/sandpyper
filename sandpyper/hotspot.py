@@ -450,8 +450,46 @@ class ProfileDynamics():
             sigma_n=sigma_n)
 
 
-    def plot_mec_evolution():
-        djnjd
+    def plot_mec_evolution(self,
+        location_field,
+        loc_order,
+        date_from_field="date_pre_dt",
+        date_to_field="date_post_dt",
+        date_format="%d.%m.%y",
+        scale_mode="equal",
+        x_diff=None,
+        dates_step=50,
+        x_limits=(-0.41, 0.41),
+        x_binning=5,
+        figure_size=(7, 4),
+        font_scale=0.75,
+        sort_locations=True,
+        dpi=300,
+        img_type=".png",
+        save_fig=False,
+        name_fig=f"Mean Elevation Changes",
+        save_path=None):
+
+
+        plot_mec_evolution(self.location_volumetrics,
+            location_field=location_field,
+            loc_order=loc_order,
+            date_from_field=date_from_field,
+            date_to_field=date_to_field,
+            date_format=date_format,
+            scale_mode=scale_mode,
+            x_diff=x_diff,
+            dates_step=dates_step,
+            x_limits=x_limits,
+            x_binning=x_binning,
+            figure_size=figure_size,
+            font_scale=font_scale,
+            sort_locations=sort_locations,
+            dpi=dpi,
+            img_type=img_type,
+            save_fig=save_fig,
+            name_fig=name_fig,
+            save_path=save_path)
 
 
 

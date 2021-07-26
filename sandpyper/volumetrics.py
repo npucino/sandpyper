@@ -11,7 +11,7 @@ from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 
 import seaborn as sb
 from sandpyper.outils import round_special
-
+import datetime
 
 def prep_heatmap(df, lod, outliers=False, sigma_n=3):
     """
@@ -887,6 +887,9 @@ def plot_mec_evolution(
 
     else:
         pass
+
+    volumetrics["date_from_dt"]=[datetime.datetime.strptime(str(pre),'%Y%m%d') for pre in volumetrics.date_from]
+    volumetrics["date_to_dt"]=[datetime.datetime.strptime(str(post),'%Y%m%d') for post in volumetrics.date_to]
 
     num_subplots = volumetrics.location.unique().shape[0]
     if num_subplots > 1:
