@@ -1,4 +1,6 @@
 import numpy as np
+from scipy.stats import median_abs_deviation, shapiro, normaltest
+
 from tqdm.notebook import tqdm
 import pandas as pd
 import geopandas as gpd
@@ -10,6 +12,83 @@ import matplotlib.pyplot as plt
 import seaborn as sb
 
 from sandpyper.outils import getListOfFiles, getLoc, create_spatial_id
+
+
+
+def get_lod_table(multitemp_data, alpha=0.05):
+
+    alpha=0.05
+    data['dh_abs']=[abs(i) for i in data.dh]
+
+    means=data.groupby(["location","dt"]).dh.apply(np.mean)
+    meds=data.groupby(["location","dt"]).dh.apply(np.median).reset_index()
+    nmads=data.groupby(["location","dt"]).dh.apply(median_abs_deviation, **{'scale':'normal'})
+    stds=data.groupby(["location","dt"]).dh.apply(np.std)
+    a_q683 = data.groupby(["location","dt"]).dh_abs.apply(np.quantile, **{'q':.683})
+    a_q95 = data.groupby(["location","dt"]).dh_abs.apply(np.quantile, **{'q':.95})
+
+    lod_stats=pd.DataFrame({'location':meds.location,
+                 'dt': meds.dt,
+                            'mean':means.values,
+                  'med':meds.dh.values,
+                 'std':stds.values,
+                 'nmad': nmads.values,
+                 'a_q683':a_q683.values,
+                 'a_q95': a_q95.values})
+
+    lod_stats["rrmse"]= np.sqrt(lod_stats.med**2 +  lod_stats.nmad**2)
+
+    df_long=pd.DataFrame()
+
+    for loc in data.location.unique():
+        data_loc_in=data.query(f"location=='{loc}'")
+
+        for dt_i in data_loc_in.dt.unique():
+            data_lod = data_loc_in.query(f"dt=='{dt_i}'").dh
+            data_lod.dropna(inplace=True)
+            abs_data=abs(data_lod)
+
+            mean = np.mean(data_lod, axis=0)
+            sd = np.std(data_lod, axis=0)
+            data_out = [x for x in data_lod if x < (3 * sd)]
+            data_out = [x for x in data_lod if -x < (3 * sd)]
+            n_out=len(data_lod) - len(data_out)
+
+            saphiro_stat, saph_p = shapiro(data_lod)
+            ago_stat, ago_p = normaltest(data_lod)
+
+            if saph_p > alpha:
+                saphiro_normality='normal'
+            else:
+                saphiro_normality='not normal'
+
+            if ago_p > alpha:
+                ago_normality='normal'
+            else:
+                ago_normality='not normal'
+
+
+            df_tmp=pd.DataFrame({'location':loc,
+                                'dt':dt_i}, index=[0])
+
+            df_tmp["n"]=len(data_lod)
+            df_tmp["n_outliers"]=n_out
+            df_tmp["saphiro_stat"]=saphiro_stat
+            df_tmp["saphiro_p"]=saph_p
+            df_tmp["ago_stat"]=ago_stat
+            df_tmp["ago_p"]=ago_p
+            df_tmp["saphiro_normality"]=saphiro_normality
+            df_tmp["ago_normality"]=ago_normality
+
+            df_long=pd.concat([df_tmp,df_long], ignore_index=True)
+
+
+    lod_df=pd.merge(lod_stats,df_long)
+    lod_df['lod']=np.where(np.logical_or(lod_df['saphiro_normality'] == 'normal',lod_df['ago_normality'] == 'normal'),
+            lod_df['std'], lod_df['nmad'])
+
+    return lod_df
+
 
 def attach_trs_geometry(markov_transects_df, dirNameTrans, list_loc_codes):
     """Attach transect geometries to the transect-specific BCDs dataframe.
