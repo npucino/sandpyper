@@ -400,8 +400,54 @@ class ProfileDynamics():
                         ylabel=ylabel,
                         suptitle=suptitle)
 
-    def plot_alongshore_change():
-        djdj
+    def plot_alongshore_change(self,
+        mode,
+        lod,
+        full_specs_table=None,
+        return_data=False,
+        location_subset=None,
+        dt_subset=None,
+        ax2_y_lims=(-8, 5),
+        save=False,
+        save_path=None,
+        dpi=300,
+        img_type=".png",
+        from_land=True,
+        from_origin=True,
+        add_orient=False,
+        fig_size=(7.3, 3),
+        font_scale=1,
+        plots_spacing=0,
+        bottom=False,
+        y_heat_bottom_limit=80,
+        transect_spacing=None,
+        outliers=False,
+        sigma_n=3):
+
+
+        plot_alongshore_change(self.dh_df,
+            mode=mode,
+            lod=lod,
+            full_specs_table=self.dh_details,
+            return_data=return_data,
+            location_subset=location_subset,
+            dt_subset=dt_subset,
+            ax2_y_lims=ax2_y_lims,
+            save=save,
+            save_path=save_path,
+            dpi=dpi,
+            img_type=img_type,
+            from_land=from_land,
+            from_origin=from_origin,
+            add_orient=add_orient,
+            fig_size=fig_size,
+            font_scale=font_scale,
+            plots_spacing=plots_spacing,
+            bottom=bottom,
+            y_heat_bottom_limit=y_heat_bottom_limit,
+            transect_spacing=self.ProfileSet.transects_spacing,
+            outliers=outliers,
+            sigma_n=sigma_n)
 
 
     def plot_mec_evolution():
