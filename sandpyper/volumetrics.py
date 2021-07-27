@@ -13,7 +13,7 @@ import seaborn as sb
 from sandpyper.outils import round_special
 import datetime
 
-def prep_heatmap(df, lod, outliers=False, sigma_n=3):
+def prep_heatmap(df, lod, outliers=False, sigma_n=3, lod_default=0.05):
     """
     Function to create a pivoted and filtered dataframe from multitemporal table of specific period-location combination (i.e. loc= pfa, dt= dt_3).
     Elevation differences within LoD (uncertain) can be set to zero and outliers can be eliminated.
@@ -70,7 +70,7 @@ def prep_heatmap(df, lod, outliers=False, sigma_n=3):
             dt = df.dt.iloc[0]
             lod = lod_table.query(
                 f"location == '{loc}' and dt == '{dt}'"
-            ).nmad  # extract nmad
+            ).lod  # extract nmad
             # create condition (within LoD) to mask the dataframe
             cond = (df_piv >= -lod.values[0]) & (df_piv <= lod.values[0])
             # replace the values that satisfied the condition (within LoD) with zeroes
@@ -94,6 +94,20 @@ def prep_heatmap(df, lod, outliers=False, sigma_n=3):
 
         return df_piv2.sort_index(ascending=False)
 
+    elif isinstance(lod, pd.DataFrame):
+        lod_table=lod
+        loc = df.location.iloc[0]
+        dt = df.dt.iloc[0]
+        lod = lod_table.query(
+            f"location == '{loc}' and dt == '{dt}'"
+        ).lod  # extract nmad
+        # create condition (within LoD) to mask the dataframe
+        cond = (df_piv >= -lod.values[0]) & (df_piv <= lod.values[0])
+        # replace the values that satisfied the condition (within LoD) with zeroes
+        df_piv2 = df_piv.mask(cond, 0)
+        df_piv2.set_index(df_piv2.index.astype(float), inplace=True)
+
+        return df_piv2.sort_index(ascending=False)
     else:  # otherwise, use the default values, preset at global LoD 0.05.
 
         lod = float(lod_default)

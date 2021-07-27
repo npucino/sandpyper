@@ -426,6 +426,87 @@ class ProfileDynamics():
                                         outliers=outliers,sigma_n=sigma_n,
                                         full_specs_table=self.dh_details)
 
+    def plot_transects(self, location, tr_id, dt=None, from_date=None, to_date=None, details_df=None,figsize=None):
+
+        if dt != None:
+
+            if isinstance(dt, list):
+                periods=dt
+            else:
+                periods=[dt]
+
+            for dt_i in periods:
+                f,ax=plt.subplots(1, figsize=(10,5))
+
+                data=self.dh_df.query(f"location=='{location}' and tr_id=={tr_id} and dt=='{dt_i}'")
+                details=self.dh_details.query(f"location=='{location}' and dt == '{dt_i}'")
+                full_loc=details.iloc[0]["loc_full"]
+
+                from_date=details.iloc[0]["date_pre"]
+                to_date=details.iloc[0]["date_post"]
+
+                sb.scatterplot(data=data, x="distance", y='z_pre', color='b', size=5)
+                sb.lineplot(data=data,x="distance",y='z_pre', color="b", label='Pre')
+
+                sb.scatterplot(data=data, x="distance", y='z_post', color='r', size=5)
+                sb.lineplot(data=data,x="distance",y='z_post', color="r",ls='--', label='Post')
+
+                ax.set_ylabel('Elevation (m)')
+                ax.set_xlabel('Distance alongshore (m)')
+                ax.set_title(f"Location: {full_loc}\nTransect: {tr_id}\nFrom {from_date} to {to_date} ({dt_i})");
+
+        elif dt == None:
+
+            if from_date != None and to_date != None:
+                f,ax=plt.subplots(1, figsize=(10,5))
+
+                data_pre=self.dh_df.query(f"location=='{location}' and tr_id=={tr_id} and date_pre == '{from_date}'")
+                data_post=self.dh_df.query(f"location=='{location}' and tr_id=={tr_id} and date_post == '{to_date}'")
+                full_loc=self.dh_details.query(f"location=='{location}'").iloc[0]["loc_full"]
+
+                sb.scatterplot(data=data_pre, x="distance", y='z_pre', color='b', size=5)
+                sb.lineplot(data=data_pre,x="distance",y='z_pre', color="b", label='Pre')
+
+                sb.scatterplot(data=data_post, x="distance", y='z_post', color='r', size=5)
+                sb.lineplot(data=data_post,x="distance",y='z_post', color="r",ls='--', label='Post')
+
+                ax.set_ylabel('Elevation (m)')
+                ax.set_xlabel('Distance alongshore (m)')
+                ax.set_title(f"Location: {full_loc}\nTransect: {tr_id}\nFrom {from_date} to {to_date}");
+
+            else:
+                raise ValueError("Only one of date_from/date_to dates has been provided. Please provide both dates or use the dt parameter only.")
+
+
+    def plot_transect_mecs(self, location, tr_id, figsize=(10,5)):
+
+        details=self.dh_details.query(f"location=='{location}'")
+        full_loc=details.iloc[0]["loc_full"]
+
+        f,axs=plt.subplots(nrows=1,
+                          ncols=2,
+                          figsize=figsize)
+
+        data=self.dh_df.query(f"location=='{location}' and tr_id=={tr_id}")
+
+        mecs=data.groupby(['dt']).dh.sum()/data.groupby(['dt']).geometry.count()
+        mecs=mecs.reset_index()
+        mecs.columns=['dt','mec']
+        mecs['dt_i']=[int(mecs.iloc[i,0].split("_")[-1]) for i in range(mecs.dt.shape[0])]
+
+        barplot=sb.barplot(data=mecs.sort_values(['dt_i']),x='mec',y='dt', ax=axs[0], color='b')
+        barplot.set_ylabel("Time period (dt)")
+        barplot.set_xlabel("Mean Elevation Change (m)")
+        barplot.set_title('Barplot')
+
+        trend=sb.regplot(data=mecs, x='dt_i',y='mec',ax=axs[1])
+        sb.lineplot(data=mecs, x='dt',y='mec',ax=axs[1])
+        trend.set_title('Trend')
+
+
+        f.suptitle(f"Location: {full_loc}\nTransect: {tr_id}");
+
+
     def plot_single_loc(self,
                         loc_subset,
                         colors_dict,
