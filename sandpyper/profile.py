@@ -79,6 +79,7 @@ class ProfileSet():
     def extract_profiles(self,
                          mode,
                          sampling_step,
+                         lod_mode,
                          add_xy,
                          add_slope=False,
                          default_nan_values=-10000):
@@ -137,6 +138,40 @@ class ProfileSet():
             raise NameError("mode must be either 'dsm','ortho' or 'all'.")
 
         self.sampling_step=sampling_step
+
+
+        if os.path.isdir(lod_mode):
+            if mode == 'dsm':
+                lod_path_data=self.dirNameDSM
+            elif mode == 'all':
+                lod_path_data=path_in[0]
+
+            print("Extracting LoD values")
+
+            lod=extract_from_folder( dataset_folder=lod_path_data,
+                    transect_folder=lod_mode,
+                    mode="dsm",
+                    sampling_step=sampling_step,
+                    list_loc_codes=self.loc_codes,
+                    add_xy=False,
+                    add_slope=False,
+                    default_nan_values=default_nan_values )
+            self.lod=lod
+
+
+        elif isinstance(lod_mode, (float, int)) or lod_mode==None:
+            self.lod=lod
+
+        else:
+            raise ValueError("lod_mode must be a path directing to the folder of lod profiles, a numerical value or None.")
+
+            lod_profiles=extract_from_folder(dataset_folder=self.ProfileSet.dirNameDSM,
+                transect_folder=lod,
+                mode='dsm',sampling_step=self.ProfileSet.sampling_step,
+                list_loc_codes=self.ProfileSet.loc_codes,
+                add_xy=False,
+                add_slope=False,
+                default_nan_values=np.nan)
 
 
 

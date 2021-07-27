@@ -13,19 +13,17 @@ import seaborn as sb
 
 from sandpyper.outils import getListOfFiles, getLoc, create_spatial_id
 
-
-
 def get_lod_table(multitemp_data, alpha=0.05):
 
     alpha=0.05
-    data['dh_abs']=[abs(i) for i in data.dh]
+    multitemp_data['dh_abs']=[abs(i) for i in multitemp_data.dh]
 
-    means=data.groupby(["location","dt"]).dh.apply(np.mean)
-    meds=data.groupby(["location","dt"]).dh.apply(np.median).reset_index()
-    nmads=data.groupby(["location","dt"]).dh.apply(median_abs_deviation, **{'scale':'normal'})
-    stds=data.groupby(["location","dt"]).dh.apply(np.std)
-    a_q683 = data.groupby(["location","dt"]).dh_abs.apply(np.quantile, **{'q':.683})
-    a_q95 = data.groupby(["location","dt"]).dh_abs.apply(np.quantile, **{'q':.95})
+    means=multitemp_data.groupby(["location","dt"]).dh.apply(np.mean)
+    meds=multitemp_data.groupby(["location","dt"]).dh.apply(np.median).reset_index()
+    nmads=multitemp_data.groupby(["location","dt"]).dh.apply(median_abs_deviation, **{'scale':'normal'})
+    stds=multitemp_data.groupby(["location","dt"]).dh.apply(np.std)
+    a_q683 = multitemp_data.groupby(["location","dt"]).dh_abs.apply(np.quantile, **{'q':.683})
+    a_q95 = multitemp_data.groupby(["location","dt"]).dh_abs.apply(np.quantile, **{'q':.95})
 
     lod_stats=pd.DataFrame({'location':meds.location,
                  'dt': meds.dt,
@@ -40,8 +38,8 @@ def get_lod_table(multitemp_data, alpha=0.05):
 
     df_long=pd.DataFrame()
 
-    for loc in data.location.unique():
-        data_loc_in=data.query(f"location=='{loc}'")
+    for loc in multitemp_data.location.unique():
+        data_loc_in=multitemp_data.query(f"location=='{loc}'")
 
         for dt_i in data_loc_in.dt.unique():
             data_lod = data_loc_in.query(f"dt=='{dt_i}'").dh
@@ -82,12 +80,130 @@ def get_lod_table(multitemp_data, alpha=0.05):
 
             df_long=pd.concat([df_tmp,df_long], ignore_index=True)
 
-
     lod_df=pd.merge(lod_stats,df_long)
     lod_df['lod']=np.where(np.logical_or(lod_df['saphiro_normality'] == 'normal',lod_df['ago_normality'] == 'normal'),
             lod_df['std'], lod_df['nmad'])
 
     return lod_df
+
+def plot_normality_check(multitemp_data,locations,alpha=0.05,xlims=None,ylim=None,qq_xlims=None,qq_ylims=None):
+
+
+    if isinstance(locations, list):
+        if len(locations)>=1:
+            loc_list=locations
+        else:
+            raise ValueError("Locations list passed is empty!.")
+    elif locations=='all':
+        loc_list=multitemp_data.location.unique()
+
+    else:
+        raise ValueError("Locations parameter must be a list of location codes or 'all'.")
+
+    for loc in loc_list:
+
+        data_loc_in=multitemp_data.query(f"location=='{loc}'")
+
+        for dt_i in data_loc_in.dt.unique():
+
+            lod_df_selection=lod_df.query(f"location=='{loc}' & dt == '{dt_i}'")
+
+            f, (ax1,ax2) = plt.subplots(nrows=1,ncols=2, figsize=(7,4))
+
+            specs=self.dh_details.query(f"location=='{loc}' & dt=='{dt_i}'")
+            full_loc=specs.location.values[0]
+            date_from=specs.date_pre.values[0]
+            date_to=specs.date_post.values[0]
+            dt=specs.dt.values[0]
+
+            data_lod = data_loc_in.query(f"dt=='{dt_i}'").dh
+            data_lod.dropna(inplace=True)
+            abs_data=abs(data_lod)
+
+            mean = lod_df_selection["mean"].iloc[0]
+            sd = lod_df_selection["std"].iloc[0]
+            nmad = lod_df_selection["nmad"].iloc[0]
+
+            data_out = [x for x in data_lod if x < (3 * sd)]
+            data_out = [x for x in data_lod if -x < (3 * sd)]
+
+            n_out=lod_df_selection["n_outliers"].iloc[0]
+            saphiro_stat, saph_p = lod_df_selection["saphiro_stat"].iloc[0],lod_df_selection["saphiro_p"].iloc[0]
+            ago_stat, ago_p = lod_df_selection["ago_stat"].iloc[0],lod_df_selection["ago_p"].iloc[0]
+
+
+            f.suptitle(f"{full_loc} - {date_from} to {date_to} ({dt})")
+
+            ax1.set_title(f'Density histograms ({len(lod_df_selection)} check points)')
+            ax1.set_ylabel('Density')
+            ax1.set_xlabel('Δh (m AHD)')
+
+            if isinstance(xlims, tuple):
+                ax1.set_xlim(*xlims)
+            if ylim != None:
+                ax1.set_ylim(ylim)
+
+            ax1.axvline(nmad, color='red')
+            ax1.axvline(sd, color='blue')
+
+            dist=sb.histplot(data_out,kde=False, ax=ax1, stat='probability',
+                              line_kws=dict(edgecolor="w", linewidth=1)
+                                 )
+
+            ax1.grid(b=None,axis="x")
+            ax1.tick_params(axis="x", rotation=90)
+            ax1.tick_params(axis="x")
+            ax1.tick_params(axis="y")
+
+
+            a=qqplot(abs(pd.Series(data_out)), line='s', fit=True, ax=ax2)
+            ax2.set_xlabel('Theoretical quantiles')
+            ax2.set_ylabel('Δh quantiles')
+
+            if isinstance(qq_xlims, tuple):
+                ax2.set_xlim(*qq_xlims)
+            if isinstance(qq_ylims, tuple):
+                ax2.set_ylim(*qq_ylims)
+
+            ax2.set_title('Q-Q plot of absolute Δh')
+
+            ax2.tick_params(axis="x")
+            ax2.tick_params(axis="y")
+
+            ax1.annotate(f"nmad: {np.round(nmad,2)}",color="red",xycoords="axes fraction", xy=(0.03, 0.97), xytext=(0.03, 0.97))
+            ax1.annotate(f"std: {np.round(sd,2)}",color="blue",xycoords="axes fraction", xy=(0.03, 0.93), xytext=(0.03, 0.93))
+            ax1.annotate(f"3σ outliers: {n_out}",color="k",xycoords="axes fraction", xy=(0.03, 0.89), xytext=(0.03, 0.89))
+
+            saph_txt=f"Saphiro-Wilk: W = {np.round(saphiro_stat,2)}, p = < 0.05"
+            ago_txt=f"D'Agostino-Pearson: K2 = {np.round(ago_stat,2)}, p = < 0.05"
+
+            ax2.annotate(saph_txt,color="k",xycoords="axes fraction", xy=(0.03, 0.97), xytext=(0.03, 0.97))
+            ax2.annotate(ago_txt,color="k",xycoords="axes fraction", xy=(0.03, 0.93), xytext=(0.03, 0.93))
+
+            if saph_p > alpha:
+                conc_txt_saph='Saphiro-Wilk --> Normal distribution.'
+            else:
+                conc_txt_saph='Saphiro-Wilk --> Non-normal distribution.'
+
+
+            if ago_p > alpha:
+                conc_txt_ago="D'Agostino-Pearson --> Normal distribution."
+            else:
+                conc_txt_ago="D'Agostino-Pearson --> Non-normal distribution."
+
+            ax2.annotate(conc_txt_saph,color="k",xycoords="axes fraction", xy=(0.10, 0.2), xytext=(0.10, 0.08))
+            ax2.annotate(conc_txt_ago,color="k",xycoords="axes fraction", xy=(0.10, 0.035), xytext=(0.10, 0.035))
+
+            dots = a.findobj(lambda x: hasattr(x, 'get_color') and x.get_color() == 'b')
+            line = a.findobj(lambda x: hasattr(x, 'get_color') and x.get_color() == 'r')
+            [d.set_markersize(1) for d in dots]
+            [d.set_alpha(0.3) for d in dots]
+            [d.set_color('k') for d in dots]
+            line[0].set_color('k')
+            line[0].set_ls('--')
+
+            ax1.grid(axis='y')
+            ax1.grid(b=None,axis='x')
 
 
 def attach_trs_geometry(markov_transects_df, dirNameTrans, list_loc_codes):

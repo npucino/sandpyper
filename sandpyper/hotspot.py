@@ -118,17 +118,47 @@ class ProfileDynamics():
         pickle.dump( self, open( savetxt, "wb" ) )
         print(f"ProfileDynamics object saved in {savetxt} .")
 
-    def compute_multitemporal(self, loc_full, geometry_column="coordinates", date_field='raw_date', filter_sand=False, sand_label_field='label_sand'):
+    def compute_multitemporal(self, loc_full, lod_mode='inherited', geometry_column="coordinates", date_field='raw_date', filter_sand=False, sand_label_field='label_sand'):
         self.dh_df = compute_multitemporal(self.ProfileSet.profiles,
             geometry_column=geometry_column,
             date_field=date_field,
             filter_sand=filter_sand,
             sand_label_field=sand_label_field)
 
-
         self.dh_details = create_details_df(self.dh_df, loc_full)
         self.land_limits=pd.DataFrame(self.dh_df.groupby(["location"]).distance.max()).reset_index()
 
+        if lod_mode=='inherited':
+
+            if isinstance(self.ProfileSet.lod, (float, int)):
+                lod_df=self.dh_df.groupby(['location','dt']).count().reset_index()
+                lod_df['lod']=lod_mode
+                self.lod_df=lod_df[['location','dt','lod']]
+
+            elif isinstance(self.ProfileSet.lod, pd.DataFrame):
+                lod_dh=compute_multitemporal(self.ProfileSet.lod,
+                    geometry_column=geometry_column,
+                    date_field=date_field,
+                    filter_sand=filter_sand,
+                    sand_label_field=sand_label_field)
+                self.lod_df=get_lod_table(lod_dh)
+
+            elif self.ProfileSet.lod==None :
+                self.lod_df=None
+
+            else:
+                ValueError("lod_mode attribute of the ProfileSet object not found. Has ProfileSet.extract_profiles been run?")
+
+
+        elif isinstance(lod_mode, (float, int)):
+            lod_df=self.dh_df.groupby(['location','dt']).count().reset_index()
+            lod_df['lod']=lod_mode
+            self.lod_df=lod_df[['location','dt','lod']]
+
+        elif lod_mode==None :
+            self.lod_df=None
+        else:
+            raise ValueError("lod_mode must be 'inherited', None or a numeric value.")
 
 
     def LISA_site_level(self,
