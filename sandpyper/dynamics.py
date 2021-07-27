@@ -1,6 +1,6 @@
 import numpy as np
 from scipy.stats import median_abs_deviation, shapiro, normaltest
-
+from statsmodels.api import qqplot
 from tqdm.notebook import tqdm
 import pandas as pd
 import geopandas as gpd
@@ -86,7 +86,7 @@ def get_lod_table(multitemp_data, alpha=0.05):
 
     return lod_df
 
-def plot_normality_check(multitemp_data,locations,alpha=0.05,xlims=None,ylim=None,qq_xlims=None,qq_ylims=None):
+def plot_normality_check(multitemp_data, lod_df, details_table, locations,alpha=0.05,xlims=None,ylim=None,qq_xlims=None,qq_ylims=None):
 
 
     if isinstance(locations, list):
@@ -110,7 +110,7 @@ def plot_normality_check(multitemp_data,locations,alpha=0.05,xlims=None,ylim=Non
 
             f, (ax1,ax2) = plt.subplots(nrows=1,ncols=2, figsize=(7,4))
 
-            specs=self.dh_details.query(f"location=='{loc}' & dt=='{dt_i}'")
+            specs=details_table.query(f"location=='{loc}' & dt=='{dt_i}'")
             full_loc=specs.location.values[0]
             date_from=specs.date_pre.values[0]
             date_to=specs.date_post.values[0]

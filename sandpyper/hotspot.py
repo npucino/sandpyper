@@ -11,7 +11,7 @@ from pysal.lib import weights
 import pysal.explore.esda.moran as moran
 from pysal.explore.esda.util import fdr
 from sandpyper.outils import coords_to_points, getListOfFiles, getLoc, create_spatial_id, create_details_df
-from sandpyper.dynamics import get_coastal_Markov,  compute_multitemporal, get_lod_table
+from sandpyper.dynamics import get_coastal_Markov,  compute_multitemporal, get_lod_table, plot_normality_check
 from sandpyper.volumetrics import (get_state_vol_table, get_transects_vol_table,
                                    plot_alongshore_change, plot_mec_evolution, plot_single_loc)
 from itertools import product as prod
@@ -134,6 +134,7 @@ class ProfileDynamics():
                 lod_df=self.dh_df.groupby(['location','dt']).count().reset_index()
                 lod_df['lod']=lod_mode
                 self.lod_df=lod_df[['location','dt','lod']]
+                self.lod_dh=None
 
             elif isinstance(self.ProfileSet.lod, pd.DataFrame):
                 lod_dh=compute_multitemporal(self.ProfileSet.lod,
@@ -142,9 +143,11 @@ class ProfileDynamics():
                     filter_sand=filter_sand,
                     sand_label_field=sand_label_field)
                 self.lod_df=get_lod_table(lod_dh)
+                self.lod_dh=lod_dh
 
             elif self.ProfileSet.lod==None :
                 self.lod_df=None
+                self.lod_dh=None
 
             else:
                 ValueError("lod_mode attribute of the ProfileSet object not found. Has ProfileSet.extract_profiles been run?")
@@ -154,12 +157,24 @@ class ProfileDynamics():
             lod_df=self.dh_df.groupby(['location','dt']).count().reset_index()
             lod_df['lod']=lod_mode
             self.lod_df=lod_df[['location','dt','lod']]
+            self.lod_dh=None
 
         elif lod_mode==None :
             self.lod_df=None
+            self.lod_dh=None
         else:
             raise ValueError("lod_mode must be 'inherited', None or a numeric value.")
 
+    def plot_normality_check(self, locations, details_table=None, lod_df=None, alpha=0.05,xlims=None,ylim=None,qq_xlims=None,qq_ylims=None):
+        plot_normality_check(multitemp_data=self.lod_dh,
+            lod_df=self.lod_df,
+            details_table=self.dh_details,   
+            locations=locations,
+            alpha=alpha,
+            xlims=xlims,
+            ylim=ylim,
+            qq_xlims=qq_xlims,
+            qq_ylims=qq_ylims)
 
     def LISA_site_level(self,
                         mode,
