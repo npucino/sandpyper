@@ -11,7 +11,7 @@ from pysal.lib import weights
 import pysal.explore.esda.moran as moran
 from pysal.explore.esda.util import fdr
 from sandpyper.outils import coords_to_points, getListOfFiles, getLoc, create_spatial_id, create_details_df
-from sandpyper.dynamics import get_coastal_Markov,  compute_multitemporal, get_lod_table, plot_normality_check
+from sandpyper.dynamics import get_coastal_Markov,  compute_multitemporal, get_lod_table, plot_lod_normality_check
 from sandpyper.volumetrics import (get_state_vol_table, get_transects_vol_table,
                                    plot_alongshore_change, plot_mec_evolution, plot_single_loc)
 from itertools import product as prod
@@ -165,10 +165,10 @@ class ProfileDynamics():
         else:
             raise ValueError("lod_mode must be 'inherited', None or a numeric value.")
 
-    def plot_normality_check(self, locations, details_table=None, lod_df=None, alpha=0.05,xlims=None,ylim=None,qq_xlims=None,qq_ylims=None):
-        plot_normality_check(multitemp_data=self.lod_dh,
+    def plot_lod_normality_check(self, locations, details_table=None, lod_df=None, alpha=0.05,xlims=None,ylim=None,qq_xlims=None,qq_ylims=None):
+        plot_lod_normality_check(multitemp_data=self.lod_dh,
             lod_df=self.lod_df,
-            details_table=self.dh_details,   
+            details_table=self.dh_details,
             locations=locations,
             alpha=alpha,
             xlims=xlims,

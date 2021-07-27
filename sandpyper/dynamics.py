@@ -86,7 +86,7 @@ def get_lod_table(multitemp_data, alpha=0.05):
 
     return lod_df
 
-def plot_normality_check(multitemp_data, lod_df, details_table, locations,alpha=0.05,xlims=None,ylim=None,qq_xlims=None,qq_ylims=None):
+def plot_lod_normality_check(multitemp_data, lod_df, details_table, locations,alpha=0.05,xlims=None,ylim=None,qq_xlims=None,qq_ylims=None):
 
 
     if isinstance(locations, list):
