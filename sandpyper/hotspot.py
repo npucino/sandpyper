@@ -165,7 +165,7 @@ class ProfileDynamics():
         else:
             raise ValueError("lod_mode must be 'inherited', None or a numeric value.")
 
-    def plot_lod_normality_check(self, locations, details_table=None, lod_df=None, alpha=0.05,xlims=None,ylim=None,qq_xlims=None,qq_ylims=None):
+    def plot_lod_normality_check(self, locations, details_table=None, lod_df=None, alpha=0.05,xlims=None,ylim=None,qq_xlims=None,qq_ylims=None,figsize=(7,4)):
         plot_lod_normality_check(multitemp_data=self.lod_dh,
             lod_df=self.lod_df,
             details_table=self.dh_details,
@@ -174,7 +174,8 @@ class ProfileDynamics():
             xlims=xlims,
             ylim=ylim,
             qq_xlims=qq_xlims,
-            qq_ylims=qq_ylims)
+            qq_ylims=qq_ylims,
+            figsize=figsize)
 
     def LISA_site_level(self,
                         mode,

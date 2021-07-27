@@ -86,7 +86,7 @@ def get_lod_table(multitemp_data, alpha=0.05):
 
     return lod_df
 
-def plot_lod_normality_check(multitemp_data, lod_df, details_table, locations,alpha=0.05,xlims=None,ylim=None,qq_xlims=None,qq_ylims=None):
+def plot_lod_normality_check(multitemp_data, lod_df, details_table, locations,alpha=0.05,xlims=None,ylim=None,qq_xlims=None,qq_ylims=None,figsize=(7,4)):
 
 
     if isinstance(locations, list):
@@ -108,7 +108,7 @@ def plot_lod_normality_check(multitemp_data, lod_df, details_table, locations,al
 
             lod_df_selection=lod_df.query(f"location=='{loc}' & dt == '{dt_i}'")
 
-            f, (ax1,ax2) = plt.subplots(nrows=1,ncols=2, figsize=(7,4))
+            f, (ax1,ax2) = plt.subplots(nrows=1,ncols=2, figsize=figsize)
 
             specs=details_table.query(f"location=='{loc}' & dt=='{dt_i}'")
             full_loc=specs.location.values[0]
