@@ -720,6 +720,16 @@ def cross_ref(
 
     return check_formatted
 
+def spatial_id(geometry):
+
+    if isinstance(geometry, str):
+        geom_str=list(geometry.replace(" ",""))
+    else:
+        geom=geometry.to_wkt()
+        geom_str=list(geom.replace(" ",""))
+
+    geom_str_rnd=random.Random(42).shuffle(geom_str)
+    return "".join(geom_str)
 
 def create_details_df (dh_df, loc_full, fmt='%Y%m%d'):
 

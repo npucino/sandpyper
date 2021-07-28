@@ -654,7 +654,7 @@ def steady_state_transect(
                 )
 
             except BaseException:
-                print(f"tr_id {tr_id} has not enough points. Go ahead...")
+                print(f"tr_id {tr_id} has not enough points (n={n}). Go ahead...")
                 pass
 
         if unreal == "drop":
