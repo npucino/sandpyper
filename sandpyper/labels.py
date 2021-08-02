@@ -1,6 +1,9 @@
 """Labels module."""
 
 import numpy as np
+import os
+from datetime import datetime
+
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.cluster import KMeans
 from sklearn.metrics import silhouette_samples, silhouette_score
@@ -8,8 +11,11 @@ from scipy.ndimage import gaussian_filter
 import scipy.signal as sig
 
 import pandas as pd
+import geopandas as gpd
+import glob
 import matplotlib.pyplot as plt
 import seaborn as sb
+from sandpyper.outils import coords_to_points
 
 from tqdm.notebook import tqdm
 
@@ -375,3 +381,229 @@ def kmeans_sa(merged_df, ks, feature_set, thresh_k=5, random_state=10):
             )
 
     return data_classified
+
+
+def check_dicts_duplicated_values(l_dicts):
+
+    dict_check = {}
+    dict_dups = {}
+    all_dicts=[dicto for dicto in l_dicts.values()]
+
+    for dict_in in all_dicts:
+        for key in set().union(*all_dicts):
+            if key in dict_in:
+                dict_check.setdefault(key, []).extend(dict_in[key])
+
+    for survey, labels in dict_check.items():
+        duplicated=[x for x in labels if labels.count(x) > 1]
+        if len(duplicated)>=1:
+            dict_dups.update({survey:set(set(duplicated))})
+
+    if len(dict_dups)>0:
+        raise ValueError(f"Duplicated label_k found in the following dictionaries.\n\n{dict_dups}\n\nPlease revise and assigned those labels_k to only one class dictionary.")
+
+
+
+def classify_labelk(labelled_dataset,l_dicts, cluster_field='label_k', fill_class='sand'):
+
+    check_dicts_duplicated_values(l_dicts)
+
+    labelled_dataset["pt_class"]=np.nan
+    print(type(labelled_dataset))
+
+    all_keys = set().union(*(d.keys() for d in [i for i in l_dicts.values()]))
+    class_names=l_dicts.keys()
+
+    classed_df=pd.DataFrame()
+
+    for loc in labelled_dataset.location.unique():
+        data_in_loc=labelled_dataset.query(f"location=='{loc}'")[["location","raw_date",cluster_field,"pt_class",'point_id']]
+
+        for raw_date in data_in_loc.raw_date.unique():
+            loc_date_tag=f"{loc}_{raw_date}"
+            data_in=data_in_loc.query(f"raw_date=='{int(raw_date)}'")
+
+            if loc_date_tag in all_keys:
+
+                for class_in in class_names:
+
+                    if loc_date_tag in l_dicts[class_in].keys():
+                        loc_date_class_values=l_dicts[class_in][loc_date_tag]
+
+                        if len(loc_date_class_values)>=1:
+                            tmp_dict={label_k:class_in for label_k in loc_date_class_values}
+                            data_in['pt_class'].update(data_in[cluster_field].map(tmp_dict))
+
+                        else:
+                            pass
+                    else:
+                        pass
+            else:
+                print(f"{loc_date_tag} not in the class dictionaries. All their labels assigned to fill_class {fill_class}.")
+                data_in["pt_class"].fillna(fill_class, inplace=True)
+
+            classed_df=pd.concat([classed_df,data_in], ignore_index=True)
+
+    merged=labelled_dataset.iloc[:,:-1].merge(right=classed_df[['point_id','pt_class']], on='point_id', how='left')
+
+    merged["pt_class"].fillna(fill_class, inplace=True)
+    print(type(merged))
+    return merged
+
+
+def cleanit(to_clean, l_dicts, cluster_field='label_k', fill_class='sand',
+            watermasks_path=None, water_label='water',
+            shoremasks_path=None, label_corrections_path=None,
+            default_crs={'init': 'epsg:32754'}, crs_dict_string=None,
+           geometry_field='coordinates'):
+
+    print("Reclassifying dataset with the provided dictionaries." )
+    to_clean_classified=classify_labelk(to_clean, l_dicts)
+
+    if watermasks_path==None and shoremasks_path==None and label_corrections_path==None:
+        print("No cleaning polygones have been passed. Returning classified dataset.")
+        return to_clean_classified
+
+    processes=[]
+
+
+    if label_corrections_path != None and os.path.isfile(label_corrections_path):
+        label_corrections=gpd.read_file(label_corrections_path)
+        print(f"Label corrections provided in CRS: {label_corrections.crs}")
+        processes.append("polygon finetuning")
+        to_update_finetune=pd.DataFrame()
+
+
+        for loc in label_corrections.location.unique():
+            print(f"Fine tuning in {loc}.")
+
+            to_clean_subset_loc=to_clean_classified.query(f" location == '{loc}'")
+
+            for raw_date in tqdm(label_corrections.query(f"location=='{loc}'").raw_date.unique()):
+
+                subset_finetune_polys=label_corrections.query(f"location=='{loc}' and raw_date== {int(raw_date)}")
+
+                for i,row in subset_finetune_polys.iterrows(): # loops through all the polygones
+
+                    target_k=int(row['target_label_k'])
+                    new_class=row['new_class']
+
+                    if target_k != 999:
+                        data_in=to_clean_subset_loc.query(f"raw_date == '{str(raw_date)}' and label_k== {target_k}")
+
+                    elif target_k == 999:
+                        data_in=to_clean_subset_loc.query(f"raw_date == '{str(raw_date)}'")
+
+                    selection=data_in[data_in.coordinates.intersects(row.geometry)]
+
+                    if selection.shape[0]==0:
+                        selection=data_in[data_in.to_crs(crs_dict_string[loc]).coordinates.intersects(row.geometry)]
+                    else:
+                        pass
+                    selection["finetuned_label"]=new_class
+
+                    print(f"Fine-tuning label_k {target_k} to {new_class} in {loc}-{raw_date}, found {selection.shape[0]} pts.")
+                    to_update_finetune=pd.concat([selection,to_update_finetune], ignore_index=True)
+
+        classed_df_finetuned=to_clean_classified.merge(right=to_update_finetune.loc[:,['point_id','finetuned_label']], # Left Join
+                                     how='left', validate='one_to_one')
+
+        classed_df_finetuned.finetuned_label.fillna(classed_df_finetuned.pt_class, inplace=True) # Fill NaN with previous sand labels
+
+        print(type(classed_df_finetuned))
+
+    else:
+        pass
+
+    if shoremasks_path == None and watermasks_path == None:
+        print(f"{processes} completed.")
+        return classed_df_finetuned
+    else:
+        pass
+
+
+    if watermasks_path != None and os.path.isfile(watermasks_path):
+        # apply watermasks
+        watermask=gpd.read_file(watermasks_path)
+        print(f"watermask  provided in CRS: {watermask.crs}")
+
+
+        print("Applying watermasks cleaning.")
+        processes.append("watermasking")
+
+        if "polygon finetuning" in processes:
+            dataset_to_clean=classed_df_finetuned
+            starting_labels='finetuned_label'
+        else:
+            dataset_to_clean=to_clean_classified
+            starting_labels='pt_class'
+
+
+        to_update_watermasked=pd.DataFrame()
+
+        for loc in watermask.location.unique():
+            print(f"Watermasking in {loc}.")
+
+            for raw_date in tqdm(watermask.query(f"location=='{loc}'").raw_date.unique()):
+
+                subset_data=dataset_to_clean.query(f"location=='{loc}' and raw_date == '{str(raw_date)}'")
+                subset_masks=watermask.query(f"location=='{loc}' and raw_date == {int(raw_date)}")
+
+                selection=subset_data[subset_data.geometry.intersects(subset_masks.geometry)]
+                if selection.shape[0]==0:
+                    selection=subset_data[subset_data.geometry.intersects(subset_masks.to_crs(crs_dict_string[loc]).geometry.any())]
+                else:
+                    pass
+
+                print(f"Setting to {water_label} {selection.shape[0]} pts overlapping provided watermasks.")
+
+                selection["watermasked_label"]=water_label
+
+                to_update_watermasked=pd.concat([selection,to_update_watermasked], ignore_index=True)
+
+        classed_df_watermasked=dataset_to_clean.merge(right=to_update_watermasked.loc[:,['point_id','watermasked_label']], # Left Join
+                                     how='left', validate='one_to_one')
+        classed_df_watermasked.watermasked_label.fillna(classed_df_watermasked.loc[:,starting_labels], inplace=True) # Fill NaN with previous sand labels
+
+        if shoremasks_path == None:
+            print(f"{processes} completed.")
+            return classed_df_watermasked
+
+    else:
+        pass
+
+    if shoremasks_path != None and os.path.isfile(shoremasks_path):
+        # apply shoremasks
+        shoremask=gpd.read_file(shoremasks_path)
+        print(f"shoremask  provided in CRS: {shoremask.crs}")
+        print("Applying shoremasks cleaning.")
+        processes.append("shoremasking")
+
+
+        if "polygon finetuning" in processes and "watermasking" not in processes:
+            dataset_to_clean=classed_df_finetuned
+            starting_labels='finetuned_label'
+        elif "polygon finetuning" not in processes and "watermasking" in processes:
+            dataset_to_clean=classed_df_watermasked
+            starting_labels='watermasked_label'
+        else:
+            dataset_to_clean=to_clean_classified
+            starting_labels='pt_class'
+
+        inshore_cleaned=gpd.GeoDataFrame()
+        for loc in shoremask.location.unique():
+            print(f"Shoremasking in {loc}.")
+
+            shore=shoremask.query(f"location=='{loc}'")
+            loc_selection=dataset_to_clean.query(f"location=='{loc}'")
+            in_shore=loc_selection[loc_selection.geometry.intersects(shore.geometry)]
+            if in_shore.shape[0]>=1:
+                pass
+            else:
+                in_shore=loc_selection[loc_selection.geometry.intersects(shore.to_crs(crs_dict_string[loc]).geometry.any())]
+
+            print(f"Removing {loc_selection.shape[0] - in_shore.shape[0]} pts falling outside provided shore polygones.")
+            inshore_cleaned=pd.concat([in_shore,inshore_cleaned], ignore_index=True)
+
+    print(f"{processes} completed.")
+    return inshore_cleaned

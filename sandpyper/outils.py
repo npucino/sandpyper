@@ -609,6 +609,24 @@ def getCrs_from_transect(trs_path):
     """
     return gpd.read_file(trs_path).crs
 
+def check_dicts_duplicated_values(l_dicts):
+
+    dict_check = {}
+    dict_dups = {}
+    all_dicts=[dicto for dicto in l_dicts.values()]
+
+    for dict_in in all_dicts:
+        for key in set().union(*all_dicts):
+            if key in dict_in:
+                dict_check.setdefault(key, []).extend(dict_in[key])
+
+    for survey, labels in dict_check.items():
+        duplicated=[x for x in labels if labels.count(x) > 1]
+        if len(duplicated)>=1:
+            dict_dups.update({survey:set(set(duplicated))})
+
+    if len(dict_dups)>0:
+        raise ValueError(f"Duplicated label_k found in the following dictionaries.\n\n{dict_dups}\n\nPlease revise and assigned those labels_k to only one class dictionary.")
 
 def cross_ref(
     dir_inputs, dirNameTrans, loc_search_dict, list_loc_codes, print_info=False

@@ -19,7 +19,7 @@ import pickle
 
 from sandpyper.dynamics import compute_multitemporal
 from sandpyper.hotspot import LISA_site_level
-from sandpyper.labels import kmeans_sa
+from sandpyper.labels import kmeans_sa, cleanit
 
 
 
@@ -29,6 +29,7 @@ from sandpyper.outils import (cross_ref,create_spatial_id,
     getListOfFiles,
     getDate,
     getLoc,
+    check_dicts_duplicated_values
 )
 
 
@@ -182,7 +183,27 @@ class ProfileSet():
             thresh_k=thresh_k,
             random_state=random_state)
 
-        self.profiles = pd.merge(labels_df[["point_id","label_k"]], self.profiles, how="left", on="point_id", validate="one_to_one")
+        self.profiles =  self.profiles.merge(labels_df[["point_id","label_k"]], how="right", on="point_id", validate="one_to_one")
+
+
+    def cleanit(self, l_dicts, cluster_field='label_k', fill_class='sand',
+                watermasks_path=None, water_label='water',
+                shoremasks_path=None, label_corrections_path=None,
+                default_crs={'init': 'epsg:32754'}, crs_dict_string=None,
+               geometry_field='coordinates'):
+
+    # store sand column Name
+
+        self.profiles = cleanit(to_clean=self.profiles,l_dicts=l_dicts, cluster_field=cluster_field, fill_class=fill_class,
+                    watermasks_path=watermasks_path, water_label=water_label,
+                    shoremasks_path=shoremasks_path, label_corrections_path=label_corrections_path,
+                    default_crs=default_crs, crs_dict_string=self.crs_dict_string,
+                   geometry_field=geometry_field)
+
+
+
+
+
 
 def get_terrain_info(x_coord, y_coord, rdarray):
     """

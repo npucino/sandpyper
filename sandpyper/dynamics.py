@@ -10,8 +10,9 @@ from itertools import product, combinations
 from pysal.explore.giddy.markov import Markov
 import matplotlib.pyplot as plt
 import seaborn as sb
+import glob
 
-from sandpyper.outils import getListOfFiles, getLoc, create_spatial_id
+from sandpyper.outils import getListOfFiles, getLoc, create_spatial_id, spatial_id
 
 def get_lod_table(multitemp_data, alpha=0.05):
 
@@ -205,33 +206,127 @@ def plot_lod_normality_check(multitemp_data, lod_df, details_table, locations,al
             ax1.grid(axis='y')
             ax1.grid(b=None,axis='x')
 
+def get_rbcd_transect(df_labelled, thresh, min_points, reliable_action, dirNameTrans, labels_order, loc_codes, crs_dict_string):
 
-def attach_trs_geometry(markov_transects_df, dirNameTrans, list_loc_codes):
-    """Attach transect geometries to the transect-specific BCDs dataframe.
-    Args:
-        markov_transects_df (Pandas dataframe): Dataframe storing BCDs at the transect level.
-        dirNameTrans (str): Full path to the folder where the transects are stored.
-        list_loc_codes (list): list of strings containing location codes.
+    steady_state_tr = pd.DataFrame()
+    markov_indexes_tr = pd.DataFrame()
 
-    Returns:
-        Dataframe with the geometries attached, ready to be mapped.
-    """
-    return_df = pd.DataFrame()
 
-    list_trans = getListOfFiles(dirNameTrans)
-    for i in list_trans:
+    for loc in tqdm(df_labelled.location.unique()):
+        data_loc = df_labelled.query(f"location=='{loc}'")
 
-        transect_in = gpd.read_file(i)
-        transect_in.rename({"TR_ID": "tr_id"}, axis=1, inplace=True)
-        loc = getLoc(i, list_loc_codes)
+        for tr_id in data_loc.tr_id.unique():
 
-        sub_markovs_trs = markov_transects_df.query(f"location=='{loc}'")
-        sub_markovs_trs["geometry"] = pd.merge(
-            sub_markovs_trs, transect_in, how="left", on="tr_id"
-        )["geometry"].values
+            data_tr = data_loc.query(f"tr_id=='{tr_id}'")
+            data_tr["spatial_id"]=[spatial_id(geometry_in) for geometry_in in data_tr.geometry]
 
-        return_df = pd.concat([return_df, sub_markovs_trs], ignore_index=True)
-    return return_df
+            if data_tr.empty:
+                data_tr = data_loc.query(f"tr_id=={tr_id}")
+                data_tr["spatial_id"]=[spatial_id(geometry_in) for geometry_in in data_tr.geometry]
+
+            data_piv = data_tr.pivot(
+                values='markov_tag',
+                index="spatial_id",
+                columns='dt',
+            )
+
+            # identify the points that have less than the required number of transitions (thresh) of non nan states
+            valid_pts=((~data_piv.isnull()).sum(axis=1)>=thresh).sum()
+
+            # has this transect a number of valid points above the specified min_pts parameter?
+            valid_transect= valid_pts >= min_points
+
+            # all the  NaN will be named 'nnn'
+            data_piv.fillna("nnn", inplace=True)
+
+            n = data_piv.shape[0]
+            arr = np.array(data_piv)
+            m = Markov(arr)
+
+            try:
+                steady_state = m.steady_state
+                steady_state = pd.DataFrame(
+                    m.steady_state, index=m.classes, columns=[tr_id]
+                )
+
+                steady_state.reset_index(inplace=True)
+                steady_state.rename({"index": "markov_tag"}, axis=1, inplace=True)
+                steady_state = steady_state.melt(
+                    id_vars="markov_tag", value_name="p", var_name="tr_id"
+                )
+                steady_state["location"] = loc
+                steady_state["thresh"] = thresh
+                steady_state["min_pts"] = min_points
+                steady_state["valid_pts"] = valid_pts
+                steady_state["reliable"] = valid_transect
+
+                steady_state_tr = pd.concat(
+                    [steady_state, steady_state_tr], ignore_index=True
+                )
+
+            except BaseException:
+                print(f"tr_id {tr_id} has {n} valid points.")
+                null_df=pd.DataFrame({'markov_tag':dataset.markov_tag.unique(),
+                                    'p':[np.nan for i in dataset.markov_tag.unique()]})
+                null_df["tr_id"]=tr_id
+                null_df["location"]=loc
+                null_df["thresh"]=thresh
+                null_df["min_pts"]=min_points
+                null_df["valid_pts"]=valid_pts
+                null_df["reliable"]=valid_transect
+
+                steady_state_tr = pd.concat(
+                    [null_df, steady_state_tr], ignore_index=True
+                )
+
+    # what to do with unreliable transects?
+    if reliable_action =='drop':
+        steady_state_tr=steady_state_tr.query("reliable == True")
+    else:
+        pass
+        
+    ss_transects_idx = pd.DataFrame()
+
+    idx_matrix=len(labels_order)//2
+
+    for loc in steady_state_tr.location.unique():
+
+        sub = steady_state_tr.query(f"location=='{loc}'")
+        sub = sub.pivot(index="markov_tag", columns="tr_id", values=("p"))
+        sub = sub.loc[labels_order, :]
+
+        # Create erosion and deposition sub-matrix
+        erosion = sub.iloc[idx_matrix:, :].transpose()
+        erosion["erosion"] = erosion.sum(axis=1)
+        erosion=erosion.reset_index()[["tr_id","erosion"]]
+
+        deposition = sub.iloc[:-idx_matrix, :].transpose()
+        deposition["deposition"] = deposition.sum(axis=1)
+        deposition=deposition.reset_index()[["tr_id","deposition"]]
+        merged_erodepo=pd.merge(erosion, deposition)
+
+        merged_erodepo["residual"] = merged_erodepo.deposition - merged_erodepo.erosion
+        merged_erodepo["location"] = loc
+
+        to_plot = merged_erodepo.melt(
+            id_vars=["tr_id"], var_name="process", value_name="coastal_index"
+        )
+        to_plot["location"] = loc
+
+        path_trs=glob.glob(f"{dirNameTrans}\{loc}*")[0]
+        transect_in = gpd.read_file(path_trs)
+        transect_in.columns= transect_in.columns.str.lower()
+
+        merged_erodepo["geometry"] = pd.merge(
+                    merged_erodepo, transect_in[["tr_id","geometry"]], how="left", on="tr_id"
+                ).geometry
+
+        ss_transects_idx_loc = gpd.GeoDataFrame(
+                        merged_erodepo, geometry="geometry", crs=crs_dict_string[loc]
+                    )
+        ss_transects_idx=pd.concat([ss_transects_idx_loc,ss_transects_idx], ignore_index=True)
+
+    return ss_transects_idx
 
 
 def infer_weights(data, markov_tag_field="markov_tag"):

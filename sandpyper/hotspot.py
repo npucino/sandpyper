@@ -11,7 +11,7 @@ from pysal.lib import weights
 import pysal.explore.esda.moran as moran
 from pysal.explore.esda.util import fdr
 from sandpyper.outils import coords_to_points, getListOfFiles, getLoc, spatial_id, create_details_df
-from sandpyper.dynamics import get_coastal_Markov,  compute_multitemporal, get_lod_table, plot_lod_normality_check, attach_trs_geometry
+from sandpyper.dynamics import get_coastal_Markov,  compute_multitemporal, get_lod_table, plot_lod_normality_check, get_rbcd_transect
 from sandpyper.volumetrics import (get_state_vol_table, get_transects_vol_table,
                                    plot_alongshore_change, plot_mec_evolution, plot_single_loc)
 from itertools import product as prod
@@ -412,133 +412,16 @@ class ProfileDynamics():
 
             self.location_ss=merged
 
-    def BCD_compute_transects(self, thresh, min_points, dirNameTrans, field_markov_tags="markov_tag",
-    field_spatial_id="geometry", field_discrete_time="dt" ,use_neg=True):
+    def BCD_compute_transects(self, thresh, min_points, reliable_action, dirNameTrans=None):
 
 
-        steady_state_tr = pd.DataFrame()
-        markov_indexes_tr = pd.DataFrame()
-
-
-        for loc in tqdm(self.df_labelled.location.unique()):
-            data_loc = self.df_labelled.query(f"location=='{loc}'")
-
-            for tr_id in data_loc.tr_id.unique():
-
-                data_tr = data_loc.query(f"tr_id=='{tr_id}'")
-                data_tr["spatial_id"]=[spatial_id(geometry_in) for geometry_in in data_tr.geometry]
-
-                if data_tr.empty:
-                    data_tr = data_loc.query(f"tr_id=={tr_id}")
-                    data_tr["spatial_id"]=[spatial_id(geometry_in) for geometry_in in data_tr.geometry]
-
-                data_piv = data_tr.pivot(
-                    values=field_markov_tags,
-                    index="spatial_id",
-                    columns=field_discrete_time,
-                )
-
-                # identify the points that have less than the required number of transitions (thresh) of non nan states
-                valid_pts=((~data_piv.isnull()).sum(axis=1)>=thresh).sum()
-
-                # has this transect a number of valid points above the specified min_pts parameter?
-                valid_transect= valid_pts >= min_points
-
-                # all the  NaN will be named 'nnn'
-                data_piv.fillna("nnn", inplace=True)
-
-                if valid_transect != True:
-                    print(
-                        f"In {loc}, threshold of valid transitions (thresh={thresh}) of transect ID {tr_id} returned {valid_pts} points, which is less than the specified min_points ({min_points}) parameter."
-                    )
-
-                n = data_piv.shape[0]
-                arr = np.array(data_piv)
-                m = Markov(arr)
-
-                try:
-                    steady_state = m.steady_state
-                    steady_state = pd.DataFrame(
-                        m.steady_state, index=m.classes, columns=[tr_id]
-                    )
-
-                    steady_state.reset_index(inplace=True)
-                    steady_state.rename({"index": "markov_tag"}, axis=1, inplace=True)
-                    steady_state = steady_state.melt(
-                        id_vars="markov_tag", value_name="p", var_name="tr_id"
-                    )
-                    steady_state["location"] = loc
-                    steady_state["thresh"] = thresh
-                    steady_state["min_pts"] = min_points
-                    steady_state["valid_pts"] = valid_pts
-                    steady_state["reliable"] = valid_transect
-
-                    steady_state_tr = pd.concat(
-                        [steady_state, steady_state_tr], ignore_index=True
-                    )
-
-                except BaseException:
-                    print(f"tr_id {tr_id} has {n} valid points.")
-                    null_df=pd.DataFrame({'markov_tag':dataset.markov_tag.unique(),
-                                        'p':[np.nan for i in dataset.markov_tag.unique()]})
-                    null_df["tr_id"]=tr_id
-                    null_df["location"]=loc
-                    null_df["thresh"]=thresh
-                    null_df["min_pts"]=min_points
-                    null_df["valid_pts"]=valid_pts
-                    null_df["reliable"]=valid_transect
-
-                    steady_state_tr = pd.concat(
-                        [null_df, steady_state_tr], ignore_index=True
-                    )
-
-        ss_transects_idx = pd.DataFrame()
-
-        idx_matrix=len(self.tags_order)//2
-
-        for loc in steady_state_tr.location.unique():
-
-            sub = steady_state_tr.query(f"location=='{loc}'")
-            sub = sub.pivot(index="markov_tag", columns="tr_id", values=("p"))
-            sub = sub.loc[self.tags_order, :]
-
-            # Create erosion and deposition sub-matrix
-            erosion = sub.iloc[idx_matrix:, :].transpose()
-            erosion["erosion"] = erosion.sum(axis=1)
-            erosion=erosion.reset_index()[["tr_id","erosion"]]
-
-            deposition = sub.iloc[:-idx_matrix, :].transpose()
-            deposition["deposition"] = deposition.sum(axis=1)
-            deposition=deposition.reset_index()[["tr_id","deposition"]]
-            merged_erodepo=pd.merge(erosion, deposition)
-
-            merged_erodepo["residual"] = merged_erodepo.deposition - merged_erodepo.erosion
-            merged_erodepo["location"] = loc
-
-            to_plot = merged_erodepo.melt(
-                id_vars=["tr_id"], var_name="process", value_name="coastal_index"
-            )
-            to_plot["location"] = loc
-
-            coastal_markov_trs_steady = attach_trs_geometry(
-                to_plot, dirNameTrans, list_loc_codes=self.ProfileSet.loc_codes
-            )
-
-
-            path_trs=glob.glob(f"{self.ProfileSet.dirNameTrans}\{loc}*")[0]
-            transect_in = gpd.read_file(path_trs)
-            transect_in.columns= transect_in.columns.str.lower()
-
-            merged_erodepo["geometry"] = pd.merge(
-                        merged_erodepo, transect_in[["tr_id","geometry"]], how="left", on="tr_id"
-                    ).geometry
-
-            ss_transects_idx_loc = gpd.GeoDataFrame(
-                            merged_erodepo, geometry="geometry", crs=self.ProfileSet.crs_dict_string[loc]
-                        )
-            ss_transects_idx=pd.concat([ss_transects_idx_loc,ss_transects_idx], ignore_index=True)
-
-        self.transects_rbcd=ss_transects_idx
+        self.transects_rbcd=get_rbcd_transect(df_labelled=self.df_labelled,
+                  thresh=thresh, min_points=min_points,
+                  dirNameTrans=self.ProfileSet.dirNameTrans,
+                  reliable_action=reliable_action,
+                  labels_order=self.tags_order,
+                  loc_codes=self.ProfileSet.loc_codes,
+                  crs_dict_string=self.ProfileSet.crs_dict_string)
 
 
     def compute_volumetrics(self, lod, outliers=False, sigma_n=3):
