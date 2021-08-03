@@ -902,13 +902,14 @@ def compute_multitemporal (df,
         else:
             if isistance(class_filter, 'str'):
                 filter_classes_in=[class_filter]
-            elif isistance(class_filter, list'):
+            elif isistance(class_filter, list):
                 filter_classes_in=class_filter
             else:
                 raise ValueError(" If provided, class_filter must be either a string or a list of strings containing the classes to retain.")
 
         print(f"Filter activated: only {filter_classes_in} points will be retained.")
     else:
+        filter_classes_in="no_filters_applied"
         pass
 
     df["spatial_id"]=[create_spatial_id(df.iloc[i]) for i in range(df.shape[0])]
