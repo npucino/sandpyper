@@ -139,8 +139,7 @@ class ProfileDynamics():
                 lod_dh=compute_multitemporal(self.ProfileSet.lod,
                     geometry_column=geometry_column,
                     date_field=date_field,
-                    filter_sand=filter_sand,
-                    sand_label_field=sand_label_field)
+                    filter_class=None)
                 self.lod_df=get_lod_table(lod_dh)
                 self.lod_dh=lod_dh
 
