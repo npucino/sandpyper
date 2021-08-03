@@ -594,6 +594,8 @@ class ProfileDynamics():
         bottom=False,
         y_heat_bottom_limit=80,
         transect_spacing=None,
+        heat_xticklabels=None,
+        heat_yticklabels=None,
         outliers=False,
         sigma_n=3):
 
@@ -620,6 +622,8 @@ class ProfileDynamics():
             y_heat_bottom_limit=y_heat_bottom_limit,
             transect_spacing=self.ProfileSet.transects_spacing,
             along_transect_sampling_step=self.ProfileSet.sampling_step,
+            heat_xticklabels=heat_xticklabels,
+            heat_yticklabels=heat_yticklabels,
             outliers=outliers,
             sigma_n=sigma_n)
 

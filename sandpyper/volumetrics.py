@@ -175,7 +175,6 @@ def interpol_integrate(series):
     """
     Linearly interpolate NaN values (non-sand) within the first and last valid points (from the swash to the landward end of each transect),
     and intergrate the area below this interoplated profile, to obtain transect specific estimates of volumetric change.
-
     Args:
         Series (Pandas Series): series of elevation change with distance as indices.
 
@@ -519,6 +518,8 @@ def plot_alongshore_change(
     y_heat_bottom_limit=80,
     transect_spacing=20,
     along_transect_sampling_step=1,
+    heat_xticklabels=5,
+    heat_yticklabels=5
     outliers=False,
     sigma_n=3,
 ):
@@ -669,8 +670,8 @@ def plot_alongshore_change(
 
             sb.heatmap(
                 data=data_in_filled,
-                yticklabels=50,
-                xticklabels=10,
+                yticklabels=heat_yticklabels,
+                xticklabels=heat_yticklabels,
                 facecolor="w",
                 robust=True,
                 center=0,
