@@ -518,6 +518,22 @@ def cleanit(to_clean, l_dicts, cluster_field='label_k', fill_class='sand',
 
     if shoremasks_path == None and watermasks_path == None:
         print(f"{processes} completed.")
+
+        if 'watermasked_label' in classed_df_finetuned.columns and 'finetuned_label' not in classed_df_finetuned.columns:
+            classed_df_finetuned['pt_class']=classed_df_finetuned.watermasked_label
+            classed_df_finetuned.drop(['watermasked_label'], axis=1, inplace=True)
+
+        elif 'finetuned_label' in classed_df_finetuned.columns and 'watermasked_label' not in classed_df_finetuned.columns:
+            classed_df_finetuned['pt_class']=classed_df_finetuned.finetuned_label
+            classed_df_finetuned.drop(['finetuned_label'], axis=1, inplace=True)
+
+        elif 'finetuned_label' in classed_df_finetuned.columns and 'watermasked_label' in classed_df_finetuned.columns:
+            classed_df_finetuned['pt_class']=classed_df_finetuned.watermasked_label
+            classed_df_finetuned.drop(['finetuned_label','watermasked_label'], axis=1, inplace=True)
+
+        else:
+            pass
+
         return classed_df_finetuned
     else:
         pass
@@ -569,6 +585,22 @@ def cleanit(to_clean, l_dicts, cluster_field='label_k', fill_class='sand',
 
         if shoremasks_path == None:
             print(f"{processes} completed.")
+
+            if 'watermasked_label' in classed_df_watermasked.columns and 'finetuned_label' not in classed_df_watermasked.columns:
+                classed_df_watermasked['pt_class']=classed_df_watermasked.watermasked_label
+                classed_df_watermasked.drop(['watermasked_label'], axis=1, inplace=True)
+
+            elif 'finetuned_label' in classed_df_watermasked.columns and 'watermasked_label' not in classed_df_watermasked.columns:
+                classed_df_watermasked['pt_class']=classed_df_watermasked.finetuned_label
+                classed_df_watermasked.drop(['finetuned_label'], axis=1, inplace=True)
+
+            elif 'finetuned_label' in classed_df_watermasked.columns and 'watermasked_label' in classed_df_watermasked.columns:
+                classed_df_watermasked['pt_class']=classed_df_watermasked.watermasked_label
+                classed_df_watermasked.drop(['finetuned_label','watermasked_label'], axis=1, inplace=True)
+
+            else:
+                pass
+
             return classed_df_watermasked
 
     else:
@@ -609,4 +641,20 @@ def cleanit(to_clean, l_dicts, cluster_field='label_k', fill_class='sand',
             inshore_cleaned=pd.concat([in_shore,inshore_cleaned], ignore_index=True)
 
     print(f"{processes} completed.")
+
+    if 'watermasked_label' in inshore_cleaned.columns and 'finetuned_label' not in inshore_cleaned.columns:
+        inshore_cleaned['pt_class']=inshore_cleaned.watermasked_label
+        inshore_cleaned.drop(['watermasked_label'], axis=1, inplace=True)
+
+    elif 'finetuned_label' in inshore_cleaned.columns and 'watermasked_label' not in inshore_cleaned.columns:
+        inshore_cleaned['pt_class']=inshore_cleaned.finetuned_label
+        inshore_cleaned.drop(['finetuned_label'], axis=1, inplace=True)
+
+    elif 'finetuned_label' in inshore_cleaned.columns and 'watermasked_label' in inshore_cleaned.columns:
+        inshore_cleaned['pt_class']=inshore_cleaned.watermasked_label
+        inshore_cleaned.drop(['finetuned_label','watermasked_label'], axis=1, inplace=True)
+
+    else:
+        pass
+
     return inshore_cleaned

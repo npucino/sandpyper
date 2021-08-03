@@ -204,7 +204,8 @@ class ProfileSet():
         if label_corrections_path: processes.append("polygon finetuning")
         if watermasks_path: processes.append("watermasking")
         if shoremasks_path: processes.append("shoremasking")
-        self.cleaning_steps=processes
+
+        self.cleaning_steps = processes
 
 
 
