@@ -1,5 +1,7 @@
 """Hotspot module."""
 import glob
+import warnings
+
 from tqdm.notebook import tqdm
 import pandas as pd
 import shapely
@@ -529,6 +531,9 @@ class ProfileDynamics():
                           figsize=figsize)
 
         data=self.dh_df.query(f"location=='{location}' and tr_id=={tr_id}")
+        filter_used=self.dh_df.class_filter.unique()[0]
+        if filter_used != '':
+            print(Warning: this dataset)
 
         mecs=data.groupby(['dt']).dh.sum()/data.groupby(['dt']).geometry.count()
         mecs=mecs.reset_index()
