@@ -466,6 +466,7 @@ def cleanit(to_clean, l_dicts, cluster_field='label_k', fill_class='sand',
 
     processes=[]
 
+    #______ LABELS FINETUNING_______________
 
     if label_corrections_path != None and os.path.isfile(label_corrections_path):
         label_corrections=gpd.read_file(label_corrections_path)
@@ -521,6 +522,7 @@ def cleanit(to_clean, l_dicts, cluster_field='label_k', fill_class='sand',
     else:
         pass
 
+    #______ WATERMASKING_______________
 
     if watermasks_path != None and os.path.isfile(watermasks_path):
         # apply watermasks
@@ -572,6 +574,8 @@ def cleanit(to_clean, l_dicts, cluster_field='label_k', fill_class='sand',
     else:
         pass
 
+    #______ SHOREMASKING_______________
+
     if shoremasks_path != None and os.path.isfile(shoremasks_path):
         # apply shoremasks
         shoremask=gpd.read_file(shoremasks_path)
@@ -582,13 +586,12 @@ def cleanit(to_clean, l_dicts, cluster_field='label_k', fill_class='sand',
 
         if "polygon finetuning" in processes and "watermasking" not in processes:
             dataset_to_clean=classed_df_finetuned
-            starting_labels='finetuned_label'
         elif "polygon finetuning" not in processes and "watermasking" in processes:
             dataset_to_clean=classed_df_watermasked
-            starting_labels='watermasked_label'
+        elif "polygon finetuning"  in processes and "watermasking" in processes:
+            dataset_to_clean=classed_df_watermasked
         else:
             dataset_to_clean=to_clean_classified
-            starting_labels='pt_class'
 
         inshore_cleaned=gpd.GeoDataFrame()
         for loc in shoremask.location.unique():
