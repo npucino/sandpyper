@@ -900,16 +900,16 @@ def compute_multitemporal (df,
         if "pt_class" not in df.columns:
             raise ValueError("The data is not classified as no 'pt_class' column is present. Please run the method cleanit on the ProfileDynamics object first.")
         else:
-            if isistance(class_filter, 'str'):
-                filter_classes_in=[class_filter]
-            elif isistance(class_filter, list):
-                filter_classes_in=class_filter
+            if isinstance(filter_class, str):
+                filter_classes_in=[filter_class]
+            elif isinstance(filter_class, list):
+                filter_classes_in=filter_class
             else:
                 raise ValueError(" If provided, class_filter must be either a string or a list of strings containing the classes to retain.")
 
         print(f"Filter activated: only {filter_classes_in} points will be retained.")
     else:
-        filter_classes_in="no_filters_applied"
+        filter_classes_in=["no_filters_applied"]
         pass
 
     df["spatial_id"]=[create_spatial_id(df.iloc[i]) for i in range(df.shape[0])]
@@ -944,7 +944,7 @@ def compute_multitemporal (df,
                             "location":location,
                             "tr_id":merged.tr_id_pre,
                             "distance":merged.distance_pre,
-                            "class_filter":filter_classes_in,
+                            "class_filter":'_'.join(filter_classes_in),
                             "dt":  f"dt_{i}",
                             "date_pre":date_pre,
                             "date_post":date_post,
