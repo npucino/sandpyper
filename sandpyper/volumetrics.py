@@ -68,11 +68,9 @@ def prep_heatmap(df, lod, outliers=False, sigma_n=3, lod_default=0.05):
             lod_table = pd.read_csv(lod)  # read in the lod table
             loc = df.location.iloc[0]
             dt = df.dt.iloc[0]
-            lod = lod_table.query(
-                f"location == '{loc}' and dt == '{dt}'"
-            ).lod  # extract nmad
+            lod_i = np.round(lod_table.query(f"location == '{loc}' & dt == '{dt}'").lod.values[0],2)
             # create condition (within LoD) to mask the dataframe
-            cond = (df_piv >= -lod.values[0]) & (df_piv <= lod.values[0])
+            cond = (df_piv >= -lod_i) & (df_piv <= lod_i)
             # replace the values that satisfied the condition (within LoD) with zeroes
             df_piv2 = df_piv.mask(cond, 0)
             df_piv2.set_index(df_piv2.index.astype(float), inplace=True)
@@ -87,8 +85,8 @@ def prep_heatmap(df, lod, outliers=False, sigma_n=3, lod_default=0.05):
         lod, (float, int)
     ):  # if a numeric, use this value across all surveys
 
-        lod = float(lod)
-        cond = (df_piv >= -lod) & (df_piv <= lod)
+        lod_i = float(lod)
+        cond = (df_piv >= -lod_i) & (df_piv <= lod_i)
         df_piv2 = df_piv.mask(cond, 0)
         df_piv2.set_index(df_piv2.index.astype(float), inplace=True)
 
@@ -98,11 +96,9 @@ def prep_heatmap(df, lod, outliers=False, sigma_n=3, lod_default=0.05):
         lod_table=lod
         loc = df.location.iloc[0]
         dt = df.dt.iloc[0]
-        lod = lod_table.query(
-            f"location == '{loc}' and dt == '{dt}'"
-        ).lod  # extract nmad
+        lod_i = np.round(lod_table.query(f"location == '{loc}' & dt == '{dt}'").lod.values[0],2)
         # create condition (within LoD) to mask the dataframe
-        cond = (df_piv >= -lod.values[0]) & (df_piv <= lod.values[0])
+        cond = (df_piv >= -lod_i) & (df_piv <= lod_i)
         # replace the values that satisfied the condition (within LoD) with zeroes
         df_piv2 = df_piv.mask(cond, 0)
         df_piv2.set_index(df_piv2.index.astype(float), inplace=True)
@@ -110,8 +106,8 @@ def prep_heatmap(df, lod, outliers=False, sigma_n=3, lod_default=0.05):
         return df_piv2.sort_index(ascending=False)
     else:  # otherwise, use the default values, preset at global LoD 0.05.
 
-        lod = float(lod_default)
-        cond = (df_piv >= -lod) & (df_piv <= lod)
+        lod_i = float(lod_default)
+        cond = (df_piv >= -lod_i) & (df_piv <= lod_i)
         df_piv2 = df_piv.mask(cond, 0)
         df_piv2.set_index(df_piv2.index.astype(float), inplace=True)
 
@@ -171,7 +167,7 @@ def fill_gaps(data_in, y_heat_bottom_limit, spacing, bottom=True, y_heat_start=0
         return pd.concat([to_concat_before, data_in])
 
 
-def interpol_integrate(series):
+def interpol_integrate(series, dx):
     """
     Linearly interpolate NaN values (non-sand) within the first and last valid points (from the swash to the landward end of each transect),
     and intergrate the area below this interoplated profile, to obtain transect specific estimates of volumetric change.
@@ -188,7 +184,7 @@ def interpol_integrate(series):
 
     interpol = series.loc[min_dist:max_dist].interpolate()  # interpolate linearly
 
-    area_simps = simps(interpol.values, dx=0.1)  # intergrate using Simpson's method
+    area_simps = simps(interpol.values, dx=dx)  # intergrate using Simpson's method
 
     return area_simps
 
@@ -519,7 +515,7 @@ def plot_alongshore_change(
     transect_spacing=20,
     along_transect_sampling_step=1,
     heat_xticklabels=5,
-    heat_yticklabels=5
+    heat_yticklabels=5,
     outliers=False,
     sigma_n=3,
 ):
@@ -629,7 +625,7 @@ def plot_alongshore_change(
 
             if bool(skip_details):
                 full_loc = loc
-                lod = 0.05
+                lod_i = 0.05
             else:
 
                 specs = table_details.query(f"location=='{loc}' & dt=='{dt}'")
@@ -639,11 +635,11 @@ def plot_alongshore_change(
                 n_days = specs.n_days.values[0]
 
             if isinstance(lod, pd.DataFrame):
-                lod = np.round(lod.query(f"location == '{loc}' & dt == '{dt}'").lod.values[0],2)
+                lod_i = np.round(lod.query(f"location == '{loc}' & dt == '{dt}'").lod.values[0],2)
             elif isinstance(lod, (float, int)):
-                lod = lod
+                lod_i = lod
             else:
-                lod = 0.05
+                lod_i = 0.05
 
             # FIGURE_______________________________________________________________________
 
@@ -727,7 +723,7 @@ def plot_alongshore_change(
             red_patch = mpatches.Patch(color="orange", label="Erosion")
             blue_patch = mpatches.Patch(color="skyblue", label="Deposition")
 
-            trs_volumes = data_in.apply(interpol_integrate, axis=0)
+            trs_volumes = data_in.apply(interpol_integrate, axis=0, **{'dx':along_transect_sampling_step})
             beach_lengths = data_in.apply(get_beachface_length, axis=0)
 
             m3_m = (trs_volumes * transect_spacing) / beach_lengths
@@ -801,11 +797,11 @@ def plot_alongshore_change(
                 date_to_str = pd.to_datetime(str(date_to)).strftime("%d %b '%y")
 
                 f.suptitle(
-                    f"Beachface change in {full_loc} from {date_from_str} to {date_to_str} (LoD = {lod} m)"
+                    f"Beachface change in {full_loc} from {date_from_str} to {date_to_str} (LoD = {lod_i} m)"
                 )
             else:
 
-                f.suptitle(f"Beachface change in {loc} for {dt} (LoD = {lod} m)")
+                f.suptitle(f"Beachface change in {loc} for {dt} (LoD = {lod_i} m)")
 
             axs = f.get_axes()
 
