@@ -118,12 +118,11 @@ class ProfileDynamics():
         pickle.dump( self, open( savetxt, "wb" ) )
         print(f"ProfileDynamics object saved in {savetxt} .")
 
-    def compute_multitemporal(self, loc_full, lod_mode='inherited', geometry_column="coordinates", date_field='raw_date', filter_sand=False, sand_label_field='label_sand'):
+    def compute_multitemporal(self, loc_full, lod_mode='inherited', geometry_column="coordinates", date_field='raw_date', filter_class=None):
         self.dh_df = compute_multitemporal(self.ProfileSet.profiles,
             geometry_column=geometry_column,
             date_field=date_field,
-            filter_sand=filter_sand,
-            sand_label_field=sand_label_field)
+            filter_class=filter_class)
 
         self.dh_details = create_details_df(self.dh_df, loc_full)
         self.land_limits=pd.DataFrame(self.dh_df.groupby(["location"]).distance.max()).reset_index()

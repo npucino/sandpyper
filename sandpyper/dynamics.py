@@ -284,7 +284,7 @@ def get_rbcd_transect(df_labelled, thresh, min_points, reliable_action, dirNameT
         steady_state_tr=steady_state_tr.query("reliable == True")
     else:
         pass
-        
+
     ss_transects_idx = pd.DataFrame()
 
     idx_matrix=len(labels_order)//2
@@ -880,10 +880,9 @@ def compute_rBCD_transects(
 
 def compute_multitemporal (df,
                             geometry_column="coordinates",
-                           filter_sand=True,
                            date_field='survey_date',
                           sand_label_field='label_sand',
-                           filter_classes=[0]):
+                           filter_class='sand'):
     """
     From a dataframe containing the extracted points and a column specifying wether they are sand or non-sand, returns a multitemporal dataframe
     with time-periods sand-specific elevation changes.
@@ -897,6 +896,21 @@ def compute_multitemporal (df,
     Returns:
         A multitemporal dataframe of sand-specific elevation changes.
     """
+    if filter_class != None:
+        # check if pt_class in columns
+        if "pt_class" not in df.columns:
+            raise ValueError("The data is not classified as no 'pt_class' column is present. Please run the method cleanit on the ProfileDynamics object first.")
+        else:
+            if isistance(class_filter, 'str'):
+                filter_classes_in=[class_filter]
+            elif isistance(class_filter, list'):
+                filter_classes_in=class_filter
+            else:
+                raise ValueError(" If provided, class_filter must be either a string or a list of strings containing the classes to retain.")
+
+        print(f"Filter activated: only {filter_classes_in} points will be retained.")
+    else:
+        pass
 
     df["spatial_id"]=[create_spatial_id(df.iloc[i]) for i in range(df.shape[0])]
     fusion_long=pd.DataFrame()
@@ -916,9 +930,9 @@ def compute_multitemporal (df,
                 date_post=list_dates[i+1]
                 print(f"Calculating dt{i}, from {date_pre} to {date_post} in {location}.")
 
-                if filter_sand:
-                    df_pre=loc_data.query(f"{date_field} =='{date_pre}' & {sand_label_field} in {filter_classes}").dropna(subset=['z'])
-                    df_post=loc_data.query(f"{date_field} =='{date_post}' & {sand_label_field} in {filter_classes}").dropna(subset=['z'])
+                if filter_class != None:
+                    df_pre=loc_data.query(f"{date_field} =='{date_pre}' & pt_class in {filter_classes_in}").dropna(subset=['z'])
+                    df_post=loc_data.query(f"{date_field} =='{date_post}' & pt_class in {filter_classes_in}").dropna(subset=['z'])
                 else:
                     df_pre=loc_data.query(f"{date_field} =='{date_pre}'").dropna(subset=['z'])
                     df_post=loc_data.query(f"{date_field} =='{date_post}'").dropna(subset=['z'])
@@ -930,6 +944,7 @@ def compute_multitemporal (df,
                             "location":location,
                             "tr_id":merged.tr_id_pre,
                             "distance":merged.distance_pre,
+                            "class_filter":filter_classes_in,
                             "dt":  f"dt_{i}",
                             "date_pre":date_pre,
                             "date_post":date_post,
