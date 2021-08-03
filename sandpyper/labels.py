@@ -421,7 +421,7 @@ def classify_labelk(labelled_dataset,l_dicts, cluster_field='label_k', fill_clas
 
         for raw_date in data_in_loc.raw_date.unique():
             loc_date_tag=f"{loc}_{raw_date}"
-            data_in=data_in_loc.query(f"raw_date=='{int(raw_date)}'")
+            data_in=data_in_loc.query(f"raw_date=='{str(raw_date)}'")
 
             if loc_date_tag in all_keys:
 

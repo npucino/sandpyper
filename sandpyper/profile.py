@@ -200,6 +200,12 @@ class ProfileSet():
                     default_crs=default_crs, crs_dict_string=self.crs_dict_string,
                    geometry_field=geometry_field)
 
+        processes=[]
+        if label_corrections_path: processes.append("polygon finetuning")
+        if watermasks_path: processes.append("watermasking")
+        if shoremasks_path: processes.append("shoremasking")
+        self.cleaning_steps=processes
+
 
 
 
