@@ -881,7 +881,6 @@ def compute_rBCD_transects(
 def compute_multitemporal (df,
                             geometry_column="coordinates",
                            date_field='survey_date',
-                          sand_label_field='label_sand',
                            filter_class='sand'):
     """
     From a dataframe containing the extracted points and a column specifying wether they are sand or non-sand, returns a multitemporal dataframe
