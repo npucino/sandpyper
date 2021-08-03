@@ -435,56 +435,88 @@ class ProfileDynamics():
                                         outliers=outliers,sigma_n=sigma_n,
                                         full_specs_table=self.dh_details)
 
-    def plot_transects(self, location, tr_id, dt=None, from_date=None, to_date=None, details_df=None,figsize=None):
+    def plot_transects(self, location, tr_id, classified, dt=None, from_date=None, to_date=None, details_df=None,
+                       figsize=None, palette ={"sand": "r", "water": "b", "veg": "g", "no_sand": "k"}):
 
-        if dt != None:
+            if dt != None:
 
-            if isinstance(dt, list):
-                periods=dt
-            else:
-                periods=[dt]
+                if isinstance(dt, list):
+                    periods=dt
+                else:
+                    periods=[dt]
 
-            for dt_i in periods:
-                f,ax=plt.subplots(1, figsize=(10,5))
+                for dt_i in periods:
+                    f,ax=plt.subplots(1, figsize=(10,5))
 
-                data=self.dh_df.query(f"location=='{location}' and tr_id=={tr_id} and dt=='{dt_i}'")
-                details=self.dh_details.query(f"location=='{location}' and dt == '{dt_i}'")
-                full_loc=details.iloc[0]["loc_full"]
+                    details=self.dh_details.query(f"location=='{location}' and dt == '{dt_i}'")
+                    full_loc=details.iloc[0]["loc_full"]
+                    from_date=details.iloc[0]["date_pre"]
+                    to_date=details.iloc[0]["date_post"]
 
-                from_date=details.iloc[0]["date_pre"]
-                to_date=details.iloc[0]["date_post"]
 
-                sb.scatterplot(data=data, x="distance", y='z_pre', color='b', size=5)
-                sb.lineplot(data=data,x="distance",y='z_pre', color="b", label='Pre')
+                    if classified == False:
+                        data=self.dh_df.query(f"location=='{location}' and tr_id=={tr_id} and dt=='{dt_i}'")
 
-                sb.scatterplot(data=data, x="distance", y='z_post', color='r', size=5)
-                sb.lineplot(data=data,x="distance",y='z_post', color="r",ls='--', label='Post')
+                        sb.scatterplot(data=data, x="distance", y='z_pre', color='b', size=5)
+                        sb.lineplot(data=data,x="distance",y='z_pre', color="b", label='Pre')
 
-                ax.set_ylabel('Elevation (m)')
-                ax.set_xlabel('Distance alongshore (m)')
-                ax.set_title(f"Location: {full_loc}\nTransect: {tr_id}\nFrom {from_date} to {to_date} ({dt_i})");
+                        sb.scatterplot(data=data, x="distance", y='z_post', color='r', size=5, legend=False)
+                        sb.lineplot(data=data,x="distance",y='z_post', color="r",ls='--', label='Post')
 
-        elif dt == None:
+                    elif classified:
+                        from_classed=self.ProfileSet.profiles.query(f"location=='{location}' and tr_id=={tr_id} and raw_date=='{str(from_date)}'")
+                        to_classed=self.ProfileSet.profiles.query(f"location=='{location}' and tr_id=={tr_id} and raw_date=='{str(to_date)}'")
 
-            if from_date != None and to_date != None:
-                f,ax=plt.subplots(1, figsize=(10,5))
+                        sb.scatterplot(data=from_classed, x="distance", y='z', s=20, alpha=1, hue='pt_class',palette=palette)
+                        sb.lineplot(data=from_classed,x="distance", y='z', color='k', alpha=.5,label='Pre', linewidth=2)
 
-                data_pre=self.dh_df.query(f"location=='{location}' and tr_id=={tr_id} and date_pre == '{from_date}'")
-                data_post=self.dh_df.query(f"location=='{location}' and tr_id=={tr_id} and date_post == '{to_date}'")
-                full_loc=self.dh_details.query(f"location=='{location}'").iloc[0]["loc_full"]
 
-                sb.scatterplot(data=data_pre, x="distance", y='z_pre', color='b', size=5)
-                sb.lineplot(data=data_pre,x="distance",y='z_pre', color="b", label='Pre')
+                        sb.scatterplot(data=to_classed, x="distance", y='z', s=20, alpha=1, hue='pt_class', legend=False, palette=palette)
+                        sb.lineplot(data=to_classed,x="distance",y='z', color='r', alpha=.5, linewidth=2, label='Post')
+                    else:
+                        raise ValueError("The 'classified' parameter must be either True or False.")
 
-                sb.scatterplot(data=data_post, x="distance", y='z_post', color='r', size=5)
-                sb.lineplot(data=data_post,x="distance",y='z_post', color="r",ls='--', label='Post')
 
-                ax.set_ylabel('Elevation (m)')
-                ax.set_xlabel('Distance alongshore (m)')
-                ax.set_title(f"Location: {full_loc}\nTransect: {tr_id}\nFrom {from_date} to {to_date}");
 
-            else:
-                raise ValueError("Only one of date_from/date_to dates has been provided. Please provide both dates or use the dt parameter only.")
+                    ax.set_ylabel('Elevation (m)')
+                    ax.set_xlabel('Distance alongshore (m)')
+                    ax.set_title(f"Location: {full_loc}\nTransect: {tr_id}\nFrom {from_date} to {to_date} ({dt_i})");
+
+            elif dt == None:
+
+                if from_date != None and to_date != None:
+                    f,ax=plt.subplots(1, figsize=(10,5))
+
+                    full_loc=self.dh_details.query(f"location=='{location}'").iloc[0]["loc_full"]
+
+                    if classified == False:
+                        data_pre=self.dh_df.query(f"location=='{location}' and tr_id=={tr_id} and date_pre == '{from_date}'")
+                        data_post=self.dh_df.query(f"location=='{location}' and tr_id=={tr_id} and date_post == '{to_date}'")
+
+                        sb.scatterplot(data=data_pre, x="distance", y='z_pre', color='b', size=5)
+                        sb.lineplot(data=data_pre,x="distance",y='z_pre', color="b", label='Pre')
+
+                        sb.scatterplot(data=data_post, x="distance", y='z_post', color='r', size=5, legend=False)
+                        sb.lineplot(data=data_post,x="distance",y='z_post', color="r",ls='--', label='Post')
+
+                    elif classified:
+
+                        from_classed=self.ProfileSet.profiles.query(f"location=='{location}' and tr_id=={tr_id} and raw_date=='{str(from_date)}'")
+                        to_classed=self.ProfileSet.profiles.query(f"location=='{location}' and tr_id=={tr_id} and raw_date=='{str(to_date)}'")
+
+                        sb.scatterplot(data=from_classed, x="distance", y='z', s=20, alpha=1, hue='pt_class',palette=palette)
+                        sb.lineplot(data=from_classed,x="distance", y='z', color='k', alpha=.5,label='Pre', linewidth=2)
+
+
+                        sb.scatterplot(data=to_classed, x="distance", y='z', s=20, alpha=1, hue='pt_class', legend=False, palette=palette)
+                        sb.lineplot(data=to_classed,x="distance",y='z', color='r', alpha=.5, linewidth=2, label='Post')
+
+                    ax.set_ylabel('Elevation (m)')
+                    ax.set_xlabel('Distance alongshore (m)')
+                    ax.set_title(f"Location: {full_loc}\nTransect: {tr_id}\nFrom {from_date} to {to_date}");
+
+                else:
+                    raise ValueError("Only one of date_from/date_to dates has been provided. Please provide both dates or use the dt parameter only.")
 
 
     def plot_transect_mecs(self, location, tr_id, figsize=(10,5)):
