@@ -118,7 +118,7 @@ def prep_heatmap(df, lod, outliers=False, sigma_n=3, lod_default=0.05):
         return df_piv2.sort_index(ascending=False)
 
 
-def fill_gaps(data_in, y_heat_bottom_limit, bottom=True, y_heat_start=0, spacing=0.1):
+def fill_gaps(data_in, y_heat_bottom_limit, spacing, bottom=True, y_heat_start=0):
     """
     Function to fill the pivoted table (returned from prep_heatmap function) with missing across-shore distances, due to align data on heatmaps.
     Empty rows (NaN) will be added on top (from 0 to the first valid distance) and, optionally on the bottom of each transect,
@@ -137,14 +137,12 @@ def fill_gaps(data_in, y_heat_bottom_limit, bottom=True, y_heat_start=0, spacing
         Complete dataframe with extra rows of NaN added.
     """
 
-    multiplier = spacing * 100
     if bool(bottom):
         bottom_fill_array = np.empty(
             (
                 (
                     int(
                         np.round(y_heat_bottom_limit + spacing - data_in.index[-1], 1)
-                        * multiplier
                     )
                 ),
                 data_in.shape[1],
@@ -159,7 +157,7 @@ def fill_gaps(data_in, y_heat_bottom_limit, bottom=True, y_heat_start=0, spacing
     else:
         pass
 
-    before_fill_array = np.empty((int(data_in.index[0] * multiplier), data_in.shape[1]))
+    before_fill_array = np.empty((int(data_in.index[0]), data_in.shape[1]))
     before_fill_array[:] = np.NaN
     to_concat_before = pd.DataFrame(
         data=before_fill_array,
@@ -520,6 +518,7 @@ def plot_alongshore_change(
     bottom=False,
     y_heat_bottom_limit=80,
     transect_spacing=20,
+    along_transect_sampling_step=1,
     outliers=False,
     sigma_n=3,
 ):
@@ -610,10 +609,6 @@ def plot_alongshore_change(
 
             # subset the data
             temp = sand_pts.query(f"location == '{loc}' and dt =='{dt}'")
-            if bool(add_orient):
-                tr_or = tr_orient.query(f"location == '{loc}'")
-            else:
-                pass
 
             # prepare axes and figure
             f, (ax, ax2) = plt.subplots(
@@ -642,15 +637,8 @@ def plot_alongshore_change(
                 date_to = specs.date_post.values[0]
                 n_days = specs.n_days.values[0]
 
-            if isinstance(lod, str):
-                if os.path.isfile(lod):
-                    table = pd.read_csv(lod_table_path)
-                    lod = np.round(
-                        lod_table.query(
-                            f"location == '{loc}' and dt == '{dt}'"
-                        ).nmad.values[0],
-                        2,
-                    )  # extract nmad
+            if isinstance(lod, pd.DataFrame):
+                lod = np.round(lod.query(f"location == '{loc}' & dt == '{dt}'").lod.values[0],2)
             elif isinstance(lod, (float, int)):
                 lod = lod
             else:
@@ -674,7 +662,7 @@ def plot_alongshore_change(
             else:
                 pass
 
-            data_in_filled = fill_gaps(data_in, y_heat_bottom_limit, bottom=bottom)
+            data_in_filled = fill_gaps(data_in, y_heat_bottom_limit, bottom=bottom, spacing=along_transect_sampling_step)
             print(f"Working on {loc} at {dt}")
 
             # _______AX__________________________________________________________________

@@ -532,8 +532,8 @@ class ProfileDynamics():
 
         data=self.dh_df.query(f"location=='{location}' and tr_id=={tr_id}")
         filter_used=self.dh_df.class_filter.unique()[0]
-        if filter_used != '':
-            print(Warning: this dataset)
+        if filter_used != "no_filters_applied":
+            print(f"Statistics are computed based on the following classes only: {filter_used}")
 
         mecs=data.groupby(['dt']).dh.sum()/data.groupby(['dt']).geometry.count()
         mecs=mecs.reset_index()
@@ -619,6 +619,7 @@ class ProfileDynamics():
             bottom=bottom,
             y_heat_bottom_limit=y_heat_bottom_limit,
             transect_spacing=self.ProfileSet.transects_spacing,
+            along_transect_sampling_step=self.ProfileSet.sampling_step,
             outliers=outliers,
             sigma_n=sigma_n)
 
