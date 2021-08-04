@@ -103,6 +103,8 @@ def prep_heatmap(df, lod, outliers=False, sigma_n=3, lod_default=0.05):
         df_piv2 = df_piv.mask(cond, 0)
         df_piv2.set_index(df_piv2.index.astype(float), inplace=True)
 
+        print("Using LoDs.")
+
         return df_piv2.sort_index(ascending=False)
     else:  # otherwise, use the default values, preset at global LoD 0.05.
 
@@ -207,7 +209,7 @@ def get_beachface_length(series):
     return across_shore_beachface_length
 
 
-def get_m3_m_location(data_in, transect_spacing=20):
+def get_m3_m_location(data_in, transect_spacing=20, dx=0.1):
     """
     Get alongshore-shore net volumetric change in cubic meters per meter of beach.
 
@@ -222,14 +224,14 @@ def get_m3_m_location(data_in, transect_spacing=20):
     along_beach = data_in.shape[1] * transect_spacing
 
     tot_vol = sum(
-        (data_in.apply(interpol_integrate, axis=0)) * transect_spacing
+        (data_in.apply(interpol_integrate, axis=0, **{'dx':dx})) * transect_spacing
     )  # compute net volume change
 
     return tot_vol / along_beach  # return m3_m alongshore
 
 
 def get_state_vol_table(
-    sand_pts, lod, full_specs_table, transect_spacing=20, outliers=False, sigma_n=3
+    sand_pts, lod, full_specs_table, dx, transect_spacing=20, outliers=False, sigma_n=3
 ):
     """
     Function to compute location-level altimetric beach change statistics from the multitemporal table.
@@ -321,10 +323,10 @@ def get_state_vol_table(
             norm_net_change = abs_net_change / n_obs_valid  # MEC
 
             tot_vol_depo = (
-                data_in_deposition.apply(interpol_integrate, axis=0) * transect_spacing
+                data_in_deposition.apply(interpol_integrate, axis=0, **{'dx':dx}) * transect_spacing
             ).sum()
             tot_vol_ero = (
-                data_in_erosion.apply(interpol_integrate, axis=0) * transect_spacing
+                data_in_erosion.apply(interpol_integrate, axis=0, **{'dx':dx}) * transect_spacing
             ).sum()
             net_vol_change = tot_vol_depo + tot_vol_ero
             location_m3_m = net_vol_change / beach_length
@@ -378,6 +380,7 @@ def get_state_vol_table(
 def get_transects_vol_table(
     sand_pts,
     lod,
+    dx,
     full_specs_table,
     transect_spacing=20,  # INTEGRATED
     outliers=False,
@@ -449,7 +452,7 @@ def get_transects_vol_table(
             else:
                 pass
 
-            trs_volumes = data_in.apply(interpol_integrate, axis=0)
+            trs_volumes = data_in.apply(interpol_integrate, **{'dx':dx}, axis=0)
             trs_volumes.name = "tot_vol_change"
             beach_lengths = data_in.apply(get_beachface_length, axis=0)
 

@@ -430,10 +430,11 @@ class ProfileDynamics():
         self.dh_df["date_post_dt"]=[datetime.datetime.strptime(str(post),'%Y%m%d') for post in self.dh_df.date_post]
 
         self.location_volumetrics = get_state_vol_table(self.dh_df, lod=lod,
-                                              full_specs_table=self.dh_details)
+                                              full_specs_table=self.dh_details, dx=self.ProfileSet.sampling_step)
 
         self.transects_volumetrics = get_transects_vol_table(self.dh_df, lod=lod,
                                         transect_spacing=self.ProfileSet.transects_spacing,
+                                        dx=self.ProfileSet.sampling_step,
                                         outliers=outliers,sigma_n=sigma_n,
                                         full_specs_table=self.dh_details)
 
