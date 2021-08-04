@@ -89,7 +89,7 @@ def get_lod_table(multitemp_data, alpha=0.05):
 
 def plot_lod_normality_check(multitemp_data, lod_df, details_table, locations,alpha=0.05,xlims=None,ylim=None,qq_xlims=None,qq_ylims=None,figsize=(7,4)):
 
-
+    
     if isinstance(locations, list):
         if len(locations)>=1:
             loc_list=locations

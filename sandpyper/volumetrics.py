@@ -13,7 +13,7 @@ import seaborn as sb
 from sandpyper.outils import round_special
 import datetime
 
-def prep_heatmap(df, lod, outliers=False, sigma_n=3, lod_default=0.05):
+def prep_heatmap(df, lod, outliers=False, sigma_n=3):
     """
     Function to create a pivoted and filtered dataframe from multitemporal table of specific period-location combination (i.e. loc= pfa, dt= dt_3).
     Elevation differences within LoD (uncertain) can be set to zero and outliers can be eliminated.
@@ -103,14 +103,11 @@ def prep_heatmap(df, lod, outliers=False, sigma_n=3, lod_default=0.05):
         df_piv2 = df_piv.mask(cond, 0)
         df_piv2.set_index(df_piv2.index.astype(float), inplace=True)
 
-        print("Using LoDs.")
 
         return df_piv2.sort_index(ascending=False)
-    else:  # otherwise, use the default values, preset at global LoD 0.05.
+    else:  # otherwise,don't use it
 
-        lod_i = float(lod_default)
-        cond = (df_piv >= -lod_i) & (df_piv <= lod_i)
-        df_piv2 = df_piv.mask(cond, 0)
+        df_piv2 = df_piv.copy()
         df_piv2.set_index(df_piv2.index.astype(float), inplace=True)
 
         return df_piv2.sort_index(ascending=False)

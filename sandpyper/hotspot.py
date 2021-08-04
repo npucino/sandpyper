@@ -136,6 +136,7 @@ class ProfileDynamics():
                 lod_df['lod']=lod_mode
                 self.lod_df=lod_df[['location','dt','lod']]
                 self.lod_dh=None
+                self.lod_created='yes'
 
             elif isinstance(self.ProfileSet.lod, pd.DataFrame):
                 lod_dh=compute_multitemporal(self.ProfileSet.lod,
@@ -144,10 +145,12 @@ class ProfileDynamics():
                     filter_class=None)
                 self.lod_df=get_lod_table(lod_dh)
                 self.lod_dh=lod_dh
+                self.lod_created='yes'
 
             elif self.ProfileSet.lod==None :
                 self.lod_df=None
                 self.lod_dh=None
+                self.lod_created='no'
 
             else:
                 ValueError("lod_mode attribute of the ProfileSet object not found. Has ProfileSet.extract_profiles been run?")
@@ -166,6 +169,11 @@ class ProfileDynamics():
             raise ValueError("lod_mode must be 'inherited', None or a numeric value.")
 
     def plot_lod_normality_check(self, locations, details_table=None, lod_df=None, alpha=0.05,xlims=None,ylim=None,qq_xlims=None,qq_ylims=None,figsize=(7,4)):
+
+        if self.lod_created != 'yes':
+            raise ValueError("LoD dataset has not been created.\
+            Please run the profile extraction agains, providing transects specifically placed in pseudo-invariant areas, in order to create the LoD data and statistics.")
+
         plot_lod_normality_check(multitemp_data=self.lod_dh,
             lod_df=self.lod_df,
             details_table=self.dh_details,
@@ -188,7 +196,7 @@ class ProfileDynamics():
                                     geometry_column=geometry_column,
                                     crs_dict_string=self.ProfileSet.crs_dict_string)
 
-    def discretise(self, absolute = True, field="dh", appendix = ("_deposition","_erosion"), print_summary=False):
+    def discretise(self, lod=None, absolute = True, field="dh", appendix = ("_deposition","_erosion"), print_summary=False):
         """
         Fit discretiser to the dataframe containing the field of interest.
 
@@ -204,12 +212,33 @@ class ProfileDynamics():
         """
         df=self.hotspots
 
-        if absolute:
-            data_ero=df[df.loc[:,field] < 0]
-            data_depo=df[df.loc[:,field] > 0]
-            data=np.abs(df.loc[:,field])
+        if isinstance(
+            lod, (float, int)
+        ):  # if a numeric, use this value across all surveys
+
+            full_data_lod=df.copy()
+            full_data_lod["lod"]=float(lod)
+            full_data_lod[f"{field}_abs"]=full_data_lod.loc[:,field].apply(abs)
+            full_data_lod["lod_valid"]=np.where(full_data_lod.loc[:, f"{field}_abs"] < full_data_lod.lod, 'no','yes')
+            self.lod_used='yes'
+        elif isinstance(lod, pd.DataFrame):
+            full_data_lod=pd.merge(df,self.lod_df[['location','dt','lod']], on=['location','dt'], how='left')
+            full_data_lod[f"{field}_abs"]=full_data_lod.loc[:,field].apply(abs)
+            full_data_lod["lod_valid"]=np.where(full_data_lod.loc[:, f"{field}_abs"] < full_data_lod.lod, 'no','yes')
+            self.lod_used='yes'
         else:
-            data=df.loc[:,field]
+            full_data_lod=df.copy()
+            full_data_lod["lod"]=['lod_not_used' for i in range(full_data_lod.shape[0])]
+            full_data_lod['lod_valid']=['lod_not_used' for i in range(full_data_lod.shape[0])]
+            full_data_lod[f"{field}_abs"]=full_data_lod.loc[:,field].apply(abs)
+            self.lod_used='no'
+
+        if absolute:
+            data_ero=full_data_lod[full_data_lod.loc[:,field] < 0]
+            data_depo=full_data_lod[full_data_lod.loc[:,field] > 0]
+            data=full_data_lod.loc[:,f"{field}_abs"]
+        else:
+            data=full_data_lod.loc[:,field]
 
         bins_discretiser=self.dict_classifiers[self.method](data, self.bins)
         if print_summary==True:
@@ -265,24 +294,46 @@ class ProfileDynamics():
         # create a dictionary with all the weights in each tag
         self.weights_dict={tag:class_abs_medians[re.findall(joined_re,tag)[0]] for tag in self.tags}
 
-    def BCD_compute_location(self,unique_field, mode,store_neg):
+    def BCD_compute_location(self,unique_field, mode,store_neg, filterit):
+        '''filter (str): if None (default), all points will be used.
+        If 'lod' or 'hotspot', only points above the LoDs or statistically significant clusters (hot/coldspots)
+        will be retained. If 'both', both lod and hotspot filters will be applied.'''
 
         steady_state_victoria = pd.DataFrame()
         markov_indexes_victoria = pd.DataFrame()
         transitions_matrices=dict()
 
-        for loc in self.df_labelled.location.unique():
+        if filterit == 'lod':
+            if self.lod_used == 'no':
+                raise ValueError('No LoD was used during the discretise method was run.\
+                Please re-run ProfileDynamics.discretise with an LoD value or dataframe to use LoD filter here.')
+            else:
+                data_to_use=self.df_labelled.query("lod_valid=='yes'")
+                print("LoD filter in use. Only points beyond LoDs will be retained.")
+        elif filterit == 'hotspot':
+            data_to_use=self.df_labelled.query("lisa_q in [1,3]")
+            print("Hotspot filter in use. Only statistically significant clusters will be retained.")
+
+        elif filterit == 'both':
+            data_to_use=self.df_labelled.query("lod_valid == 'yes' and lisa_q in [1,3]")
+            print("Hotspot and LoD filters in use. Only statistically significant clusters beyond LoDs will be retained.")
+        else:
+            data_to_use=self.df_labelled
+
+
+        markov_details={}
+        for loc in data_to_use.location.unique():
 
             if "nnn" not in self.tags_order:
                 self.tags_order.insert(len(self.tags)//2,"nnn")
 
-            if isinstance(self.df_labelled.loc[0,unique_field], shapely.geometry.point.Point):
-                self.df_labelled['spatial_id']=self.df_labelled.loc[:,unique_field].apply(str)
+            if isinstance(data_to_use.iloc[0][unique_field], shapely.geometry.point.Point):
+                data_to_use['spatial_id']=data_to_use.loc[:,unique_field].apply(str)
                 unique_field='spatial_id'
             else:
                 pass
 
-            dataset_piv = self.df_labelled.query(f"location=='{loc}'").pivot(
+            dataset_piv = data_to_use.query(f"location=='{loc}'").pivot(
                 values="markov_tag", index=unique_field, columns="dt"
             )
 
@@ -305,13 +356,15 @@ class ProfileDynamics():
                     " Specify the mode ('drop', 'all', or a float number (0.5,1.0,0.95)"
                 )
 
-            self.n = dataset_piv.shape[0]
-            self.t = dataset_piv.shape[1]
+
 
             arr = np.array(dataset_piv)
 
             m = Markov(arr)
-            self.n_transitions = m.transitions.sum().sum()
+
+            markov_details.update({loc:{'n':dataset_piv.shape[0],
+                                't':dataset_piv.shape[1],
+                                'n_transitions':int(m.transitions.sum().sum())}})
 
             steady_state = pd.DataFrame(m.steady_state, index=m.classes, columns=[loc])
             steady_state_victoria = pd.concat([steady_state, steady_state_victoria], axis=1)
@@ -392,6 +445,7 @@ class ProfileDynamics():
 
             self.location_ebcds=markov_indexes_victoria
             self.transitions_matrices=transitions_matrices
+            self.markov_details=markov_details
 
 
             ss_victoria_ordered=steady_state_victoria.loc[self.tags_order,:]
@@ -428,6 +482,16 @@ class ProfileDynamics():
 
         self.dh_df["date_pre_dt"]=[datetime.datetime.strptime(str(pre),'%Y%m%d') for pre in self.dh_df.date_pre]
         self.dh_df["date_post_dt"]=[datetime.datetime.strptime(str(post),'%Y%m%d') for post in self.dh_df.date_post]
+
+        if isinstance(lod , pd.DataFrame):
+            print("Using LoDs.")
+            self.lod_used='yes'
+        elif isinstance(lod , (int,float)):
+            print("Using LoDs.")
+            self.lod_used='yes'
+        else:
+            print("No LoD is used.")
+            self.lod_used='no'
 
         self.location_volumetrics = get_state_vol_table(self.dh_df, lod=lod,
                                               full_specs_table=self.dh_details, dx=self.ProfileSet.sampling_step)
@@ -726,7 +790,7 @@ class ProfileDynamics():
                     ax=ax_i,
                 )
                 ax_i.set_title(f"{title}", size=9)
-                title = f.suptitle(f"{loc} (n={self.n}, t={self.t}, trans:{int(self.n_transitions)}) ")
+                title = f.suptitle(f"{loc} (n={self.markov_details[loc]['n']}, t={self.markov_details[loc]['t']}, trans:{int(self.markov_details[loc]['n_transitions'])}) ")
                 title.set_position([0.5, 1.03])
                 f.tight_layout(pad=1)
 
