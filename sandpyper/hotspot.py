@@ -588,14 +588,14 @@ class ProfileDynamics():
         from_land=True,
         from_origin=True,
         add_orient=False,
-        fig_size=(7.3, 3),
+        fig_size=None,
         font_scale=1,
         plots_spacing=0,
         bottom=False,
-        y_heat_bottom_limit=80,
+        y_heat_bottom_limit=None,
         transect_spacing=None,
-        heat_xticklabels=None,
-        heat_yticklabels=None,
+        heat_yticklabels_freq=None,
+        heat_xticklabels_freq=None,
         outliers=False,
         sigma_n=3):
 
@@ -622,8 +622,8 @@ class ProfileDynamics():
             y_heat_bottom_limit=y_heat_bottom_limit,
             transect_spacing=self.ProfileSet.transects_spacing,
             along_transect_sampling_step=self.ProfileSet.sampling_step,
-            heat_xticklabels=heat_xticklabels,
-            heat_yticklabels=heat_yticklabels,
+            heat_yticklabels_freq=heat_yticklabels_freq,
+            heat_xticklabels_freq=heat_xticklabels_freq,
             outliers=outliers,
             sigma_n=sigma_n)
 

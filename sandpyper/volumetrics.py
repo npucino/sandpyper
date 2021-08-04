@@ -132,7 +132,8 @@ def fill_gaps(data_in, y_heat_bottom_limit, spacing, bottom=True, y_heat_start=0
     Returns:
         Complete dataframe with extra rows of NaN added.
     """
-
+    if y_heat_bottom_limit < data_in.index[-1]:
+        raise ValueError(f"y_heat_bottom_limit ({y_heat_bottom_limit}) cannot be lower than the maximum distance already present in the data ({data_in.index[-1]}).")
     if bool(bottom):
         bottom_fill_array = np.empty(
             (
@@ -514,8 +515,8 @@ def plot_alongshore_change(
     y_heat_bottom_limit=80,
     transect_spacing=20,
     along_transect_sampling_step=1,
-    heat_xticklabels=5,
-    heat_yticklabels=5,
+    heat_yticklabels_freq=5,
+    heat_xticklabels_freq=5,
     outliers=False,
     sigma_n=3,
 ):
@@ -666,8 +667,7 @@ def plot_alongshore_change(
 
             sb.heatmap(
                 data=data_in_filled,
-                yticklabels=heat_yticklabels,
-                xticklabels=heat_yticklabels,
+                xticklabels=heat_xticklabels_freq,
                 facecolor="w",
                 robust=True,
                 center=0,
@@ -682,7 +682,7 @@ def plot_alongshore_change(
 
             # _________________________________BACKGROUND COLOR AND TRANSPARENCY_____
             ax.patch.set_facecolor("grey")
-            ax.patch.set_alpha(0.2)
+            ax.patch.set_alpha(0.4)
 
             # _________________________________AXIS LABELS_____
             ax.set_xlabel("")
@@ -699,13 +699,10 @@ def plot_alongshore_change(
             ax.grid(b=True, which="minor", linewidth=0.3, ls="-")
             ax.grid(b=True, which="major", linewidth=0.8, ls="-")
 
-            ax.set_xticks(ax.get_xticks() - 0.5)
-
-            tmp_list_along_dists = np.arange(0, y_heat_bottom_limit + 10, 10)
+            tmp_list_along_dists = np.arange(0, y_heat_bottom_limit + 5, heat_yticklabels_freq)
             y_formatter_list_values = tmp_list_along_dists.astype("str").tolist()
             y_formatter_list_values[-1] = ""
-            y_formatter_list_locators = [value * 10 for value in tmp_list_along_dists]
-            y_formatter_list_locators, y_formatter_list_values
+            y_formatter_list_locators = [value * (1/along_transect_sampling_step) for value in tmp_list_along_dists]
 
             y_formatter = FixedFormatter(y_formatter_list_values)
             y_locator = FixedLocator(y_formatter_list_locators)
@@ -715,7 +712,7 @@ def plot_alongshore_change(
             ax.yaxis.set_minor_locator(AutoMinorLocator(4))
             ax.grid(which="minor", axis="y")
 
-            ax.set_ylim(y_heat_bottom_limit * 10, 0)
+            ax.set_ylim(y_heat_bottom_limit * (1/along_transect_sampling_step), 0)
             ax.tick_params(axis="x", which="both", length=0)
 
             # __AX2___________________________________________________________________
@@ -742,19 +739,6 @@ def plot_alongshore_change(
             sb.lineplot(data=tr_df, x="index", y="net_balance_m3_m", ax=ax2, color="k")
             ax2.set_ylim(ax2_y_lims)
             ax2.yaxis.set_minor_locator(AutoMinorLocator(4))
-
-            # ax3________________________________________
-
-            if bool(add_orient):
-                ax3 = ax2.twinx()
-                ax3.set_ylabel("Transect Orientation (° TN)")
-
-                if bool(from_origin):
-                    ax3.scatter(tr_or.tr_id, tr_or.tr_orientation, alpha=0.5, c="k")
-                else:
-                    ax3.scatter(tr_or.tr_id, tr_or.tr_orientation, alpha=0.5, c="k")
-            else:
-                pass
 
             # FILLS________________________________________
 
@@ -805,10 +789,7 @@ def plot_alongshore_change(
 
             axs = f.get_axes()
 
-            if bool(add_orient):
-                f.align_ylabels(axs[:-2])
-            else:
-                f.align_ylabels(axs[:-1])
+            f.align_ylabels(axs[:-1])
 
             ax.set_zorder(1)
             ax2.set_zorder(0)
@@ -818,6 +799,7 @@ def plot_alongshore_change(
                 f.savefig(savetxt, dpi=dpi, bbox_inches="tight")
             else:
                 pass
+
             plt.show()
 
     if return_data:
