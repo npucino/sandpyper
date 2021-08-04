@@ -521,7 +521,7 @@ class ProfileDynamics():
                     raise ValueError("Only one of date_from/date_to dates has been provided. Please provide both dates or use the dt parameter only.")
 
 
-    def plot_transect_mecs(self, location, tr_id, figsize=(10,5)):
+    def plot_transect_mecs(self, location, tr_id, lod=None, figsize=(10,5)):
 
         details=self.dh_details.query(f"location=='{location}'")
         full_loc=details.iloc[0]["loc_full"]
@@ -532,6 +532,16 @@ class ProfileDynamics():
 
         data=self.dh_df.query(f"location=='{location}' and tr_id=={tr_id}")
         filter_used=self.dh_df.class_filter.unique()[0]
+
+
+        if isinstance(lod, pd.DataFrame):
+            print("Using LoDs.")
+            lods=self.lod_df.query(f"location=='{location}'")[["dt","lod"]]
+            data=pd.merge(data,lods, how='left', on='dt')
+            data["dh_abs"]=[abs(dh_i) for dh_i in data.dh]
+            data["dh"]=np.where(data.dh_abs<data.lod, 0,data.dh)
+
+
         if filter_used != "no_filters_applied":
             print(f"Statistics are computed based on the following classes only: {filter_used}")
 
@@ -539,8 +549,12 @@ class ProfileDynamics():
         mecs=mecs.reset_index()
         mecs.columns=['dt','mec']
         mecs['dt_i']=[int(mecs.iloc[i,0].split("_")[-1]) for i in range(mecs.dt.shape[0])]
+        mecs['net_change']=['positive' if mec_i >=0 else 'negative' for mec_i in mecs.mec]
 
-        barplot=sb.barplot(data=mecs.sort_values(['dt_i']),x='mec',y='dt', ax=axs[0], color='b')
+
+        barplot=sb.barplot(data=mecs.sort_values(['dt_i']),x='mec',y='dt', ax=axs[0],
+                           hue='net_change', palette={'positive':'b','negative': 'r'})
+
         barplot.set_ylabel("Time period (dt)")
         barplot.set_xlabel("Mean Elevation Change (m)")
         barplot.set_title('Barplot')
@@ -549,6 +563,8 @@ class ProfileDynamics():
         sb.lineplot(data=mecs, x='dt',y='mec',ax=axs[1])
         trend.set_title('Trend')
 
+        if 'dh_abs' in data.columns:
+            data.drop('dh_abs', axis=1, inplace=True)
 
         f.suptitle(f"Location: {full_loc}\nTransect: {tr_id}");
 
