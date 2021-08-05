@@ -79,6 +79,7 @@ class ProfileSet():
 
     def extract_profiles(self,
                          mode,
+                         tr_ids,
                          sampling_step,
                          lod_mode,
                          add_xy,
@@ -98,6 +99,7 @@ class ProfileSet():
 
             profiles=extract_from_folder(dataset_folder=path_in,
                 transect_folder=self.dirNameTrans,
+                tr_ids=tr_ids,
                 mode=mode,sampling_step=sampling_step,
                 list_loc_codes=self.loc_codes,
                 add_xy=add_xy,
@@ -112,6 +114,7 @@ class ProfileSet():
             profiles_z=extract_from_folder( dataset_folder=path_in[0],
                     transect_folder=self.dirNameTrans,
                     mode="dsm",
+                    tr_ids=tr_ids,
                     sampling_step=sampling_step,
                     list_loc_codes=self.loc_codes,
                     add_xy=add_xy,
@@ -121,6 +124,7 @@ class ProfileSet():
             print("Extracting rgb values from orthos . . .")
             profiles_rgb=extract_from_folder(dataset_folder=path_in[1],
                 transect_folder=self.dirNameTrans,
+                tr_ids=tr_ids,
                 mode="ortho",sampling_step=sampling_step,
                 list_loc_codes=self.loc_codes,
                 add_xy=add_xy,
@@ -151,6 +155,7 @@ class ProfileSet():
 
             lod=extract_from_folder( dataset_folder=lod_path_data,
                     transect_folder=lod_mode,
+                    tr_ids=tr_ids,
                     mode="dsm",
                     sampling_step=sampling_step,
                     list_loc_codes=self.loc_codes,
@@ -168,6 +173,7 @@ class ProfileSet():
 
             lod_profiles=extract_from_folder(dataset_folder=self.ProfileSet.dirNameDSM,
                 transect_folder=lod,
+                tr_ids=tr_ids,
                 mode='dsm',sampling_step=self.ProfileSet.sampling_step,
                 list_loc_codes=self.ProfileSet.loc_codes,
                 add_xy=False,
@@ -309,6 +315,7 @@ def get_raster_px(x_coord, y_coord, raster, bands=None, transform=None):
 def get_profiles(
     dsm,
     transect_file,
+    tr_ids,
     transect_index,
     step,
     location,
@@ -340,6 +347,15 @@ def get_profiles(
 
     # index each transect and store it a "line" object
     line = transect_file.loc[transect_index]
+
+    if tr_ids=='reset':
+        line_id=line.name
+    elif isinstance(tr_ids,str) and tr_ids in line.index:
+        line_id=line.loc[tr_ids]
+    else:
+        raise ValueError(f"'tr_ids' must be either 'reset' or the name of an existing column o the transect files. '{tr_ids}' was passed.")
+
+
     length_m = line.geometry.length
 
     # Creating empty lists of coordinates, elevations and distance (from start
@@ -390,7 +406,7 @@ def get_profiles(
     tr_counter = 0  # same mechanism as previous FOR loop
 
     while tr_counter <= tr_count:
-        tr_id_list.append((int(line.name)))
+        tr_id_list.append((int(line_id)))
         date_list.append(str(date_string))
         tr_counter += 1
 
@@ -482,7 +498,9 @@ def get_dn(x_coord, y_coord, raster, bands, transform):
 
 
 def get_profile_dn(
-    ortho, transect_file, transect_index, step, location, date_string, add_xy=False
+    ortho, transect_file,
+    transect_index, tr_ids,
+    step, location, date_string, add_xy=False
 ):
     """
     Returns a tidy GeoDataFrame of profile data, extracting raster information
@@ -508,6 +526,14 @@ def get_profile_dn(
     transform = ds.transform
 
     line = transect_file.loc[transect_index]
+
+    if tr_ids=='reset':
+        line_id=line.name
+    elif isinstance(tr_ids,str) and tr_ids in line.index:
+        line_id=line.loc[tr_ids]
+    else:
+        raise ValueError(f"'tr_ids' must be either 'reset' or the name of an existing column o the transect files. '{tr_ids}' was passed.")
+
 
     length_m = line.geometry.length
 
@@ -539,7 +565,7 @@ def get_profile_dn(
     df["location"] = location
     df["survey_date"] = pd.to_datetime(date_string, format="%Y%m%d")
     df["raw_date"] = date_string
-    df["tr_id"] = transect_index
+    df["tr_id"] = int(line_id)
     gdf_rgb = gpd.GeoDataFrame(df, geometry="coordinates")
 
     # Last touch, the proj4 info (coordinate reference system) is gathered with
@@ -565,6 +591,7 @@ def get_profile_dn(
 def extract_from_folder(
     dataset_folder,
     transect_folder,
+    tr_ids,
     list_loc_codes,
     mode,
     sampling_step,
@@ -580,6 +607,8 @@ def extract_from_folder(
     Args:
         dataset_folder (str): Path of the directory containing the datasets (geotiffs, .tiff).
         transect_folder (str): Path of the directory containing the transects (geopackages, .gpkg).
+        tr_ids (str): If 'reset', a new incremental transect_id will be automatically assigned.\
+        If the name of a column in the transect files is provided, use that column as transect IDs.
         list_loc_codes (list): list of strings containing location codes.
         mode (str): If 'dsm', extract from DSMs. If 'ortho', extracts from orthophotos.
         sampling_step (float): Distance along-transect to sample points at. In meters.
@@ -652,6 +681,7 @@ def extract_from_folder(
                     i,
                     sampling_step,
                     location,
+                    tr_ids=tr_ids,
                     date_string=date_string,
                     add_xy=add_xy,
                     add_terrain=slope,
@@ -663,6 +693,7 @@ def extract_from_folder(
                     i,
                     sampling_step,
                     location,
+                    tr_ids=tr_ids,
                     date_string=date_string,
                     add_xy=add_xy,
                 )
