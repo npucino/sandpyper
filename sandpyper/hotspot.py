@@ -139,6 +139,7 @@ class ProfileDynamics():
                 self.lod_created='yes'
 
             elif isinstance(self.ProfileSet.lod, pd.DataFrame):
+                print("Computing LoD dh data.")
                 lod_dh=compute_multitemporal(self.ProfileSet.lod,
                     geometry_column=geometry_column,
                     date_field=date_field,
@@ -466,11 +467,11 @@ class ProfileDynamics():
 
             self.location_ss=merged
 
-    def BCD_compute_transects(self, thresh, min_points, reliable_action, dirNameTrans=None):
+    def BCD_compute_transects(self, loc_specs, reliable_action, dirNameTrans=None):
 
 
         self.transects_rbcd=get_rbcd_transect(df_labelled=self.df_labelled,
-                  thresh=thresh, min_points=min_points,
+                  loc_specs=loc_specs,
                   dirNameTrans=self.ProfileSet.dirNameTrans,
                   reliable_action=reliable_action,
                   labels_order=self.tags_order,
@@ -531,8 +532,8 @@ class ProfileDynamics():
                         sb.lineplot(data=data,x="distance",y='z_post', color="r",ls='--', label='Post')
 
                     elif classified:
-                        from_classed=self.ProfileSet.profiles.query(f"location=='{location}' and tr_id=={tr_id} and raw_date=='{str(from_date)}'")
-                        to_classed=self.ProfileSet.profiles.query(f"location=='{location}' and tr_id=={tr_id} and raw_date=='{str(to_date)}'")
+                        from_classed=self.ProfileSet.profiles.query(f"location=='{location}' and tr_id=={tr_id} and raw_date=={from_date}")
+                        to_classed=self.ProfileSet.profiles.query(f"location=='{location}' and tr_id=={tr_id} and raw_date=={to_date}")
 
                         sb.scatterplot(data=from_classed, x="distance", y='z', s=20, alpha=1, hue='pt_class',palette=palette)
                         sb.lineplot(data=from_classed,x="distance", y='z', color='k', alpha=.5,label='Pre', linewidth=2)
@@ -557,8 +558,8 @@ class ProfileDynamics():
                     full_loc=self.dh_details.query(f"location=='{location}'").iloc[0]["loc_full"]
 
                     if classified == False:
-                        data_pre=self.dh_df.query(f"location=='{location}' and tr_id=={tr_id} and date_pre == '{from_date}'")
-                        data_post=self.dh_df.query(f"location=='{location}' and tr_id=={tr_id} and date_post == '{to_date}'")
+                        data_pre=self.dh_df.query(f"location=='{location}' and tr_id=={tr_id} and date_pre == {from_date}")
+                        data_post=self.dh_df.query(f"location=='{location}' and tr_id=={tr_id} and date_post == {to_date}")
 
                         sb.scatterplot(data=data_pre, x="distance", y='z_pre', color='b', size=5)
                         sb.lineplot(data=data_pre,x="distance",y='z_pre', color="b", label='Pre')
@@ -568,8 +569,8 @@ class ProfileDynamics():
 
                     elif classified:
 
-                        from_classed=self.ProfileSet.profiles.query(f"location=='{location}' and tr_id=={tr_id} and raw_date=='{str(from_date)}'")
-                        to_classed=self.ProfileSet.profiles.query(f"location=='{location}' and tr_id=={tr_id} and raw_date=='{str(to_date)}'")
+                        from_classed=self.ProfileSet.profiles.query(f"location=='{location}' and tr_id=={tr_id} and raw_date=={from_date}")
+                        to_classed=self.ProfileSet.profiles.query(f"location=='{location}' and tr_id=={tr_id} and raw_date=={to_date}")
 
                         sb.scatterplot(data=from_classed, x="distance", y='z', s=20, alpha=1, hue='pt_class',palette=palette)
                         sb.lineplot(data=from_classed,x="distance", y='z', color='k', alpha=.5,label='Pre', linewidth=2)

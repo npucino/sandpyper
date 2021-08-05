@@ -202,7 +202,7 @@ class ProfileSet():
         if label_corrections_path: processes.append("polygon finetuning")
         if watermasks_path: processes.append("watermasking")
         if shoremasks_path: processes.append("shoremasking")
-        if len(processe)==0: processes.append('none')
+        if len(processes)==0: processes.append('none')
 
         self.cleaning_steps = processes
 
@@ -371,8 +371,6 @@ def get_profiles(
     # the foredunes.
 
     distance = []
-    tr_count = 0  # a variable used as "counter", to stop the FOR loop
-    # when has gone thru all the transects
 
     for currentdistance in np.arange(0, int(length_m), step):
 
@@ -395,58 +393,28 @@ def get_profiles(
 
         # append the distance value (currentdistance) to distance list
         distance.append(currentdistance)
-        tr_count += 1  # increment by 1 the counter, and repeat!
 
     # Below, the empty lists tr_id_list and the date_list will be filled by strings
     # containing the transect_id of every point as stored in the original dataset
     # and a label with the date as set in the data setting section, after the input.
 
-    tr_id_list = []
-    date_list = []
-    tr_counter = 0  # same mechanism as previous FOR loop
-
-    while tr_counter <= tr_count:
-        tr_id_list.append((int(line_id)))
-        date_list.append(str(date_string))
-        tr_counter += 1
-
-    # Here below is to combine distance, elevation, profile_id and date into
-    # an array first (profile_x_z), then multiple Pandas series.
+    zs= pd.Series((elev for elev in z))
 
     if str(type(add_terrain)) == "<class 'richdem.rdarray'>":
-        profile_x_z = tuple(zip(distance, z, tr_id_list, date_list, slopes))
-
-        ds1 = pd.Series((v[0] for v in profile_x_z))
-        ds2 = pd.Series((v[1] for v in profile_x_z))
-        ds3 = pd.Series((v[2] for v in profile_x_z))
-        ds4 = pd.Series((v[3] for v in profile_x_z))
-        ds5 = pd.Series((v[4] for v in profile_x_z))
-
-        df = pd.DataFrame(
-            {"distance": ds1, "z": ds2, "tr_id": ds3, "raw_date": ds4, "slope": ds5}
-        )
-
+        slopes_series= pd.Series((slope for slope in slope))
+        df = pd.DataFrame({"distance": distance, "z": zs, "slope":slopes_series})
     else:
-        profile_x_z = tuple(zip(distance, z, tr_id_list, date_list))
+        df = pd.DataFrame({"distance": distance, "z": zs})
 
-        ds1 = pd.Series((v[0] for v in profile_x_z))
-        ds2 = pd.Series((v[1] for v in profile_x_z))
-        ds3 = pd.Series((v[2] for v in profile_x_z))
-        ds4 = pd.Series((v[3] for v in profile_x_z))
-
-        df = pd.DataFrame({"distance": ds1, "z": ds2, "tr_id": ds3, "raw_date": ds4})
-
-    # Here finally a Pandas dataframe is created containing all the Series previously created
-    # and coordinates of the points are added to a new column called "coordinates".
-    # At last, we create a Pandas GeoDataFrame and set the geometry column = coordinates
 
     df["coordinates"] = list(zip(x, y))
     df["coordinates"] = df["coordinates"].apply(Point)
     df["location"] = location
-    df["survey_date"] = pd.to_datetime(
-        date_string, yearfirst=True, dayfirst=False, format="%Y%m%d"
-    )
+    df["survey_date"] = pd.to_datetime(date_string, yearfirst=True, dayfirst=False, format="%Y%m%d")
+    df["raw_date"] = date_string
+    df["tr_id"] = int(line_id)
     gdf = gpd.GeoDataFrame(df, geometry="coordinates")
+
 
     # The proj4 info (coordinate reference system) is gathered with
     # Geopandas and applied to the newly created one.
@@ -563,7 +531,7 @@ def get_profile_dn(
     df["coordinates"] = list(zip(x, y))
     df["coordinates"] = df["coordinates"].apply(Point)
     df["location"] = location
-    df["survey_date"] = pd.to_datetime(date_string, format="%Y%m%d")
+    df["survey_date"] = pd.to_datetime(date_string, yearfirst=True, dayfirst=False, format="%Y%m%d")
     df["raw_date"] = date_string
     df["tr_id"] = int(line_id)
     gdf_rgb = gpd.GeoDataFrame(df, geometry="coordinates")

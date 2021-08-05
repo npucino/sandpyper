@@ -89,7 +89,7 @@ def get_lod_table(multitemp_data, alpha=0.05):
 
 def plot_lod_normality_check(multitemp_data, lod_df, details_table, locations,alpha=0.05,xlims=None,ylim=None,qq_xlims=None,qq_ylims=None,figsize=(7,4)):
 
-    
+
     if isinstance(locations, list):
         if len(locations)>=1:
             loc_list=locations
@@ -206,19 +206,28 @@ def plot_lod_normality_check(multitemp_data, lod_df, details_table, locations,al
             ax1.grid(axis='y')
             ax1.grid(b=None,axis='x')
 
-def get_rbcd_transect(df_labelled, thresh, min_points, reliable_action, dirNameTrans, labels_order, loc_codes, crs_dict_string):
+def get_rbcd_transect(df_labelled, loc_specs, reliable_action, dirNameTrans, labels_order, loc_codes, crs_dict_string):
 
     steady_state_tr = pd.DataFrame()
     markov_indexes_tr = pd.DataFrame()
 
+    df_labelled["spatial_id"]=[spatial_id(geometry_in) for geometry_in in df_labelled.geometry]
 
     for loc in tqdm(df_labelled.location.unique()):
         data_loc = df_labelled.query(f"location=='{loc}'")
 
+        if loc not in loc_specs.keys():
+            print(f"No threshold and mi_points provided in loc_specs for {loc}. Using no filters.")
+            loc_thresh=0
+            loc_min_pts=0
+
+        else:
+            loc_thresh=loc_specs[loc]['thresh']
+            loc_min_pts=loc_specs[loc]['min_points']
+
         for tr_id in data_loc.tr_id.unique():
 
             data_tr = data_loc.query(f"tr_id=='{tr_id}'")
-            data_tr["spatial_id"]=[spatial_id(geometry_in) for geometry_in in data_tr.geometry]
 
             if data_tr.empty:
                 data_tr = data_loc.query(f"tr_id=={tr_id}")
@@ -231,10 +240,13 @@ def get_rbcd_transect(df_labelled, thresh, min_points, reliable_action, dirNameT
             )
 
             # identify the points that have less than the required number of transitions (thresh) of non nan states
-            valid_pts=((~data_piv.isnull()).sum(axis=1)>=thresh).sum()
+            valid_pts=((~data_piv.isnull()).sum(axis=1)>=loc_thresh).sum()
 
             # has this transect a number of valid points above the specified min_pts parameter?
-            valid_transect= valid_pts >= min_points
+            valid_transect= valid_pts >= loc_min_pts
+
+            # drop ivalid points
+            data_piv.dropna(axis=0, thresh=loc_thresh, inplace=True)
 
             # all the  NaN will be named 'nnn'
             data_piv.fillna("nnn", inplace=True)
@@ -255,8 +267,8 @@ def get_rbcd_transect(df_labelled, thresh, min_points, reliable_action, dirNameT
                     id_vars="markov_tag", value_name="p", var_name="tr_id"
                 )
                 steady_state["location"] = loc
-                steady_state["thresh"] = thresh
-                steady_state["min_pts"] = min_points
+                steady_state["thresh"] = loc_thresh
+                steady_state["min_pts"] = loc_min_pts
                 steady_state["valid_pts"] = valid_pts
                 steady_state["reliable"] = valid_transect
 
@@ -266,12 +278,12 @@ def get_rbcd_transect(df_labelled, thresh, min_points, reliable_action, dirNameT
 
             except BaseException:
                 print(f"tr_id {tr_id} has {n} valid points.")
-                null_df=pd.DataFrame({'markov_tag':dataset.markov_tag.unique(),
-                                    'p':[np.nan for i in dataset.markov_tag.unique()]})
+                null_df=pd.DataFrame({'markov_tag':df_labelled.markov_tag.unique(),
+                                    'p':[np.nan for i in df_labelled.markov_tag.unique()]})
                 null_df["tr_id"]=tr_id
                 null_df["location"]=loc
-                null_df["thresh"]=thresh
-                null_df["min_pts"]=min_points
+                null_df["thresh"]=loc_thresh
+                null_df["min_pts"]=loc_min_pts
                 null_df["valid_pts"]=valid_pts
                 null_df["reliable"]=valid_transect
 
@@ -293,6 +305,12 @@ def get_rbcd_transect(df_labelled, thresh, min_points, reliable_action, dirNameT
 
         sub = steady_state_tr.query(f"location=='{loc}'")
         sub = sub.pivot(index="markov_tag", columns="tr_id", values=("p"))
+
+        if len(sub.index)!=len(labels_order):
+            raise ValueError(f" The following magnitude labels are missing from the steady state dataset: {set(sub.index).symmetric_difference(set(labels_order))}.")
+        else:
+            pass
+
         sub = sub.loc[labels_order, :]
 
         # Create erosion and deposition sub-matrix
@@ -931,11 +949,11 @@ def compute_multitemporal (df,
                 print(f"Calculating dt{i}, from {date_pre} to {date_post} in {location}.")
 
                 if filter_class != None:
-                    df_pre=loc_data.query(f"{date_field} =='{date_pre}' & pt_class in {filter_classes_in}").dropna(subset=['z'])
-                    df_post=loc_data.query(f"{date_field} =='{date_post}' & pt_class in {filter_classes_in}").dropna(subset=['z'])
+                    df_pre=loc_data.query(f"{date_field} =={date_pre} & pt_class in {filter_classes_in}").dropna(subset=['z'])
+                    df_post=loc_data.query(f"{date_field} =={date_post} & pt_class in {filter_classes_in}").dropna(subset=['z'])
                 else:
-                    df_pre=loc_data.query(f"{date_field} =='{date_pre}'").dropna(subset=['z'])
-                    df_post=loc_data.query(f"{date_field} =='{date_post}'").dropna(subset=['z'])
+                    df_pre=loc_data.query(f"{date_field} =={date_pre}").dropna(subset=['z'])
+                    df_post=loc_data.query(f"{date_field} =={date_post}").dropna(subset=['z'])
 
                 merged=pd.merge(df_pre,df_post, how='inner', on='spatial_id', validate="one_to_one",suffixes=('_pre','_post'))
                 merged["dh"]=merged.z_post.astype(float) - merged.z_pre.astype(float)

@@ -63,7 +63,7 @@ def get_sil_location(merged_df, ks, feature_set, random_state=10):
             print(f"Working on : {location}, {survey_date_in}.")
 
             data_in = merged_df.query(
-                f"location=='{location}' & raw_date == '{survey_date_in}'"
+                f"location=='{location}' & raw_date == {survey_date_in}"
             )
             data_in = data_in[feature_set]
             data_in.dropna(inplace=True)
@@ -350,7 +350,7 @@ def kmeans_sa(merged_df, ks, feature_set, thresh_k=5, random_state=10):
         for survey_date_in in tqdm(list_dates):
 
             data_in = merged_df.query(
-                f"location=='{location}'& raw_date == '{survey_date_in}'"
+                f"location=='{location}'& raw_date == {survey_date_in}"
             )
             data_clean = data_in[feature_set].apply(pd.to_numeric)
 
@@ -421,7 +421,7 @@ def classify_labelk(labelled_dataset,l_dicts, cluster_field='label_k', fill_clas
 
         for raw_date in data_in_loc.raw_date.unique():
             loc_date_tag=f"{loc}_{raw_date}"
-            data_in=data_in_loc.query(f"raw_date=='{str(raw_date)}'")
+            data_in=data_in_loc.query(f"raw_date=={raw_date}")
 
             if loc_date_tag in all_keys:
 
@@ -482,7 +482,7 @@ def cleanit(to_clean, l_dicts, cluster_field='label_k', fill_class='sand',
 
             for raw_date in tqdm(label_corrections.query(f"location=='{loc}'").raw_date.unique()):
 
-                subset_finetune_polys=label_corrections.query(f"location=='{loc}' and raw_date== {int(raw_date)}")
+                subset_finetune_polys=label_corrections.query(f"location=='{loc}' and raw_date== {raw_date}")
 
                 for i,row in subset_finetune_polys.iterrows(): # loops through all the polygones
 
@@ -490,10 +490,10 @@ def cleanit(to_clean, l_dicts, cluster_field='label_k', fill_class='sand',
                     new_class=row['new_class']
 
                     if target_k != 999:
-                        data_in=to_clean_subset_loc.query(f"raw_date == '{str(raw_date)}' and label_k== {target_k}")
+                        data_in=to_clean_subset_loc.query(f"raw_date == {raw_date} and label_k== {target_k}")
 
                     elif target_k == 999:
-                        data_in=to_clean_subset_loc.query(f"raw_date == '{str(raw_date)}'")
+                        data_in=to_clean_subset_loc.query(f"raw_date == {raw_date}")
 
                     selection=data_in[data_in.coordinates.intersects(row.geometry)]
 
@@ -564,8 +564,8 @@ def cleanit(to_clean, l_dicts, cluster_field='label_k', fill_class='sand',
 
             for raw_date in tqdm(watermask.query(f"location=='{loc}'").raw_date.unique()):
 
-                subset_data=dataset_to_clean.query(f"location=='{loc}' and raw_date == '{str(raw_date)}'")
-                subset_masks=watermask.query(f"location=='{loc}' and raw_date == {int(raw_date)}")
+                subset_data=dataset_to_clean.query(f"location=='{loc}' and raw_date == {raw_date}")
+                subset_masks=watermask.query(f"location=='{loc}' and raw_date == {raw_date}")
 
                 selection=subset_data[subset_data.geometry.intersects(subset_masks.geometry)]
                 if selection.shape[0]==0:
