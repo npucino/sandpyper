@@ -676,23 +676,23 @@ def extract_from_folder(
         for i in tqdm(tr_list):
             if mode == "dsm":
                 temp = get_profiles(
-                    dsm,
-                    transect_file,
-                    i,
-                    sampling_step,
-                    location,
+                    dsm=dsm,
+                    transect_file=transect_file,
                     tr_ids=tr_ids,
+                    transect_index=i,
+                    step=sampling_step,
+                    location=location,
                     date_string=date_string,
                     add_xy=add_xy,
                     add_terrain=slope,
                 )
             elif mode == "ortho":
                 temp = get_profile_dn(
-                    dsm,
-                    transect_file,
-                    i,
-                    sampling_step,
-                    location,
+                    ortho=dsm,
+                    transect_file=transect_file,
+                    transect_index=i,
+                    step=sampling_step,
+                    location=location,
                     tr_ids=tr_ids,
                     date_string=date_string,
                     add_xy=add_xy,
