@@ -334,7 +334,6 @@ def kmeans_sa(merged_df, ks, feature_set, thresh_k=5, random_state=10):
 
     # Set a threshold k, in case a k is lower than 5, use the mean optimal k
     # of the other surveys above threshold
-    threshold = 5
 
     # # Compute the mean optimal k of above threshold ks
     if isinstance(ks, dict):

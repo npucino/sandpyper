@@ -13,7 +13,6 @@ import seaborn as sb
 from sandpyper.dynamics import get_rbcd_transect
 from tqdm.notebook import tqdm_notebook as tqdm
 from fuzzywuzzy import fuzz
-from itertools import chain
 import itertools
 
 from shapely.geometry import Point, Polygon
@@ -334,7 +333,7 @@ def extract_loc_date(name, loc_search_dict, split_by="_"):
 
 
 
-    names = set((os.path.split(name)[-1].split("_")))
+    names = set((os.path.split(name)[-1].split(split_by)))
 
     locations_search_names=list(loc_search_dict.values())
     locations_codes=list(loc_search_dict.keys())
@@ -366,7 +365,6 @@ def extract_loc_date(name, loc_search_dict, split_by="_"):
         scores_arr=np.array(scores) # just to safely use np.argmax on a specified dimension
 
         max_score_idx=scores_arr[:,:2].astype(int).argmax(0)[0] # returns the index of the maximum score in scores array
-        closest_loc_idx=scores[max_score_idx][0] # closest location found
         closest_loc_code_idx=scores[max_score_idx][1] # closest code found
 
         closest_word=scores[max_score_idx][-1]
@@ -377,20 +375,6 @@ def extract_loc_date(name, loc_search_dict, split_by="_"):
 
         return (loc_code, date)
 
-
-
-# def nmad(in_series):
-#     """
-#     Function to compute the Normalised Median Absolute Deviation (NMAD) using the absolute elevation difference (dh).
-#
-#     Warning: It needs astropy.stats module to be imported.
-#
-#     Args:
-#         in_series (series): series of dh (float)
-#     Returns:
-#         Float : NMAD
-#     """
-#     return 1.4826 * median_absolute_deviation(in_series)
 
 
 def polygonize_valid(

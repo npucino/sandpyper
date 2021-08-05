@@ -1,6 +1,6 @@
 """Profile module."""
 
-from rasterio.windows import Window, from_bounds
+from rasterio.windows import Window
 from rasterio.transform import rowcol
 import rasterio as ras
 import numpy as np
@@ -170,15 +170,6 @@ class ProfileSet():
 
         else:
             raise ValueError("lod_mode must be a path directing to the folder of lod profiles, a numerical value or None.")
-
-            lod_profiles=extract_from_folder(dataset_folder=self.ProfileSet.dirNameDSM,
-                transect_folder=lod,
-                tr_ids=tr_ids,
-                mode='dsm',sampling_step=self.ProfileSet.sampling_step,
-                list_loc_codes=self.ProfileSet.loc_codes,
-                add_xy=False,
-                add_slope=False,
-                default_nan_values=np.nan)
 
 
 

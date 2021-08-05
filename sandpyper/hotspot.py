@@ -12,7 +12,7 @@ import numpy as np
 from pysal.lib import weights
 import pysal.explore.esda.moran as moran
 from pysal.explore.esda.util import fdr
-from sandpyper.outils import coords_to_points, getListOfFiles, getLoc, spatial_id, create_details_df
+from sandpyper.outils import  getListOfFiles, getLoc, spatial_id, create_details_df
 from sandpyper.dynamics import get_coastal_Markov,  compute_multitemporal, get_lod_table, plot_lod_normality_check, get_rbcd_transect
 from sandpyper.volumetrics import (get_state_vol_table, get_transects_vol_table,
                                    plot_alongshore_change, plot_mec_evolution, plot_single_loc)
@@ -296,9 +296,29 @@ class ProfileDynamics():
         self.weights_dict={tag:class_abs_medians[re.findall(joined_re,tag)[0]] for tag in self.tags}
 
     def BCD_compute_location(self,unique_field, mode,store_neg, filterit):
-        '''filter (str): if None (default), all points will be used.
-        If 'lod' or 'hotspot', only points above the LoDs or statistically significant clusters (hot/coldspots)
-        will be retained. If 'both', both lod and hotspot filters will be applied.'''
+        """It computes all the first order stochastic transition matrices, based on the timeseries
+        of elevation change magnituteds across the beachface dataset (markov_tag dataframe), at the site level.
+
+        Warning: changing label order is not supported as submatrix partitioning is hard-coded.
+
+        Args:
+            dataset (dataframe): Dataframe with dh values timeseries.
+            weigth_dict (dict): dictionary containing each magnitude class as keys and value to be used to weigth each class as values.
+            This can be manually set or objectively returned by the infer_weights function (reccommended).
+            mode (float,"all","drop"): insert a float (default is 0.75) to indicate the percentage of time that
+            the points need to be significant clusters across the periods. The no cluster state is renamed "nnn".
+            Insert "drop" to remove all cluster to no-cluster transitions, or 'all' to keep them all and rename
+            cluster-to-no clsuter state 'nnn'.
+            unique_field (str) : The field contianing unique spatial IDs. Default is "geometry".
+            label_order: order to arrange the states in the first-order and steady-state matrices.
+            store_neg (bool): If True (default), use the subtraction for diminishing trends. Default True.
+            filter (str): if None (default), all points will be used.
+            If 'lod' or 'hotspot', only points above the LoDs or statistically significant clusters (hot/coldspots)
+            will be retained. If 'both', both lod and hotspot filters will be applied.
+        Returns:
+           Two dataframes. One is the e-BCDs and the second is the steady-state distribution dataframes.
+           Optionally plots the transition matrices and save them in the specified output folder.
+        """
 
         steady_state_victoria = pd.DataFrame()
         markov_indexes_victoria = pd.DataFrame()
@@ -347,7 +367,6 @@ class ProfileDynamics():
             elif isinstance(mode, float):
 
                 dts = len(dataset_piv.columns)
-                thrsh = int(mode * dts)
 
                 dataset_piv.dropna(axis=0, how="any", thresh=7, inplace=True)
                 dataset_piv.fillna("nnn", inplace=True)

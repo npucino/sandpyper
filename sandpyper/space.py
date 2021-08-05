@@ -22,11 +22,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sb
 from shapely.geometry import (
-    MultiLineString,
     LineString,
     Point,
     Polygon,
-    MultiPolygon,
     mapping,
     box,
 )
