@@ -50,6 +50,8 @@ nav:
     - Contributing: contributing.md
     - FAQ: faq.md
     - Report Issues: https://github.com//npucino//sandpyper//issues
+    - Methods:
+        - Elevation analysis: elevation_analysis.md
     - API Reference:
       - hotspot module: hotspot.md
       - outils module: outils.md
@@ -59,10 +61,7 @@ nav:
       - dynamics module: dynamics.md
       - space module: space.md
     - Notebooks:
-        - notebooks/Example_1_Profile_extraction.ipynb
-        - notebooks/Example_2_Sand_labelling.ipynb
-        - notebooks/Example_3_Labels_correction_and_multitemporal_table.ipynb
-        - notebooks/Example_4_Hotspot analysis.ipynb
-        - notebooks/Example_5a_Beachface Cluster Dynamics indices - location level.ipynb
-        - notebooks/Example_5b_Beachface Cluster Dynamics indices - transect level.ipynb
-        - notebooks/Example_6_Volumetrics.ipynb
+        - notebooks/Introduction and data preparation.ipynb
+        - notebooks/Profile dynamics.ipynb
+        - notebooks/Profiles extraction, unsupervised sand labelling and cleaning.ipynb
+        - notebooks/Space analysis - teaser.ipynb
