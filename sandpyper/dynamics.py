@@ -497,3 +497,123 @@ def compute_multitemporal (df,
 
     print("done")
     return fusion_long
+
+def sensitivity_tr_rbcd(df,
+                       test_thresholds='max',
+                       test_min_pts=[0,10,2]):
+
+    ss_tr_big=pd.DataFrame()
+
+    for loc in df.location.unique():
+        data_in=df.query(f"location=='{loc}'")
+        print(f"Working on {loc}.")
+
+        if test_thresholds=='max':
+            range_thresh=range(0,data_in.dt.unique().shape[0]+1)
+
+        else:
+            range_thresh=range(*test_thresholds)
+
+        if test_min_pts==None:
+            range_min_pts=range(0,20,2)
+        else:
+            range_min_pts=range(*test_min_pts)
+
+        combs = list(itertools.product(range_min_pts,range_thresh))
+        print(f"A total of {len(combs)} combinations of thresholds and min_pts will be computed.")
+
+        for i in tqdm(combs):
+            print(f"Working on threshold {i[1]} and min points {i[0]}.")
+            tmp_loc_specs_dict={loc:{'thresh':i[1],
+                            'min_points':i[0]}}
+
+            try:
+                ss_transects_idx = get_rbcd_transect(df_labelled=data_in,
+                      loc_specs=tmp_loc_specs_dict, reliable_action='drop',
+                      dirNameTrans=D.ProfileSet.dirNameTrans,
+                      labels_order=D.tags_order,
+                      loc_codes=D.ProfileSet.loc_codes,
+                      crs_dict_string=D.ProfileSet.crs_dict_string)
+
+                ss_transects_idx['thresh']=i[1]
+                ss_transects_idx['min_pts']=i[0]
+
+                ss_tr_big=pd.concat([ss_tr_big,ss_transects_idx], ignore_index=True)
+            except:
+                print("errore")
+
+                pass
+
+    return ss_tr_big
+
+def plot_sensitivity_rbcds_transects(df, location, x_ticks=[0,2,4,6,8],figsize=(7,4),
+                                     tr_xlims=(0,8), tr_ylims=(0,3), sign_ylims=(0,10)):
+
+
+    plt.rcParams['font.sans-serif'] = 'Arial'
+    plt.rcParams['font.family'] = 'sans-serif'
+    sb.set_context("paper", font_scale=1)
+
+    q_up_val=0.95
+    q_low_val=0.85
+
+
+    data_in=df.query(f"location == '{location}'")
+
+    list_minpts=data_in.min_pts.unique()
+    trs_res_ar=data_in.groupby(["tr_id","min_pts"])['residual'].apply(np.array).reset_index()
+    tot_trs=data_in.groupby(["thresh","min_pts"])['geometry'].count().reset_index()
+    tot_trs['trs_10']=tot_trs.geometry / 10
+    zero_crossings=pd.DataFrame([pd.Series({'tr_id':trs_res_ar.loc[i,'tr_id'],
+                                            'sign_change_thresh':np.where(np.diff(np.sign(trs_res_ar.iloc[i,-1])))[0][-1]+1,
+                                           'min_pts':trs_res_ar.loc[i,'min_pts']}) for i in range(trs_res_ar.shape[0]) if np.where(np.diff(np.sign(trs_res_ar.iloc[i,-1])))[0].shape[0] !=0])
+    tot_jumps=zero_crossings.groupby(["sign_change_thresh","min_pts"]).count().reset_index() # how many jumps per thresh and minpts
+
+    joined=pd.merge(tot_trs,tot_jumps, left_on=['thresh','min_pts'], right_on=['sign_change_thresh','min_pts'], how='left')
+    joined.rename({'geometry':'tot_trs',
+                  'tr_id':'tot_jumps'}, axis=1, inplace=True)
+
+
+    for minpts in list_minpts:
+
+        f,ax=plt.subplots(figsize=figsize)
+        ax2=ax.twinx()
+
+        datain=joined.query(f"min_pts=={minpts}")
+
+
+        sb.lineplot(x="thresh", y="tot_jumps",ci=None,
+                        data=datain,color='b',
+                       alpha=.4,linewidth=3,
+                    ax=ax2, label="sign changes")
+
+        sb.lineplot(data=datain,x='thresh',y='trs_10',
+                    alpha=.4,color='r',linewidth=3,
+                    ax=ax,label="transects * 10")
+
+
+        kde_x, kde_y = ax.lines[0].get_data()
+        kde_x2, kde_y2 = ax2.lines[0].get_data()
+        ax.fill_between(kde_x, kde_y,interpolate=True, color='r',alpha=0.5)
+        ax2.fill_between(kde_x2, kde_y2,interpolate=True,color='b',alpha=0.5)
+
+        ax.axhline((datain.tot_trs.fillna(0).max()*q_up_val)/10,c='k',ls='-',label='95%')
+        ax.axhline((datain.tot_trs.fillna(0).max()*q_low_val)/10,c='k',lw=2.5,ls='--',label='85%')
+
+        ax.set_ylabel('n. transects x 10', c='r')
+        ax.set_xlabel('t')
+        ax2.set_ylabel('sign changes', c='b')
+        ax2.set_ylim(sign_ylims)
+        ax.set_ylim(tr_ylims)
+        ax.set_xlim(tr_xlims)
+
+
+        plt.tight_layout()
+        ax.get_legend().remove()
+        ax2.get_legend().remove()
+
+
+        plt.xticks(x_ticks)
+
+        ax.set_title(f"pt: {minpts}")
+        plt.tight_layout()

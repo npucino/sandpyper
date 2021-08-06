@@ -10,12 +10,12 @@ import numpy as np
 import pandas as pd
 import geopandas as gpd
 import seaborn as sb
-from sandpyper.dynamics import get_rbcd_transect
 from tqdm.notebook import tqdm_notebook as tqdm
 from fuzzywuzzy import fuzz
 import itertools
-
-from shapely.geometry import Point, Polygon
+import math
+from shapely.ops import split, snap
+from shapely.geometry import Point, Polygon,LineString
 
 import rasterio as ras
 from rasterio import features
@@ -762,122 +762,134 @@ def create_details_df (dh_df, loc_full, fmt='%Y%m%d'):
 
     return locs_dt_str
 
-def sensitivity_tr_rbcd(df,
-                       test_thresholds='max',
-                       test_min_pts=[0,10,2]):
 
-    ss_tr_big=pd.DataFrame()
 
-    for loc in df.location.unique():
-        data_in=df.query(f"location=='{loc}'")
-        print(f"Working on {loc}.")
+def getAngle(pt1, pt2):
+    """Helper function to return the angle of two points (pt1 and pt2) coordinates in degrees.
+    Source: http://wikicode.wikidot.com/get-angle-of-line-between-two-points"""
 
-        if test_thresholds=='max':
-            range_thresh=range(0,data_in.dt.unique().shape[0]+1)
+    x_diff = pt2[0] - pt1[0]
+    y_diff = pt2[1] - pt1[1]
+    return math.degrees(math.atan2(y_diff, x_diff))
 
-        else:
-            range_thresh=range(*test_thresholds)
 
-        if test_min_pts==None:
-            range_min_pts=range(0,20,2)
-        else:
-            range_min_pts=range(*test_min_pts)
+def getPoint1(pt, bearing, dist):
+    """Helper function to return the point coordinates at a determined distance (dist) and bearing from a starting point (pt)."""
 
-        combs = list(itertools.product(range_min_pts,range_thresh))
-        print(f"A total of {len(combs)} combinations of thresholds and min_pts will be computed.")
+    angle = bearing + 90
+    bearing = math.radians(angle)
+    x = pt[0] + dist * math.cos(bearing)
+    y = pt[1] + dist * math.sin(bearing)
+    return Point(x, y)
 
-        for i in tqdm(combs):
-            print(f"Working on threshold {i[1]} and min points {i[0]}.")
-            tmp_loc_specs_dict={loc:{'thresh':i[1],
-                            'min_points':i[0]}}
 
+def getPoint2(pt, bearing, dist):
+    bearing = math.radians(bearing)
+    x = pt[0] + dist * math.cos(bearing)
+    y = pt[1] + dist * math.sin(bearing)
+    return Point(x, y)
+
+
+def split_transects(geom, side="left"):
+    """Helper function to split transects geometry normal to shoreline, retaining only their left (default) or right side."""
+
+    side_dict = {"left": 0, "right": 1}
+    snapped = snap(geom, geom.centroid, 0.001)
+    result = split(snapped, geom.centroid)
+    return result[side_dict[side]]
+
+
+def create_transects(baseline, sampling_step, tick_length, location, crs, side="both"):
+    """Creates a GeoDataFrame with transects normal to the baseline, with defined spacing and length.
+
+    Args:
+        baseline (gdf): baseline geodataframe.
+        sampling_step (int,float): alognshore spacing of transects in the CRS reference unit.
+        tick_length (int,float): transects length
+        location (str): location code
+        crs (): coordinate reference system to georeference the transects. It must be in dictionary form.
+        side ("both", "left", "right"): If "both", the transects will be centered on the baseline. If "left" or "right", transects will start from the baseline and extend to the left/right of it.
+    Returns:
+        Geodataframe of transects.
+    """
+
+    if side != "both":
+        tick_length = 2 * tick_length
+    else:
+        pass
+
+    if sampling_step == 0 or sampling_step >= baseline.length.values[0]:
+        raise ValueError(f"Sampling step provided ({sampling_step}) cannot be zero or equal or greater than the baseline length ({baseline.length.values[0]}).")
+    else:
+        try:
+            dists = np.arange(0, baseline.geometry.length[0], sampling_step)
+        except BaseException:
             try:
-                ss_transects_idx = get_rbcd_transect(df_labelled=data_in,
-                      loc_specs=tmp_loc_specs_dict, reliable_action='drop',
-                      dirNameTrans=D.ProfileSet.dirNameTrans,
-                      labels_order=D.tags_order,
-                      loc_codes=D.ProfileSet.loc_codes,
-                      crs_dict_string=D.ProfileSet.crs_dict_string)
+                dists = np.arange(0, baseline.geometry.length, sampling_step)
+            except BaseException:
+                dists = np.arange(0, baseline.geometry.length.values[0], sampling_step)
 
-                ss_transects_idx['thresh']=i[1]
-                ss_transects_idx['min_pts']=i[0]
+        points_coords = []
+        try:
+            for j in [baseline.geometry.interpolate(i) for i in dists]:
+                points_coords.append((j.geometry.x[0], j.geometry.y[0]))
+        except BaseException:
+            for j in [baseline.geometry.interpolate(i) for i in dists]:
+                points_coords.append((j.geometry.x, j.geometry.y))
 
-                ss_tr_big=pd.concat([ss_tr_big,ss_transects_idx], ignore_index=True)
-            except:
-                print("errore")
+                # create transects as Shapely linestrings
 
-                pass
+        ticks = []
+        for num, pt in enumerate(points_coords, 1):
+            # start chainage 0
+            if num == 1:
+                angle = getAngle(pt, points_coords[num])
+                line_end_1 = getPoint1(pt, angle, tick_length / 2)
+                angle = getAngle([line_end_1.x, line_end_1.y], pt)
+                line_end_2 = getPoint2([line_end_1.x, line_end_1.y], angle, tick_length)
+                tick = LineString(
+                    [(line_end_1.x, line_end_1.y), (line_end_2.x, line_end_2.y)]
+                )
 
-    return ss_tr_big
+            ## everything in between
+            if num < len(points_coords) - 1:
+                angle = getAngle(pt, points_coords[num])
+                line_end_1 = getPoint1(points_coords[num], angle, tick_length / 2)
+                angle = getAngle([line_end_1.x, line_end_1.y], points_coords[num])
+                line_end_2 = getPoint2([line_end_1.x, line_end_1.y], angle, tick_length)
+                tick = LineString(
+                    [(line_end_1.x, line_end_1.y), (line_end_2.x, line_end_2.y)]
+                )
 
-def plot_sensitivity_rbcds_transects(df, location, x_ticks=[0,2,4,6,8],figsize=(7,4),
-                                     tr_xlims=(0,8), tr_ylims=(0,3), sign_ylims=(0,10)):
+            # end chainage
+            if num == len(points_coords):
+                angle = getAngle(points_coords[num - 2], pt)
+                line_end_1 = getPoint1(pt, angle, tick_length / 2)
+                angle = getAngle([line_end_1.x, line_end_1.y], pt)
+                line_end_2 = getPoint2([line_end_1.x, line_end_1.y], angle, tick_length)
+                tick = LineString(
+                    [(line_end_1.x, line_end_1.y), (line_end_2.x, line_end_2.y)]
+                )
 
+            ticks.append(tick)
 
-    plt.rcParams['font.sans-serif'] = 'Arial'
-    plt.rcParams['font.family'] = 'sans-serif'
-    sb.set_context("paper", font_scale=1)
+        gdf_transects = gpd.GeoDataFrame(
+            {
+                "tr_id": range(len(ticks)),
+                "geometry": ticks,
+                "location": [location for i in range(len(ticks))],
+            },
+            crs=crs,
+        )
 
-    q_up_val=0.95
-    q_low_val=0.85
+        # clip the transects
 
+        if side == "both":
+            pass
+        else:
 
-    data_in=df.query(f"location == '{location}'")
+            gdf_transects["geometry"] = gdf_transects.geometry.apply(
+                split_transects, **{"side": side}
+            )
 
-    list_minpts=data_in.min_pts.unique()
-    trs_res_ar=data_in.groupby(["tr_id","min_pts"])['residual'].apply(np.array).reset_index()
-    tot_trs=data_in.groupby(["thresh","min_pts"])['geometry'].count().reset_index()
-    tot_trs['trs_10']=tot_trs.geometry / 10
-    zero_crossings=pd.DataFrame([pd.Series({'tr_id':trs_res_ar.loc[i,'tr_id'],
-                                            'sign_change_thresh':np.where(np.diff(np.sign(trs_res_ar.iloc[i,-1])))[0][-1]+1,
-                                           'min_pts':trs_res_ar.loc[i,'min_pts']}) for i in range(trs_res_ar.shape[0]) if np.where(np.diff(np.sign(trs_res_ar.iloc[i,-1])))[0].shape[0] !=0])
-    tot_jumps=zero_crossings.groupby(["sign_change_thresh","min_pts"]).count().reset_index() # how many jumps per thresh and minpts
-
-    joined=pd.merge(tot_trs,tot_jumps, left_on=['thresh','min_pts'], right_on=['sign_change_thresh','min_pts'], how='left')
-    joined.rename({'geometry':'tot_trs',
-                  'tr_id':'tot_jumps'}, axis=1, inplace=True)
-
-
-    for minpts in list_minpts:
-
-        f,ax=plt.subplots(figsize=figsize)
-        ax2=ax.twinx()
-
-        datain=joined.query(f"min_pts=={minpts}")
-
-
-        sb.lineplot(x="thresh", y="tot_jumps",ci=None,
-                        data=datain,color='b',
-                       alpha=.4,linewidth=3,
-                    ax=ax2, label="sign changes")
-
-        sb.lineplot(data=datain,x='thresh',y='trs_10',
-                    alpha=.4,color='r',linewidth=3,
-                    ax=ax,label="transects * 10")
-
-
-        kde_x, kde_y = ax.lines[0].get_data()
-        kde_x2, kde_y2 = ax2.lines[0].get_data()
-        ax.fill_between(kde_x, kde_y,interpolate=True, color='r',alpha=0.5)
-        ax2.fill_between(kde_x2, kde_y2,interpolate=True,color='b',alpha=0.5)
-
-        ax.axhline((datain.tot_trs.fillna(0).max()*q_up_val)/10,c='k',ls='-',label='95%')
-        ax.axhline((datain.tot_trs.fillna(0).max()*q_low_val)/10,c='k',lw=2.5,ls='--',label='85%')
-
-        ax.set_ylabel('n. transects x 10', c='r')
-        ax.set_xlabel('t')
-        ax2.set_ylabel('sign changes', c='b')
-        ax2.set_ylim(sign_ylims)
-        ax.set_ylim(tr_ylims)
-        ax.set_xlim(tr_xlims)
-
-
-        plt.tight_layout()
-        ax.get_legend().remove()
-        ax2.get_legend().remove()
-
-
-        plt.xticks(x_ticks)
-
-        ax.set_title(f"pt: {minpts}")
-        plt.tight_layout()
+        return gdf_transects
