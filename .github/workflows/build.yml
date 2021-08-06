@@ -43,6 +43,6 @@ jobs:
                   pip install --user -r requirements_dev.txt
                   conda install -c conda-forge ipywidgets
 
-            - name: PKG-TEST
-              run: |
-                  python -m unittest discover tests/
+            #- name: PKG-TEST
+             # run: |
+              #    python -m unittest discover tests/
