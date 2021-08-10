@@ -408,7 +408,6 @@ def classify_labelk(labelled_dataset,l_dicts, cluster_field='label_k', fill_clas
     check_dicts_duplicated_values(l_dicts)
 
     labelled_dataset["pt_class"]=np.nan
-    print(type(labelled_dataset))
 
     all_keys = set().union(*(d.keys() for d in [i for i in l_dicts.values()]))
     class_names=l_dicts.keys()
@@ -446,7 +445,6 @@ def classify_labelk(labelled_dataset,l_dicts, cluster_field='label_k', fill_clas
     merged=labelled_dataset.iloc[:,:-1].merge(right=classed_df[['point_id','pt_class']], on='point_id', how='left')
 
     merged["pt_class"].fillna(fill_class, inplace=True)
-    print(type(merged))
     return merged
 
 
@@ -467,50 +465,52 @@ def cleanit(to_clean, l_dicts, cluster_field='label_k', fill_class='sand',
 
     #______ LABELS FINETUNING_______________
 
-    if label_corrections_path != None and os.path.isfile(label_corrections_path):
-        label_corrections=gpd.read_file(label_corrections_path)
-        print(f"Label corrections provided in CRS: {label_corrections.crs}")
-        processes.append("polygon finetuning")
-        to_update_finetune=pd.DataFrame()
+    if label_corrections_path != None:
+        if os.path.isfile(label_corrections_path):
+            label_corrections=gpd.read_file(label_corrections_path)
+            print(f"Label corrections provided in CRS: {label_corrections.crs}")
+            processes.append("polygon finetuning")
+            to_update_finetune=pd.DataFrame()
 
 
-        for loc in label_corrections.location.unique():
-            print(f"Fine tuning in {loc}.")
+            for loc in label_corrections.location.unique():
+                print(f"Fine tuning in {loc}.")
 
-            to_clean_subset_loc=to_clean_classified.query(f" location == '{loc}'")
+                to_clean_subset_loc=to_clean_classified.query(f" location == '{loc}'")
 
-            for raw_date in tqdm(label_corrections.query(f"location=='{loc}'").raw_date.unique()):
+                for raw_date in tqdm(label_corrections.query(f"location=='{loc}'").raw_date.unique()):
 
-                subset_finetune_polys=label_corrections.query(f"location=='{loc}' and raw_date== {raw_date}")
+                    subset_finetune_polys=label_corrections.query(f"location=='{loc}' and raw_date== {raw_date}")
 
-                for i,row in subset_finetune_polys.iterrows(): # loops through all the polygones
+                    for i,row in subset_finetune_polys.iterrows(): # loops through all the polygones
 
-                    target_k=int(row['target_label_k'])
-                    new_class=row['new_class']
+                        target_k=int(row['target_label_k'])
+                        new_class=row['new_class']
 
-                    if target_k != 999:
-                        data_in=to_clean_subset_loc.query(f"raw_date == {raw_date} and label_k== {target_k}")
+                        if target_k != 999:
+                            data_in=to_clean_subset_loc.query(f"raw_date == {raw_date} and label_k== {target_k}")
 
-                    elif target_k == 999:
-                        data_in=to_clean_subset_loc.query(f"raw_date == {raw_date}")
+                        elif target_k == 999:
+                            data_in=to_clean_subset_loc.query(f"raw_date == {raw_date}")
 
-                    selection=data_in[data_in.coordinates.intersects(row.geometry)]
+                        selection=data_in[data_in.coordinates.intersects(row.geometry)]
 
-                    if selection.shape[0]==0:
-                        selection=data_in[data_in.to_crs(crs_dict_string[loc]).coordinates.intersects(row.geometry)]
-                    else:
-                        pass
-                    selection["finetuned_label"]=new_class
+                        if selection.shape[0]==0:
+                            selection=data_in[data_in.to_crs(crs_dict_string[loc]).coordinates.intersects(row.geometry)]
+                        else:
+                            pass
+                        selection["finetuned_label"]=new_class
 
-                    print(f"Fine-tuning label_k {target_k} to {new_class} in {loc}-{raw_date}, found {selection.shape[0]} pts.")
-                    to_update_finetune=pd.concat([selection,to_update_finetune], ignore_index=True)
+                        print(f"Fine-tuning label_k {target_k} to {new_class} in {loc}-{raw_date}, found {selection.shape[0]} pts.")
+                        to_update_finetune=pd.concat([selection,to_update_finetune], ignore_index=True)
 
-        classed_df_finetuned=to_clean_classified.merge(right=to_update_finetune.loc[:,['point_id','finetuned_label']], # Left Join
-                                     how='left', validate='one_to_one')
+            classed_df_finetuned=to_clean_classified.merge(right=to_update_finetune.loc[:,['point_id','finetuned_label']], # Left Join
+                                         how='left', validate='one_to_one')
 
-        classed_df_finetuned.finetuned_label.fillna(classed_df_finetuned.pt_class, inplace=True) # Fill NaN with previous sand labels
+            classed_df_finetuned.finetuned_label.fillna(classed_df_finetuned.pt_class, inplace=True) # Fill NaN with previous sand labels
+        else:
+            raise NameError("Label correction file path is invalid.")
 
-        print(type(classed_df_finetuned))
 
     else:
         pass
@@ -539,121 +539,127 @@ def cleanit(to_clean, l_dicts, cluster_field='label_k', fill_class='sand',
 
     #______ WATERMASKING_______________
 
-    if watermasks_path != None and os.path.isfile(watermasks_path):
-        # apply watermasks
-        watermask=gpd.read_file(watermasks_path)
-        print(f"watermask  provided in CRS: {watermask.crs}")
+    if watermasks_path != None:
+        if os.path.isfile(watermasks_path):
+            # apply watermasks
+            watermask=gpd.read_file(watermasks_path)
+            print(f"watermask  provided in CRS: {watermask.crs}")
 
 
-        print("Applying watermasks cleaning.")
-        processes.append("watermasking")
+            print("Applying watermasks cleaning.")
+            processes.append("watermasking")
 
-        if "polygon finetuning" in processes:
-            dataset_to_clean=classed_df_finetuned
-            starting_labels='finetuned_label'
-        else:
-            dataset_to_clean=to_clean_classified
-            starting_labels='pt_class'
+            if "polygon finetuning" in processes:
+                dataset_to_clean=classed_df_finetuned
+                starting_labels='finetuned_label'
+            else:
+                dataset_to_clean=to_clean_classified
+                starting_labels='pt_class'
 
 
-        to_update_watermasked=pd.DataFrame()
+            to_update_watermasked=pd.DataFrame()
 
-        for loc in watermask.location.unique():
-            print(f"Watermasking in {loc}.")
+            for loc in watermask.location.unique():
+                print(f"Watermasking in {loc}.")
 
-            for raw_date in tqdm(watermask.query(f"location=='{loc}'").raw_date.unique()):
+                for raw_date in tqdm(watermask.query(f"location=='{loc}'").raw_date.unique()):
 
-                subset_data=dataset_to_clean.query(f"location=='{loc}' and raw_date == {raw_date}")
-                subset_masks=watermask.query(f"location=='{loc}' and raw_date == {raw_date}")
+                    subset_data=dataset_to_clean.query(f"location=='{loc}' and raw_date == {raw_date}")
+                    subset_masks=watermask.query(f"location=='{loc}' and raw_date == {raw_date}")
 
-                selection=subset_data[subset_data.geometry.intersects(subset_masks.geometry)]
-                if selection.shape[0]==0:
-                    selection=subset_data[subset_data.geometry.intersects(subset_masks.to_crs(crs_dict_string[loc]).geometry.any())]
+                    selection=subset_data[subset_data.geometry.intersects(subset_masks.geometry)]
+                    if selection.shape[0]==0:
+                        selection=subset_data[subset_data.geometry.intersects(subset_masks.to_crs(crs_dict_string[loc]).geometry.any())]
+                    else:
+                        pass
+
+                    print(f"Setting to {water_label} {selection.shape[0]} pts overlapping provided watermasks.")
+
+                    selection["watermasked_label"]=water_label
+
+                    to_update_watermasked=pd.concat([selection,to_update_watermasked], ignore_index=True)
+
+            classed_df_watermasked=dataset_to_clean.merge(right=to_update_watermasked.loc[:,['point_id','watermasked_label']], # Left Join
+                                         how='left', validate='one_to_one')
+            classed_df_watermasked.watermasked_label.fillna(classed_df_watermasked.loc[:,starting_labels], inplace=True) # Fill NaN with previous sand labels
+
+            if shoremasks_path == None:
+                print(f"{processes} completed.")
+
+                if 'watermasked_label' in classed_df_watermasked.columns and 'finetuned_label' not in classed_df_watermasked.columns:
+                    classed_df_watermasked['pt_class']=classed_df_watermasked.watermasked_label
+                    classed_df_watermasked.drop(['watermasked_label'], axis=1, inplace=True)
+
+                elif 'finetuned_label' in classed_df_watermasked.columns and 'watermasked_label' not in classed_df_watermasked.columns:
+                    classed_df_watermasked['pt_class']=classed_df_watermasked.finetuned_label
+                    classed_df_watermasked.drop(['finetuned_label'], axis=1, inplace=True)
+
+                elif 'finetuned_label' in classed_df_watermasked.columns and 'watermasked_label' in classed_df_watermasked.columns:
+                    classed_df_watermasked['pt_class']=classed_df_watermasked.watermasked_label
+                    classed_df_watermasked.drop(['finetuned_label','watermasked_label'], axis=1, inplace=True)
+
                 else:
                     pass
 
-                print(f"Setting to {water_label} {selection.shape[0]} pts overlapping provided watermasks.")
-
-                selection["watermasked_label"]=water_label
-
-                to_update_watermasked=pd.concat([selection,to_update_watermasked], ignore_index=True)
-
-        classed_df_watermasked=dataset_to_clean.merge(right=to_update_watermasked.loc[:,['point_id','watermasked_label']], # Left Join
-                                     how='left', validate='one_to_one')
-        classed_df_watermasked.watermasked_label.fillna(classed_df_watermasked.loc[:,starting_labels], inplace=True) # Fill NaN with previous sand labels
-
-        if shoremasks_path == None:
-            print(f"{processes} completed.")
-
-            if 'watermasked_label' in classed_df_watermasked.columns and 'finetuned_label' not in classed_df_watermasked.columns:
-                classed_df_watermasked['pt_class']=classed_df_watermasked.watermasked_label
-                classed_df_watermasked.drop(['watermasked_label'], axis=1, inplace=True)
-
-            elif 'finetuned_label' in classed_df_watermasked.columns and 'watermasked_label' not in classed_df_watermasked.columns:
-                classed_df_watermasked['pt_class']=classed_df_watermasked.finetuned_label
-                classed_df_watermasked.drop(['finetuned_label'], axis=1, inplace=True)
-
-            elif 'finetuned_label' in classed_df_watermasked.columns and 'watermasked_label' in classed_df_watermasked.columns:
-                classed_df_watermasked['pt_class']=classed_df_watermasked.watermasked_label
-                classed_df_watermasked.drop(['finetuned_label','watermasked_label'], axis=1, inplace=True)
-
-            else:
-                pass
-
-            return classed_df_watermasked
+                return classed_df_watermasked
+        else:
+            raise NameError("watermask file path is invalid.")
 
     else:
         pass
 
     #______ SHOREMASKING_______________
 
-    if shoremasks_path != None and os.path.isfile(shoremasks_path):
-        # apply shoremasks
-        shoremask=gpd.read_file(shoremasks_path)
-        print(f"shoremask  provided in CRS: {shoremask.crs}")
-        print("Applying shoremasks cleaning.")
-        processes.append("shoremasking")
+    if shoremasks_path != None:
+        if os.path.isfile(shoremasks_path):
+            # apply shoremasks
+            shoremask=gpd.read_file(shoremasks_path)
+            print(f"shoremask  provided in CRS: {shoremask.crs}")
+            print("Applying shoremasks cleaning.")
+            processes.append("shoremasking")
 
 
-        if "polygon finetuning" in processes and "watermasking" not in processes:
-            dataset_to_clean=classed_df_finetuned
-        elif "polygon finetuning" not in processes and "watermasking" in processes:
-            dataset_to_clean=classed_df_watermasked
-        elif "polygon finetuning"  in processes and "watermasking" in processes:
-            dataset_to_clean=classed_df_watermasked
-        else:
-            dataset_to_clean=to_clean_classified
-
-        inshore_cleaned=gpd.GeoDataFrame()
-        for loc in shoremask.location.unique():
-            print(f"Shoremasking in {loc}.")
-
-            shore=shoremask.query(f"location=='{loc}'")
-            loc_selection=dataset_to_clean.query(f"location=='{loc}'")
-            in_shore=loc_selection[loc_selection.geometry.intersects(shore.geometry)]
-            if in_shore.shape[0]>=1:
-                pass
+            if "polygon finetuning" in processes and "watermasking" not in processes:
+                dataset_to_clean=classed_df_finetuned
+            elif "polygon finetuning" not in processes and "watermasking" in processes:
+                dataset_to_clean=classed_df_watermasked
+            elif "polygon finetuning"  in processes and "watermasking" in processes:
+                dataset_to_clean=classed_df_watermasked
             else:
-                in_shore=loc_selection[loc_selection.geometry.intersects(shore.to_crs(crs_dict_string[loc]).geometry.any())]
+                dataset_to_clean=to_clean_classified
 
-            print(f"Removing {loc_selection.shape[0] - in_shore.shape[0]} pts falling outside provided shore polygones.")
-            inshore_cleaned=pd.concat([in_shore,inshore_cleaned], ignore_index=True)
+            inshore_cleaned=gpd.GeoDataFrame()
+            for loc in shoremask.location.unique():
+                print(f"Shoremasking in {loc}.")
 
-    print(f"{processes} completed.")
+                shore=shoremask.query(f"location=='{loc}'")
+                loc_selection=dataset_to_clean.query(f"location=='{loc}'")
+                in_shore=loc_selection[loc_selection.geometry.intersects(shore.geometry)]
+                if in_shore.shape[0]>=1:
+                    pass
+                else:
+                    in_shore=loc_selection[loc_selection.geometry.intersects(shore.to_crs(crs_dict_string[loc]).geometry.any())]
 
-    if 'watermasked_label' in inshore_cleaned.columns and 'finetuned_label' not in inshore_cleaned.columns:
-        inshore_cleaned['pt_class']=inshore_cleaned.watermasked_label
-        inshore_cleaned.drop(['watermasked_label'], axis=1, inplace=True)
+                print(f"Removing {loc_selection.shape[0] - in_shore.shape[0]} pts falling outside provided shore polygones.")
+                inshore_cleaned=pd.concat([in_shore,inshore_cleaned], ignore_index=True)
 
-    elif 'finetuned_label' in inshore_cleaned.columns and 'watermasked_label' not in inshore_cleaned.columns:
-        inshore_cleaned['pt_class']=inshore_cleaned.finetuned_label
-        inshore_cleaned.drop(['finetuned_label'], axis=1, inplace=True)
+            print(f"{processes} completed.")
 
-    elif 'finetuned_label' in inshore_cleaned.columns and 'watermasked_label' in inshore_cleaned.columns:
-        inshore_cleaned['pt_class']=inshore_cleaned.watermasked_label
-        inshore_cleaned.drop(['finetuned_label','watermasked_label'], axis=1, inplace=True)
+            if 'watermasked_label' in inshore_cleaned.columns and 'finetuned_label' not in inshore_cleaned.columns:
+                inshore_cleaned['pt_class']=inshore_cleaned.watermasked_label
+                inshore_cleaned.drop(['watermasked_label'], axis=1, inplace=True)
 
-    else:
-        pass
+            elif 'finetuned_label' in inshore_cleaned.columns and 'watermasked_label' not in inshore_cleaned.columns:
+                inshore_cleaned['pt_class']=inshore_cleaned.finetuned_label
+                inshore_cleaned.drop(['finetuned_label'], axis=1, inplace=True)
 
-    return inshore_cleaned
+            elif 'finetuned_label' in inshore_cleaned.columns and 'watermasked_label' in inshore_cleaned.columns:
+                inshore_cleaned['pt_class']=inshore_cleaned.watermasked_label
+                inshore_cleaned.drop(['finetuned_label','watermasked_label'], axis=1, inplace=True)
+
+            else:
+                pass
+
+            return inshore_cleaned
+        else:
+            raise NameError("shoremask file path is invalid.")

@@ -1123,8 +1123,8 @@ def plot_single_loc(
         raise TypeError("Error in specifying color dictionary.")
 
     dataset_in = df.query(f"location in {loc_subset}")
-    dataset_in["date_from_dt"] = pd.to_datetime(dataset_in.date_from, dayfirst=False)
-    dataset_in["date_to_dt"] = pd.to_datetime(dataset_in.date_to, dayfirst=False)
+    dataset_in["date_from_dt"] = pd.to_datetime(dataset_in.date_from, format="%Y%m%d", dayfirst=False)
+    dataset_in["date_to_dt"] = pd.to_datetime(dataset_in.date_to, format="%Y%m%d", dayfirst=False)
 
     for i, location in enumerate(dataset_in.location.unique()):
 
