@@ -1,0 +1,111 @@
+# Methods for sand labelling and classification
+
+<center> <img src="images/transects_classes.png" alt="sand no sand classification" width="300"/></center>
+<br>
+
+As the Structure from Motion pipeline assumes tie-points to be fixed during multi-view stereo-pairing, the swash zone created obvious artifacts that would interfere with an accurate representation of the beach topography. Its extent and location is highly dynamic, due to the combined effect of tidal and water level variations, planimetric beach adjustments and variable survey times.  
+Also, dune vegetation, beach wracks and anything that was neither sand nor a fixed feature (like rock walls or fences) on the beach needed to be removed to exclusively obtain sand-specific volumetric changes and accurate profiles evolution.
+For this reason, Sandpyper uses a machine learning algorithm to semi-automatically classify sand and non-sand points (objects, seaweed wracks, vegetation), facilitating the cleaning of big datasets.
+
+In order to classify sand and no-sand points sampled across transects, Sandpyper facilitates the use of Silhouette Analysis (SA) method to propose a sub-optimal __number of clusters k__ to be used by the unsupervised KMeans clustering algorithm. Following the unsupervised procedure, Sandpyper helps in further cleaning the dataset by providing it with correction polygons (in case the user wants to fine-tune the KMeans assigned labels), watermasks (to further mask out water and swash) and shoremasks (to clip the area of study to not too far landward from the foredune, if existent).
+
+A typical Sandpyper pipeline consists of:
+
+1. Automated iterative Silhouette Analysis with inflexion point search at the site level, implemented with `get_sil_location()` function
+2. Inflexion points search, implemented with `get_opt_k()` function
+3. Run KMeans with the identified sub-optimal k, implemented with the `ProfileSet.kmeans_sa()` method.
+4. Visual assesment of KMeans generated labels and creation of class dictionaries and correction polygons in a GIS
+5. Semi-automated classification and cleaning, implemented with `ProfileSet.cleanit()` method.
+
+
+## Unsupervised clustering with KMeans
+KMeans is one of the most used, versatile and readily available clustering algorithms in data mining ([Wu et al., 2007](http://dx.doi.org/10.1007/s10115-007-0114-2)) and
+showed its value on partitioning SfM-MVS derived coastal point clouds ([Callow et al., 2018](http://dx.doi.org/10.1007/s10115-007-0114-2)).
+For a general overview of clustering algorithms with specific attention on KMeans algorithm,
+please refer to [Jain (2010)](https://www.sciencedirect.com/science/article/abs/pii/S0167865509002323?via%3Dihub).
+
+Sandpyper implements Elkan's KMeans algorithm ([Elkan, 2003](https://www.aaai.org/Papers/ICML/2003/ICML03-022.pdf)) with triangle inequality acceleration via [sklearn](https://scikit-learn.org/stable/modules/generated/sklearn.cluster.KMeans.html) package, with the following parameters:
+1. initial cluster centers selected with k-means++
+2. 300 maximum iterations per run
+3. inertial tolerance of 0.0001
+4. precomputed distances if n_samples * n_clusters < 12 million
+
+Have a look at this short and easy video about the intuition of KMeans.
+
+<center> <a href="https://www.youtube.com/watch?v=4b5d3muPQmA
+" target="_blank"><img src="images/kmeans.jpg"
+alt="StatQuest: K-means clustering - by Josh Starmer" width="240" height="180" border="3" /></a></center>
+
+## Silhouette Analysis (SA)
+
+The Silhouette Analysis (SA) method is a simple graphical and analytical method to measure how tight and compact the clusters are (overall), while also indicating how well each observation fits (silhouette coefficient) within the assigned partition or cluster ([Rousseeuw, 1987](https://www.sciencedirect.com/science/article/pii/0377042787901257?via%3Dihub)).
+
+For instance, let’s consider N=11 observations partitioned into k=3 clusters A,B,C and observation  <img src="https://bit.ly/3CzNTRH" align="center" border="0" alt="i_A" width="18" height="17" /> assigned to cluster A. In the following diagram, the feature space has been limited to 2 features for illustration purposes.
+
+
+<center> <img src="images/sa_diagr.png" alt="Silhouette diagram" width="300"/></center>
+
+SA in the example can be summarised in the following steps:
+1. <img src="https://bit.ly/3CEFUCT" align="center" border="0" alt="\overline d_{iA}" width="26" height="19" />: Compute the mean dissimilarity of  <img src="https://bit.ly/3CzNTRH" align="center" border="0" alt="i_A" width="18" height="17" /> to the other elements within A.
+2. <img src="https://bit.ly/3AvVZJs" align="center" border="0" alt="d_{i\neq A}" width="35" height="18" />: Compute the mean dissimilarity of  <img src="https://bit.ly/3CzNTRH" align="center" border="0" alt="i_A" width="18" height="17" /> to the other elements of any remaining clusters different than A.
+3. <img src="https://bit.ly/3lQ6fYG" align="center" border="0" alt="\min\funcapply(\ \overline d_{i\neq A\ })" width="85" height="21" />: find  <img src="https://bit.ly/2VBuKyn" align="center" border="0" alt=" x_{closest} " width="49" height="12" /> other cluster (neighbour) by finding the minimum <img src="https://bit.ly/3jHWaKX" align="center" border="0" alt="{\overline{d}}_{i\neq A}" width="35" height="21" />
+
+In the example, <img src="https://bit.ly/3yEAgOL" align="center" border="0" alt="\min{\left(\ {\overline{d}}_{i\neq A}\right)}={\overline{d}}_{iC}" width="129" height="22" />, in fact it is easily seen that the average lengths of all segments connecting <img src="https://bit.ly/3CzNTRH" align="center" border="0" alt="i_A" width="18" height="17" /> to the elements in cluster C is smaller than that of <img src="https://bit.ly/3CzNTRH" align="center" border="0" alt="i_A" width="18" height="17" />  to cluster B.
+The neighbour C could be considered  as a potential candidate for a misinterpreted partitioning from the clustering algorithm (KMeans, in our case). Thus, the silhouette coefficient <img src="https://bit.ly/3CBc56j" align="center" border="0" alt="s" width="12" height="10" /> of <img src="https://bit.ly/3CzNTRH" align="center" border="0" alt="i_A" width="18" height="17" />  in A <img src="https://bit.ly/3lR5ZIZ" align="center" border="0" alt="(s_{iA})" width="36" height="19" /> can now be computed as:
+
+<center> <img src="images/graph_equation_sa.jpg" alt="Silhouette diagram" width="300"/></center>
+
+
+It follows that:
+1. The silhouette coefficient of any observation can be computed and ranges from -1 to 1.
+2. When of positive sign, the closest <img src="https://bit.ly/2X7eVzC" align="center" border="0" alt=" s_i\" width="15" height="12" /> is to 1, the better fit in its current cluster
+3. When of negative sign, the closest <img src="https://bit.ly/2X7eVzC" align="center" border="0" alt=" s_i\" width="15" height="12" /> is to -1, the better fit in its neighbour cluster
+4. When <img src="https://bit.ly/3CFLlSm" align="center" border="0" alt="s=0" width="40" height="14" />, then <img src="https://bit.ly/37yWF4g" align="center" border="0" alt="i" width="11" height="14" /> could be equally placed in the current cluster or in its neighbour.
+With this on mind, it is now possible to compute the overall clustering performance as:
+
+<center><img src="https://bit.ly/3CBXyHy" align="center" border="0" alt="S_N=\frac{1}{N}\sum_{i=1}^{N}s_i" width="107" height="50" /></center>
+
+, which is simply the mean of all the  <img src="https://bit.ly/3CBc56j" align="center" border="0" alt="s" width="12" height="10" /> in the dataset.
+
+With the `get_sil_location()` function we basically run the KMeans algorithm multiple times, each time with the k parameter (number of clusters) increased by 1, SA run again and mean global  <img src="https://bit.ly/3CBc56j" align="center" border="0" alt="s" width="12" height="10" /> for each k is computed. With this information, we can look for the best candidate k using inflexion point search.
+
+## Inflexion point search
+
+<center> <img src="images/inflexion_search_sa.jpg" alt="Silhouette diagram" width="300"/></center>
+
+Once SA has been run iteratively and the SA coefficient has been stored, Sandpyper searches for the inflexion points to propose a __sub-optimal k__ number where an additional cluster does not degrade the overall clustering performance.
+Sandpyper uses a Gaussian smoothed regression of __k__ against mean silhouette scores to identify first order relative minima as possible inlfexion points.
+When multiple relative minimas are found, the smaller k will be the sub-optimal one.
+When no relative minima are found, it searches for peaks in the second order derivative of such regression line.
+If multiple peaks are found, the mean k, computed so far, will be used as optimal.
+
+Once the sub-optimal k for each survey has been found, the user is ready to finally run the KMeans algorithm with the sub-optimal k using the the `ProfileSet.kmeans_sa()` method.
+
+## Visual identification of point classes in a GIS
+
+<center> <img src="images/gis_labels.jpg" alt="gis_labels" width="600"/></center>
+
+As the unsupervised procedure outlined above retunes labels in the form of a number (cluster ID), and not a human interpretable class (like sand, road, wrack, water), we need to visually check which labels are what class, and take notes of these associations in the form of class dictionaries.
+
+Here is a simple procedure the users can follow to achieve this step:
+
+1. export the ProfileSet.profiles attribute (after having run all the SA + Kmeans procedure) to a csv file by running `ProfileSet.profiles.to_csv(r"path/to/a/directory/points_to_classify.csv", index=False)`
+
+2. open Qgis, add these points as a Delimited Text Layer, file format is CSV and the geometry definition is stored as a Well known text (WKT) format in the coordinates column. Remember to set the right CRS for your points and add it as a point layer to the GIS.
+3. use the filter option to select one location and one survey date (column raw_date) at a time, display the points using a categorized symbology with the label_k field to cleary distinguish different label_k.
+4. open the corresponding orthophoto and put it below the points
+5. now check where each label_k falls and take note in one dictionary per class, using the below format:
+
+```python
+sand_dict = {'leo_20180606':[5],
+            'leo_20180713':[1,3,4],
+            'mar_20180920':[]}
+
+water_dict = {'leo_20180606':[4],
+            'leo_20180713':[2,6],
+            'mar_20180920':[1,2,3,4]}
+```
+
+>NOTE: to identify the survey, note the 'LocationCode_yyyymmdd' format for the keys of these class dictionaries.
+
+With these dictionaries and some additional correction polygons (see tutorials for practical information), the user can now classify all the points with the `ProfileSet.cleanit()` method.

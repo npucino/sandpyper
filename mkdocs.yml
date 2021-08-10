@@ -61,7 +61,7 @@ nav:
       - dynamics module: dynamics.md
       - space module: space.md
     - Notebooks:
-        - notebooks/Introduction and data preparation.ipynb
-        - notebooks/Profile dynamics.ipynb
-        - notebooks/Profiles extraction, unsupervised sand labelling and cleaning.ipynb
+        - notebooks/1 - Introduction and data preparation.ipynb
+        - notebooks/2 - Profiles extraction, unsupervised sand labelling and cleaning.ipynb
+        - notebooks/3 - Profile dynamics.ipynb
         - notebooks/Space analysis - teaser.ipynb
