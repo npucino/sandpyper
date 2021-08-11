@@ -54,6 +54,9 @@ nav:
         - Introduction: Introduction.md
         - Elevation analysis: elevation_analysis.md
         - Data cleaning: ML and SA.md
+        - Hotspot analysis: hotspot_methods.md
+        - BCDs: bcds_method.md
+        - Volumetrics: volumetrics_method.md
     - API Reference:
       - hotspot module: hotspot.md
       - outils module: outils.md
