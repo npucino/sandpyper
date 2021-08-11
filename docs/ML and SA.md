@@ -108,4 +108,36 @@ water_dict = {'leo_20180606':[4],
 
 >NOTE: to identify the survey, note the 'LocationCode_yyyymmdd' format for the keys of these class dictionaries.
 
-With these dictionaries and some additional correction polygons (see tutorials for practical information), the user can now classify all the points with the `ProfileSet.cleanit()` method.
+## Correction polygons
+
+### Shoremasks file
+<center><img src="images/shoremasks_table_attributes.jpg" title="shoremask table of content" height= "70%" width="100%"></center>
+Shoremask file (geopackages or shapefiles) holds digitised polygons, which are clipping masks essentialy, which are used to remove unwanted backshore areas. In the above picture, the __red dashed line__ represents the boundary of the polygon, in this case, in Marengo (mar). It is one single clipping mask that will be applied to all surveys. The only required field is:
+
+* location (string): location code
+
+Every polygon has its own row and represent the shoremask of each location.  
+Working with only one geopackage or shapefile implies that only one CRS has to be used for all the locations. This is automatically taken into account in Sandpyper using the __crs_dict_string__ global setting.
+
+### Watermasks
+<center><img src="images/watermasks_table_attributes.jpg" title="shoremask table of content" height= "70%" width="100%"></center>
+Watermasks files (geopackages or shapefiles) are digitised over water areas and swash areas. It is one single file. The required fields are:
+
+* location (string): location code
+* raw_date (integer): survey date to apply this mask in raw for (yyyymmdd)
+
+Every polygon has its own row and represent the watermask for each survey in each location.
+
+### Label correction file
+<center><img src="images/label_corr_attributes.jpg" title="shoremask table of content" height= "70%" width="100%"></center>
+Label correction files (geopackages or shapefiles) are digitised over points which have cluster labels (assigned by KMeans algorithm) which we are not totally happy with. The attribute __target_label_k__ specifies which label k will be affected by the correction, leaving untouched all other points falling within the polygon but having different label k. This is useful to fine-tune the point classification, as it is covered in the notebook __AAAAAAA__. If you want to apply the correction to all the points, regardless of the label k, just assign 999 to this field.
+The field __new_class__ specifies the class to be assigned by the polygon. It is one single file. The required fields are:
+
+* location (string): location code
+* raw_date (integer): survey date to apply this mask in raw for (yyyymmdd)
+* target_label_k (integer): label k to apply the correction of this polygon. 999 to apply to all points within it, regardless of their label k
+* new_class (string): class to assign to the points of specified label k within the polygon
+
+Every polygon has its own row and represent the correction polygons for each survey in each location.
+
+With these class dictionaries and correction polygons, the user can now classify all the points with the `ProfileSet.cleanit()` method.
