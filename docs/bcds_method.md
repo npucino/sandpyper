@@ -10,7 +10,7 @@ Moreover, as the r-BCD to incorporates full 3D profile timeseries, this index ca
 
 Following Lambin (1994), a discrete Markov process can be represented as:
 
-<img src="https://bit.ly/3iHOo4x" align="center" border="0" alt="s_{t + 1} = Ms_{t} ," width="87" height="18" /> <br>
+$s_{t + 1} = Ms_{t}$ <br>
 
 where <img src="https://render.githubusercontent.com/render/math?math=s_{t}"> is a column vector, <img src="https://render.githubusercontent.com/render/math?math=s=(s1,..., sm)"> having as elements the valid points (within the beachface and beyond LoD sand-only Δh points) in one of the <img src="https://render.githubusercontent.com/render/math?math=m"> states (i.e. Δh magnitude classes) at time <img src="https://render.githubusercontent.com/render/math?math=t">. <img src="https://render.githubusercontent.com/render/math?math=M"> is a <img src="https://render.githubusercontent.com/render/math?math=m X m"> matrix holding the first-order (from <img src="https://render.githubusercontent.com/render/math?math=t"> to <img src="https://bit.ly/3AtwyrO" align="center" border="0" alt="t+1 " width="36" height="15" /> transition probabilities <img src="https://render.githubusercontent.com/render/math?math=p_{ij}"> , derived as:
 
