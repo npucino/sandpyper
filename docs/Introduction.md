@@ -5,7 +5,7 @@ Sandpyper has been conceived to simplify topographic profile data extraction and
 
 Sandpyper makes use of machine learning,  limit of detection analysis, discrete Markov chain models and spatial autocorrelation analysis to perform its standard analysis routine, which can be depicted in the following scheme:
 
-<center><img src="images/sandpyper_scheme.png" title="shoremask table of content" height= "70%" width="100%"></center>
+![math](images/sandpyper_scheme.png)
 
 As you can see, Sandpyper general pipeline involves a first stage of raw data extraction, followed by a data correction phase and finally, a series of sediment dynamics insights can be derived. <br>
 
