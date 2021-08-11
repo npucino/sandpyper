@@ -51,7 +51,9 @@ nav:
     - FAQ: faq.md
     - Report Issues: https://github.com//npucino//sandpyper//issues
     - Methods:
+        - Introduction: Introduction.md
         - Elevation analysis: elevation_analysis.md
+        - Data cleaning: ML and SA.md
     - API Reference:
       - hotspot module: hotspot.md
       - outils module: outils.md
