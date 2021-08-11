@@ -1,10 +1,6 @@
 # Methods for sand labelling and classification
 
-<center> <img src="images/transects_classes.png" alt="sand no sand classification" width="300"/></center>
-<br>
-
-![Screenshot](images/transects_classes.png)
-![Screenshot](https://bit.ly/3CBc56j)
+![im](images/transects_classes.png)
 
 
 As the Structure from Motion pipeline assumes tie-points to be fixed during multi-view stereo-pairing, the swash zone created obvious artifacts that would interfere with an accurate representation of the beach topography. Its extent and location is highly dynamic, due to the combined effect of tidal and water level variations, planimetric beach adjustments and variable survey times.  
@@ -36,46 +32,45 @@ Sandpyper implements Elkan's KMeans algorithm ([Elkan, 2003](https://www.aaai.or
 
 Have a look at this short and easy video about the intuition of KMeans.
 
-<center> <a href="https://www.youtube.com/watch?v=4b5d3muPQmA
-" target="_blank"><img src="images/kmeans.jpg"
-alt="StatQuest: K-means clustering - by Josh Starmer" width="240" height="180" border="3" /></a></center>
+![statquest](images/kmeans.jpg)
+[Watch here](https://www.youtube.com/watch?v=4b5d3muPQmA)
+
 
 ## Silhouette Analysis (SA)
 
 The Silhouette Analysis (SA) method is a simple graphical and analytical method to measure how tight and compact the clusters are (overall), while also indicating how well each observation fits (silhouette coefficient) within the assigned partition or cluster ([Rousseeuw, 1987](https://www.sciencedirect.com/science/article/pii/0377042787901257?via%3Dihub)).
 
-For instance, let’s consider N=11 observations partitioned into k=3 clusters A,B,C and observation  <img src="https://bit.ly/3CzNTRH" align="center" border="0" alt="i_A" width="18" height="17" /> assigned to cluster A. In the following diagram, the feature space has been limited to 2 features for illustration purposes.
+For instance, let’s consider N=11 observations partitioned into k=3 clusters A,B,C and observation  ![math](https://bit.ly/3CzNTRH) assigned to cluster A. In the following diagram, the feature space has been limited to 2 features for illustration purposes.
 
-
-<center> <img src="images/sa_diagr.png" alt="Silhouette diagram" width="300"/></center>
+![im](images/sa_diagr.png)
 
 SA in the example can be summarised in the following steps:
-1. <img src="https://bit.ly/3CEFUCT" align="center" border="0" alt="\overline d_{iA}" width="26" height="19" />: Compute the mean dissimilarity of  <img src="https://bit.ly/3CzNTRH" align="center" border="0" alt="i_A" width="18" height="17" /> to the other elements within A.
-2. <img src="https://bit.ly/3AvVZJs" align="center" border="0" alt="d_{i\neq A}" width="35" height="18" />: Compute the mean dissimilarity of  <img src="https://bit.ly/3CzNTRH" align="center" border="0" alt="i_A" width="18" height="17" /> to the other elements of any remaining clusters different than A.
-3. <img src="https://bit.ly/3lQ6fYG" align="center" border="0" alt="\min\funcapply(\ \overline d_{i\neq A\ })" width="85" height="21" />: find  <img src="https://bit.ly/2VBuKyn" align="center" border="0" alt=" x_{closest} " width="49" height="12" /> other cluster (neighbour) by finding the minimum <img src="https://bit.ly/3jHWaKX" align="center" border="0" alt="{\overline{d}}_{i\neq A}" width="35" height="21" />
+1. ![math](https://bit.ly/3CEFUCT): Compute the mean dissimilarity of ![math](https://bit.ly/3CzNTRH) to the other elements within A.
+2. ![math](https://bit.ly/3AvVZJs): Compute the mean dissimilarity of ![math](https://bit.ly/3CzNTRH) to the other elements of any remaining clusters different than A.
+3. ![math](https://bit.ly/3lQ6fYG): Find  ![math](https://bit.ly/2VBuKyn) other cluster (neighbour) by finding the minimum ![math](https://bit.ly/3jHWaKX)
 
-In the example, <img src="https://bit.ly/3yEAgOL" align="center" border="0" alt="\min{\left(\ {\overline{d}}_{i\neq A}\right)}={\overline{d}}_{iC}" width="129" height="22" />, in fact it is easily seen that the average lengths of all segments connecting <img src="https://bit.ly/3CzNTRH" align="center" border="0" alt="i_A" width="18" height="17" /> to the elements in cluster C is smaller than that of <img src="https://bit.ly/3CzNTRH" align="center" border="0" alt="i_A" width="18" height="17" />  to cluster B.
-The neighbour C could be considered  as a potential candidate for a misinterpreted partitioning from the clustering algorithm (KMeans, in our case). Thus, the silhouette coefficient <img src="https://bit.ly/3CBc56j" align="center" border="0" alt="s" width="12" height="10" /> of <img src="https://bit.ly/3CzNTRH" align="center" border="0" alt="i_A" width="18" height="17" />  in A <img src="https://bit.ly/3lR5ZIZ" align="center" border="0" alt="(s_{iA})" width="36" height="19" /> can now be computed as:
+In the example, ![math](https://bit.ly/3yEAgOL), in fact it is easily seen that the average lengths of all segments connecting ![math](https://bit.ly/3CzNTRH) to the elements in cluster C is smaller than that of![math](https://bit.ly/3CzNTRH) to cluster B.
+The neighbour C could be considered  as a potential candidate for a misinterpreted partitioning from the clustering algorithm (KMeans, in our case). Thus, the silhouette coefficient ![math](https://bit.ly/3CBc56j) of ![math](https://bit.ly/3CzNTRH)  in A ![math](https://bit.ly/3lR5ZIZ) can now be computed as:
 
-<center> <img src="images/graph_equation_sa.jpg" alt="Silhouette diagram" width="300"/></center>
+![im](images/graph_equation_sa.jpg)
 
 
 It follows that:
 1. The silhouette coefficient of any observation can be computed and ranges from -1 to 1.
-2. When of positive sign, the closest <img src="https://bit.ly/2X7eVzC" align="center" border="0" alt=" s_i\" width="15" height="12" /> is to 1, the better fit in its current cluster
-3. When of negative sign, the closest <img src="https://bit.ly/2X7eVzC" align="center" border="0" alt=" s_i\" width="15" height="12" /> is to -1, the better fit in its neighbour cluster
-4. When <img src="https://bit.ly/3CFLlSm" align="center" border="0" alt="s=0" width="40" height="14" />, then <img src="https://bit.ly/37yWF4g" align="center" border="0" alt="i" width="11" height="14" /> could be equally placed in the current cluster or in its neighbour.
+2. When of positive sign, the closest ![math](https://bit.ly/2X7eVzC) is to 1, the better fit in its current cluster
+3. When of negative sign, the closest ![math](https://bit.ly/2X7eVzC) is to -1, the better fit in its neighbour cluster
+4. When ![math](https://bit.ly/3CFLlSm), then ![math](https://bit.ly/37yWF4g") could be equally placed in the current cluster or in its neighbour.
 With this on mind, it is now possible to compute the overall clustering performance as:
 
-<center><img src="https://bit.ly/3CBXyHy" align="center" border="0" alt="S_N=\frac{1}{N}\sum_{i=1}^{N}s_i" width="107" height="50" /></center>
+![math](https://bit.ly/3CBXyHy)
 
-, which is simply the mean of all the  <img src="https://bit.ly/3CBc56j" align="center" border="0" alt="s" width="12" height="10" /> in the dataset.
+, which is simply the mean of all the  ![math](https://bit.ly/3CBc56j) in the dataset.
 
-With the `get_sil_location()` function we basically run the KMeans algorithm multiple times, each time with the k parameter (number of clusters) increased by 1, SA run again and mean global  <img src="https://bit.ly/3CBc56j" align="center" border="0" alt="s" width="12" height="10" /> for each k is computed. With this information, we can look for the best candidate k using inflexion point search.
+With the `get_sil_location()` function we basically run the KMeans algorithm multiple times, each time with the k parameter (number of clusters) increased by 1, SA run again and mean global  ![math](https://bit.ly/3CBc56j) align="center" border="0" alt="s" width="12" height="10" /> for each k is computed. With this information, we can look for the best candidate k using inflexion point search.
 
 ## Inflexion point search
 
-<center> <img src="images/inflexion_search_sa.jpg" alt="Silhouette diagram" width="300"/></center>
+![im](images/inflexion_search_sa.jpg)
 
 Once SA has been run iteratively and the SA coefficient has been stored, Sandpyper searches for the inflexion points to propose a __sub-optimal k__ number where an additional cluster does not degrade the overall clustering performance.
 Sandpyper uses a Gaussian smoothed regression of __k__ against mean silhouette scores to identify first order relative minima as possible inlfexion points.
@@ -87,7 +82,7 @@ Once the sub-optimal k for each survey has been found, the user is ready to fina
 
 ## Visual identification of point classes in a GIS
 
-<center> <img src="images/gis_labels.jpg" alt="gis_labels" width="600"/></center>
+![im](images/gis_labels.jpg)
 
 As the unsupervised procedure outlined above retunes labels in the form of a number (cluster ID), and not a human interpretable class (like sand, road, wrack, water), we need to visually check which labels are what class, and take notes of these associations in the form of class dictionaries.
 
@@ -115,7 +110,8 @@ water_dict = {'leo_20180606':[4],
 ## Correction polygons
 
 ### Shoremasks file
-<center><img src="images/shoremasks_table_attributes.jpg" title="shoremask table of content" height= "70%" width="100%"></center>
+![math](images/shoremasks_table_attributes.jpg)
+
 Shoremask file (geopackages or shapefiles) holds digitised polygons, which are clipping masks essentialy, which are used to remove unwanted backshore areas. In the above picture, the __red dashed line__ represents the boundary of the polygon, in this case, in Marengo (mar). It is one single clipping mask that will be applied to all surveys. The only required field is:
 
 * location (string): location code
@@ -124,7 +120,8 @@ Every polygon has its own row and represent the shoremask of each location.
 Working with only one geopackage or shapefile implies that only one CRS has to be used for all the locations. This is automatically taken into account in Sandpyper using the __crs_dict_string__ global setting.
 
 ### Watermasks
-<center><img src="images/watermasks_table_attributes.jpg" title="shoremask table of content" height= "70%" width="100%"></center>
+![math](images/watermasks_table_attributes.jpg)
+
 Watermasks files (geopackages or shapefiles) are digitised over water areas and swash areas. It is one single file. The required fields are:
 
 * location (string): location code
@@ -133,7 +130,8 @@ Watermasks files (geopackages or shapefiles) are digitised over water areas and 
 Every polygon has its own row and represent the watermask for each survey in each location.
 
 ### Label correction file
-<center><img src="images/label_corr_attributes.jpg" title="shoremask table of content" height= "70%" width="100%"></center>
+![math](images/label_corr_attributes.jpg)
+
 Label correction files (geopackages or shapefiles) are digitised over points which have cluster labels (assigned by KMeans algorithm) which we are not totally happy with. The attribute __target_label_k__ specifies which label k will be affected by the correction, leaving untouched all other points falling within the polygon but having different label k. This is useful to fine-tune the point classification, as it is covered in the notebook __AAAAAAA__. If you want to apply the correction to all the points, regardless of the label k, just assign 999 to this field.
 The field __new_class__ specifies the class to be assigned by the polygon. It is one single file. The required fields are:
 
