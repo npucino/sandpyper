@@ -19,7 +19,11 @@ where <img src="https://render.githubusercontent.com/render/math?math=s_{t}"> is
 where <img src="https://render.githubusercontent.com/render/math?math=n_{ij}"> is the number of transitions from an initial state <img src="https://render.githubusercontent.com/render/math?math=i"> to state <img src="https://render.githubusercontent.com/render/math?math=j"> and <img src="https://render.githubusercontent.com/render/math?math=m"> is the number of states (i.e. elevation change magnitude classes) in which each observation can be. The matrix <img src="https://render.githubusercontent.com/render/math?math=M"> is row-standardised, so that the sum of transition probabilities from a given state is always equal to one.
 
 ## Empirical Beachface Cluster Dynamics (e-BCDs)
-The e-BCDs divide the transition matrix into four sub-matrices, each representing site-level erosional, depositional, recovery and vulnerability “behaviors” of the subaerial beach over the monitoring period. The e-BCDs indices are computed for every sub-matrices (<img src="https://render.githubusercontent.com/render/math?math=m">) as follows:
+The e-BCDs divide the transition matrix into four sub-matrices, each representing site-level erosional, depositional, recovery and vulnerability “behaviors” of the subaerial beach over the monitoring period (see image below).
+
+<center> <img src="images/wbl_p_matrix.png" alt="Warrnambool submatrices" width="300"/></center>
+
+The e-BCDs indices are computed for every sub-matrices (<img src="https://render.githubusercontent.com/render/math?math=m">) as follows:
 
 <img src="https://bit.ly/3yGX7cK" align="center" border="0" alt="Empirical\, BCD_{sub} = \mathop \sum \limits_{i,j = 1}^{n} \left[ { ws^{\prime}_{ij} } \right]\times p_{ij} ," width="278" height="50" /><br>
 
