@@ -35,8 +35,20 @@ from sandpyper.outils import (cross_ref,create_spatial_id,
 
 
 class ProfileSet():
-    """
-    ciao
+    """This class sets up the monitoring global parameters, input files directories and creates a check dataframe to confirm all CRSs and files are matched up correctly.
+
+    Args:
+        dirNameDSM (str): Path of the directory containing the DSM datasets.
+        dirNameOrtho (str): Path of the directory containing the orthophotos datasets.
+        dirNameTrans (str): Path of the directory containing the transect files (.gpkg, .shp).
+        transects_spacing (float): The alonghsore spacing between transects.
+        loc_codes (list): List of strings of location codes.
+        loc_search_dict (dict): A dictionary where keys are the location codes and values are lists containing the expected full location string, including the location code itself (["wbl","Warrnambool", "warrnambool","warrny"]).
+        crs_dict_string (dict): Dictionary storing location codes as key and crs information as values, in dictionary form.
+        check (str, optional): If 'all', the check dataframe will contain both DSMs and orthophotos information. If one of 'dsm' or 'ortho', only check the desired data type.
+
+    Returns:
+        object: ProfileSet object.
     """
     def __init__(self,
                  dirNameDSM,
@@ -55,7 +67,7 @@ class ProfileSet():
         self.transects_spacing=transects_spacing
 
         self.loc_codes=loc_codes
-        self.loc_search_dict=loc_search_dict
+        self.=loc_search_dict
         self.crs_dict_string=crs_dict_string
 
         if check=="dsm":
@@ -73,6 +85,15 @@ class ProfileSet():
                         list_loc_codes=self.loc_codes)
 
     def save(self, name, out_dir):
+        """Save object using pickle.
+
+        Args:
+            name (str): Name of the file to save.
+            out_dir (str): Path to the directory where to save the object.
+
+        Returns:
+            pickle file."""
+
         savetxt=f"{os.path.join(out_dir,name)}.p"
         pickle.dump( self, open( savetxt, "wb" ) )
         print(f"ProfileSet object saved in {savetxt} .")
@@ -85,6 +106,21 @@ class ProfileSet():
                          add_xy,
                          add_slope=False,
                          default_nan_values=-10000):
+        """Extract pixel values from orthophotos, DSMs or both, along transects in all surveys as a GeoDataFrame stored in the ProfileSet.profiles attribute.
+
+        Args:
+            mode (str): If 'dsm', extract from DSMs. If 'ortho', extracts from orthophotos. if "all", extract from both.
+            tr_ids (str): The name of the field in the transect file that is used to store the transects ID.
+            sampling_step (float): Distance along-transect to extract data points from. In meters.
+            add_xy (bool): If True, adds extra columns with long and lat coordinates in the input CRS.
+            add_slope (bool): If True, computes slope raster in degrees (increased procesing time)
+            and extract slope values across transects.
+            default_nan_values (int): Value used for NoData specification in the rasters used.
+            In Pix4D, this is -10000 (default).
+
+         Returns:
+            attribute: .profiles dataframe
+        """
 
         if mode=="dsm":
             path_in=self.dirNameDSM
@@ -174,6 +210,18 @@ class ProfileSet():
 
 
     def kmeans_sa(self, ks, feature_set, thresh_k=5, random_state=10 ):
+        """Cluster data using a specified feature set with KMeans algorithm and a dictionary of optimal numebr of clusters to use for each survey (see get_sil_location and get_opt_k functions).
+
+        Args:
+            ks (dictionary): Number of clusters (k) or dictionary containing a k for each survey.
+            feature_set (list): List of names of features (columns of the ProfileSet.profiles dataframe) to use for clustering.
+            thresh_k (int, optional): Minimim k to be used. If survey-specific optimal k is below this value, then k equals the average k of all above threshold values.
+            random_state (int, optional): Random seed used to make the randomisation deterministic.
+
+         Returns:
+            label_k: new column in ProfileSet.profiles dataframe storing each point cluster label.
+        """
+
         labels_df=kmeans_sa(merged_df=self.profiles,
             ks=ks,
             feature_set=feature_set,
@@ -188,6 +236,24 @@ class ProfileSet():
                 shoremasks_path=None, label_corrections_path=None,
                 default_crs={'init': 'epsg:32754'}, crs_dict_string=None,
                geometry_field='coordinates'):
+        """Transforms labels k into meaningful classes (sand, water, vegetation ,..) and apply fine-tuning correction, shoremasking and watermasking cleaning procedures.
+
+        Args:
+            l_dicts (list): List of classes dictionaries containing the interpretations of each label k in every survey.
+            cluster_field (str): Name of the field storing the labels k to transform (default "label_k").
+            fill_class (str): Class assigned to points that have no label_k specified in l_dicts.
+            watermasks_path (str): Path to the watermasking file.
+            water_label: .
+            shoremasks_path: Path to the shoremasking file.
+            label_corrections_path: Path to the label correction file.
+            default_crs: CRS used to digitise correction polygons.
+            crs_dict_string: Dictionary storing location codes as key and crs information as values, in dictionary form.
+            geometry_field: Field that stores the point geometry (default 'geometry').
+
+         Returns:
+            label_k: new column in ProfileSet.profiles dataframe storing each point cluster label.
+        """
+
 
         processes=[]
         if label_corrections_path: processes.append("polygon finetuning")
@@ -206,6 +272,7 @@ class ProfileSet():
 
 
 
+##____________ FUNCTIONS____________________________________________________
 
 def get_terrain_info(x_coord, y_coord, rdarray):
     """
