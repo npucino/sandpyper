@@ -992,7 +992,7 @@ class ProfileDynamics():
         sb.set_context("paper", font_scale=font_scale)
         sb.set_style("whitegrid")
 
-        plot_bars=sb.barplot(data=self.location_ebcds,x="location", y=self.location_ebcds.coastal_markov_idx,hue="states_labels", hue_order=orders,
+        plot_bars=sb.barplot(data=self.location_ebcds,x="location", y=self.location_ebcds.coastal_markov_idx,hue="states_labels", hue_order=b_order,
                   order=loc_order, palette=palette_dyn_states)
 
 
@@ -1004,7 +1004,7 @@ class ProfileDynamics():
         txt_heights=[i.get_height() for i in ax.patches]
 
         signs=[]
-        for i in orders:
+        for i in b_order:
             for j in loc_order:
                 sign=self.location_ebcds.query(f"location == '{j}' & states_labels=='{i}'").sign.values
                 signs.append(sign)
