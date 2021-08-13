@@ -67,7 +67,7 @@ class ProfileSet():
         self.transects_spacing=transects_spacing
 
         self.loc_codes=loc_codes
-        self.=loc_search_dict
+        self.loc_search_dict=loc_search_dict
         self.crs_dict_string=crs_dict_string
 
         if check=="dsm":
