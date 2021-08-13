@@ -37,14 +37,7 @@ import os
 
 
 class ProfileDynamics():
-    """Creates a ProfileDynamics object with a discretisation scheme to hold all volumetric and behavioural dynamics.
-
-    Attributes:
-        bins (int)= Number of bins that both erosional and depositional classes will be partitioned into.
-        method (str)= Name of the algorithm used to discretise the data.
-        labels=labels (list)= Names of the magnitudes that each bin will represent, going from the smaller to the highest magnitude of change, like ["Small", "Medium", "High"] if bins=3.
-        ProfileSet (object)= ProfileSet object that stores all the monitoring information.
-    """
+    """The ProfileDynamics object manages all volumetric and behavioural dynamics computation and plotting."""
 
     # This dictionary is used to redirect to Pysal classification methods.
     dict_classifiers={'EqualInterval':EqualInterval,
@@ -57,23 +50,16 @@ class ProfileDynamics():
      'UserDefined':UserDefined}
 
     def __init__(self, ProfileSet, bins, method, labels=None):
-        """Example of docstring on the __init__ method.
-
-        The __init__ method may be documented in either the class level
-        docstring, or as a docstring on the __init__ method itself.
-
-        Either form is acceptable, but the two should not be mixed. Choose one
-        convention to document the __init__ method and be consistent with it.
-
-        Note:
-            Do not include the `self` parameter in the ``Args`` section.
+        """Instantiates a ProfileDynamics object with a discretisation scheme for future behavioural dynamics computation.
 
         Args:
-            param1 (str): Description of `param1`.
-            param2 (:obj:`int`, optional): Description of `param2`. Multiple
-                lines are supported.
-            param3 (:obj:`list` of :obj:`str`): Description of `param3`.
+            ProfileSet (object)= ProfileSet object that stores all the monitoring information.
+            bins (int)= Number of bins that both erosional and depositional classes will be partitioned into.
+            method (str)= Name of the algorithm used to discretise the data. Choose between 'EqualInterval', 'FisherJenks', 'HeadTailBreaks', 'JenksCaspall', 'KClassifiers', 'Quantiles', 'Percentiles'. Head to Pysal GitHub page https://github.com/pysal/mapclassify for more info on classifiers.
+            labels (list)= List of labels to assign to the bins, in order to be able to name them and keep the analysis meaningful. Name labels from low to high magnitudes, like ["small","medium","high"] in case of bins=3.
 
+        Returns:
+            object: ProfileDynamics object.
         """
 
         if method not in self.dict_classifiers.keys():
