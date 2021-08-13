@@ -19,15 +19,12 @@ theme:
 
 
 plugins:
-
-
     - search
     - mkdocstrings
     - git-revision-date
     - mkdocs-jupyter:
         include_source: True
         execute: False
-
 
 markdown_extensions:
     - admonition
@@ -42,9 +39,9 @@ markdown_extensions:
           permalink: true
 
 extra_javascript:
-  - javascripts/config.js
-  - https://polyfill.io/v3/polyfill.min.js?features=es6
-  - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
+    - javascripts/config.js
+    - https://polyfill.io/v3/polyfill.min.js?features=es6
+    - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
 
 
 # google_analytics:
@@ -66,13 +63,8 @@ nav:
         - BCDs: bcds_method.md
         - Volumetrics: volumetrics_method.md
     - API Reference:
-      - hotspot module: hotspot.md
-      - outils module: outils.md
-      - volumetrics module: volumetrics.md
-      - profile module: profile.md
-      - labels module: labels.md
-      - dynamics module: dynamics.md
-      - space module: space.md
+      - sandpyper module: sandpyper.md
+      - common module: common.md
     - Notebooks:
         - notebooks/1 - Introduction and data preparation.ipynb
         - notebooks/2 - Profiles extraction, unsupervised sand labelling and cleaning.ipynb
