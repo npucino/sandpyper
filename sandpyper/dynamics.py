@@ -498,10 +498,20 @@ def compute_multitemporal (df,
     print("done")
     return fusion_long
 
-def sensitivity_tr_rbcd(df,
+def sensitivity_tr_rbcd(ProfileDynamics,
                        test_thresholds='max',
                        test_min_pts=[0,10,2]):
+    """Performs a sensitivity analysis of the transect-level r-BCDs values in respect to both the min_points and thresh parameters.
 
+    Args:
+        ProfileDynamics (object): The ProfileDynamics object to perform sensitivity analysis on.
+        test_thresholds (str, list): If a list is provided, the list must contain the starting thresh value, the last one and the interval between the two, just like numpy.arange function expects, like [0,10,2]. If 'max', then tests on all the available timeperiods.
+        test_min_pts (list): A list containing the starting min_pts value, the last one and the interval between the two, just like numpy.arange function expects, like [0,100,10].
+
+    Returns:
+        ss_tr_big (pd.DataFrame): A dataframe storing the transect r-BCD values of all combinations of thresh and min_points.
+    """
+    df = ProfileDynamics.df_labelled
     ss_tr_big=pd.DataFrame()
 
     for loc in df.location.unique():
@@ -530,10 +540,10 @@ def sensitivity_tr_rbcd(df,
             try:
                 ss_transects_idx = get_rbcd_transect(df_labelled=data_in,
                       loc_specs=tmp_loc_specs_dict, reliable_action='drop',
-                      dirNameTrans=D.ProfileSet.dirNameTrans,
-                      labels_order=D.tags_order,
-                      loc_codes=D.ProfileSet.loc_codes,
-                      crs_dict_string=D.ProfileSet.crs_dict_string)
+                      dirNameTrans=ProfileDynamics.ProfileSet.dirNameTrans,
+                      labels_order=ProfileDynamics.tags_order,
+                      loc_codes=ProfileDynamics.ProfileSet.loc_codes,
+                      crs_dict_string=ProfileDynamics.ProfileSet.crs_dict_string)
 
                 ss_transects_idx['thresh']=i[1]
                 ss_transects_idx['min_pts']=i[0]
@@ -547,8 +557,18 @@ def sensitivity_tr_rbcd(df,
     return ss_tr_big
 
 def plot_sensitivity_rbcds_transects(df, location, x_ticks=[0,2,4,6,8],figsize=(7,4),
-                                     tr_xlims=(0,8), tr_ylims=(0,3), sign_ylims=(0,10)):
+                                     tresh_xlims=(0,8), trans_ylims=(0,3), sign_ylims=(0,10)):
+    """Plot both the number of valid transects retained (red) and the total sign changes (blue) as a function of the threshold used. This function creates a plot per min_points situation. The solid black line is the 95th percentile of the total valid transect retained while the dashed one is the 85th.
 
+    Args:
+        df (pd.DataFrame): Sensitivity dataframe resulting from using the funciton sensitivity_tr_rbcd().
+        location (str): Location code of the locatin to plot.
+        x_ticks (list): List of x-axis ticks (thresholds).
+        figsize (tuple): Width and height (in inches) of the figure.
+        tresh_xlims (tuple): Min x and max x of the thresholds x-axis.
+        trans_ylims (tuple): Min y and max y of the transect main y-axis.
+        sign_ylims (tuple): .
+    """
 
     plt.rcParams['font.sans-serif'] = 'Arial'
     plt.rcParams['font.family'] = 'sans-serif'
@@ -604,8 +624,8 @@ def plot_sensitivity_rbcds_transects(df, location, x_ticks=[0,2,4,6,8],figsize=(
         ax.set_xlabel('t')
         ax2.set_ylabel('sign changes', c='b')
         ax2.set_ylim(sign_ylims)
-        ax.set_ylim(tr_ylims)
-        ax.set_xlim(tr_xlims)
+        ax.set_ylim(trans_ylims)
+        ax.set_xlim(tresh_xlims)
 
 
         plt.tight_layout()

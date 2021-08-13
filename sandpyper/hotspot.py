@@ -210,7 +210,7 @@ class ProfileDynamics():
             ylim (tuple): Min and max values for the histogram plot y axis.
             qq_xlims (tuple): Min and max values for the q-q plot x axis.
             qq_ylims (tuple): Min and max values for the q-q plot y axis.
-            figsize (tuple): width and hieght (in inches) of the figure.
+            figsize (tuple): Width and height (in inches) of the figure.
         """
         if self.lod_created != 'yes':
             raise ValueError("LoD dataset has not been created.\
