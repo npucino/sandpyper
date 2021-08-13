@@ -92,7 +92,8 @@ class ProfileSet():
             out_dir (str): Path to the directory where to save the object.
 
         Returns:
-            pickle file."""
+            pickle file.
+        """
 
         savetxt=f"{os.path.join(out_dir,name)}.p"
         pickle.dump( self, open( savetxt, "wb" ) )

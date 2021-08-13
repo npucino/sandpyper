@@ -820,39 +820,12 @@ def plot_mec_evolution(
     x_binning=5,
     figure_size=(7, 4),
     font_scale=0.75,
-    sort_locations=True,
     dpi=300,
     img_type=".png",
     save_fig=False,
     name_fig=f"Mean Elevation Changes",
     save_path=None,
 ):
-    """
-    Display and optionally save global volumetric timeseries plots, displaying period-specific Mean Elevation Change (mec, in m) and cumulative mec (since start of the monitoring), across lcoations.
-
-    Args:
-        volumetrics (Pandas dataframe): location-level-volumetrics table obtained from get_state_vol_table function.
-        date_format (str): format to plot dates on y-axis. Default="%d.%m.%y".
-        scale_mode (str) ("optimised","equal"): If "equal" (Default), all locations subplots will have the same x-axis ticks spacing (reccomended for comaprison purposes).
-        If "optimised", an attempt to estimate the best tick steps to use by analysing absolute range of mec values.
-        x_diff (dict): In case a subplot x needs axis limits different to the others.
-        A dictionary with location codes as keys and a list containing the minimum and maximum x values for these locations.
-        dates_step (int): Frequency of days between each tick in the y-axis (dates). Default=50.
-        x_limits (tuple of floats): tuple containing min and max values of mec. Used to get unifor subplots widths.
-        Note: currently, an exeption is hard-coded for Inverloch, which is one ad-hoc case used during code development. (TO BE UPDated)
-        figure_size (tuple): Tuple of float to specify images size. Default is (7.4).
-        font_scale (float): Scale of text.
-        sort_locations (bool): Wether or not to sort the locations according to the loc-order provided.
-        loc_order (list): Location order to plot locations.
-        dpi (int): Resolution in Dot Per Inch (DPI) to save the images.
-        img_type (str):  '.png','.pdf', '.ps', '.svg'. Format of the saved figures.
-        save_fig (bool): If True, saves the plots in the specified save_path. False is default.
-        name_fig (str): Name of the figure file to be saved.
-        save_path(str): Full path to a folder (e.g. C:\\jupyter\\images\\) where to save plots.
-
-    Returns:
-        Prints and optionally save global period-specific and cumulative MEC timeseries across all lcoations.
-    """
 
     pd.options.mode.chained_assignment = None  # default='warn'
 
@@ -860,7 +833,7 @@ def plot_mec_evolution(
     myFmt = DateFormatter("%d.%m.%y")
 
     # sort the locations
-    if bool(sort_locations):
+    if loc_order:
 
         sorterIndex = dict(zip(loc_order, range(len(loc_order))))
         volumetrics["loc_rank"] = volumetrics["location"].map(sorterIndex)
@@ -931,7 +904,7 @@ def plot_mec_evolution(
             ax_i.scatter(0, y_start[0], c="k", s=5, zorder=5)
 
             # ticks
-            if scale_mode == "optimised":
+            if scale_mode == "auto":
 
                 abs_range = abs(max(x) - (min(x)))
 

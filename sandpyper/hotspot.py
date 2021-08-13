@@ -37,29 +37,16 @@ import os
 
 
 class ProfileDynamics():
-    """
-    Create a Discretiser instance that classify a numeric field of a dataframe (with its fit method) into bins, using a specific method.
+    """Creates a ProfileDynamics object with a discretisation scheme to hold all volumetric and behavioural dynamics.
 
-    Args:
-        bins (list, int or None): If a list is provided, use those as break points to discretise the data.
-        If an integer is provided, this defines the desired number of bins. If None (Default), it automatically finds the best number of bins.
-        method (str): Name of the discretisation method to use, as specified by Pysal. Must be one of:
-
-        EqualInterval
-        FisherJenks
-        HeadTailBreaks
-        JenksCaspall
-        KClassifiers
-        Quantiles
-        Percentiles
-
-        Please visit Pysal documentation for more information :
-        https://pysal.org/notebooks/viz/mapclassify/intro.html#Map-Classifiers-Supported
-
-    returns:
-        Discretiser class.
+    Attributes:
+        bins (int)= Number of bins that both erosional and depositional classes will be partitioned into.
+        method (str)= Name of the algorithm used to discretise the data.
+        labels=labels (list)= Names of the magnitudes that each bin will represent, going from the smaller to the highest magnitude of change, like ["Small", "Medium", "High"] if bins=3.
+        ProfileSet (object)= ProfileSet object that stores all the monitoring information.
     """
 
+    # This dictionary is used to redirect to Pysal classification methods.
     dict_classifiers={'EqualInterval':EqualInterval,
      'FisherJenks':FisherJenks,
      'HeadTailBreaks':HeadTailBreaks,
@@ -70,6 +57,24 @@ class ProfileDynamics():
      'UserDefined':UserDefined}
 
     def __init__(self, ProfileSet, bins, method, labels=None):
+        """Example of docstring on the __init__ method.
+
+        The __init__ method may be documented in either the class level
+        docstring, or as a docstring on the __init__ method itself.
+
+        Either form is acceptable, but the two should not be mixed. Choose one
+        convention to document the __init__ method and be consistent with it.
+
+        Note:
+            Do not include the `self` parameter in the ``Args`` section.
+
+        Args:
+            param1 (str): Description of `param1`.
+            param2 (:obj:`int`, optional): Description of `param2`. Multiple
+                lines are supported.
+            param3 (:obj:`list` of :obj:`str`): Description of `param3`.
+
+        """
 
         if method not in self.dict_classifiers.keys():
             raise NameError(f"{method} not a valid method name. Supported method in this docstring.")
@@ -116,11 +121,36 @@ class ProfileDynamics():
 
 
     def save(self, name, out_dir):
+        """Save object using pickle.
+
+        Args:
+            name (str): Name of the file to save.
+            out_dir (str): Path to the directory where to save the object.
+
+        Returns:
+            pickle file.
+        """
+
         savetxt=f"{os.path.join(out_dir,name)}.p"
         pickle.dump( self, open( savetxt, "wb" ) )
         print(f"ProfileDynamics object saved in {savetxt} .")
 
     def compute_multitemporal(self, loc_full, lod_mode='inherited', geometry_column="coordinates", date_field='raw_date', filter_class=None):
+        """Compute points elevation change timeseries. Additionally, when LoD profiles had been provided during the ProfileSet object instantiation, compute LoD points as well. Additionally, creates time periods details table (dh_details).
+
+        Args:
+            loc_full (dict): Dictionary where keys are location codes ('mar') and values are full lengtht location names ('Marengo').
+            lod_mode (str): Values in meters (crs must be projected) used as distance band for neigthours definition in distance weigth matrix computation.
+            geometry_column (str): Name of the column storing the geometry information.
+            date_field (int): Name of the column storing the survey date information.
+            filter_class (list, str):  Name or list of names of classes used to filter data. For instance, setting this as 'sand' would compute elevation changes of sand only if 'sand' is a class previously computed.
+
+        Returns:
+            dh_df (pd.DataFrame): Dataframe storing elevation change timeseries. Stored in the ProfileDynamics.dh_df attribute.
+            dh_details (pd.DataFrame): Dataframe storing information about time periods. Stored in the ProfileDynamics.dh_details attribute.
+            lod_dh (pd.DataFrame): Dataframe storing elevation change timeseries of points along LoD transects. Stored in the ProfileDynamics.lod_dh attribute.
+        """
+
         self.dh_df = compute_multitemporal(self.ProfileSet.profiles,
             geometry_column=geometry_column,
             date_field=date_field,
@@ -169,8 +199,19 @@ class ProfileDynamics():
         else:
             raise ValueError("lod_mode must be 'inherited', None or a numeric value.")
 
-    def plot_lod_normality_check(self, locations, details_table=None, lod_df=None, alpha=0.05,xlims=None,ylim=None,qq_xlims=None,qq_ylims=None,figsize=(7,4)):
+    def plot_lod_normality_check(self, locations, alpha=0.05, xlims=None,ylim=None,
+        qq_xlims=None,qq_ylims=None,figsize=(7,4)):
+        """Plots the error density histograms and Q-Q plot of absolute error along with Saphiro-Wilk and D'Agostino-Pearson tests.
 
+        Args:
+            locations (list): Location codes to show plots of.
+            alpha (int): p-value threshold to define significance of statistical tests (default=0.05).
+            xlims (tuple): Min and max values for the histogram plot x axis.
+            ylim (tuple): Min and max values for the histogram plot y axis.
+            qq_xlims (tuple): Min and max values for the q-q plot x axis.
+            qq_ylims (tuple): Min and max values for the q-q plot y axis.
+            figsize (tuple): width and hieght (in inches) of the figure.
+        """
         if self.lod_created != 'yes':
             raise ValueError("LoD dataset has not been created.\
             Please run the profile extraction agains, providing transects specifically placed in pseudo-invariant areas, in order to create the LoD data and statistics.")
@@ -189,7 +230,26 @@ class ProfileDynamics():
     def LISA_site_level(self,
                         mode,
                         distance_value,
+                        decay=-2,
+                        k_value=300,
                         geometry_column="geometry"):
+        """Performs Hot-Spot analysis using Local Moran's I as Location Indicator of Spatial Association (LISA) with False Discovery Rate (fdr) correction for all the surveys.
+            Please refer to PySAL package documentation for more info.
+
+        Args:
+            mode (str): If 'distance'(Default), compute spatial weigth matrix using a distance-band kernel, specified in distance_value parameter.
+                                            If 'knn', spatial weigth matrix uses a specified (k_value parameter) of k number closest points to compute weigths.
+                                            if 'idw', Inverse Distance Weigthing is used with the specified decay power (decay parameter) to compute weigth.
+
+            distance_value (int): values in meters (crs must be projected) used as distance band for neigthours definition in distance weigth matrix computation.
+            decay (int): power of decay to use with IDW.
+            k_value (int): number of closest points for neigthours definition in distance weigth matrix computation.
+            geometry_column (str): field storing the geometry column. If in string form (as loaded from a csv), it will be converted to Point objects. Default='coordinates'.
+
+        Returns:
+            hotspots (pd.DataFrame): Dataframe stored in the ProfileDynamics.hotspots attribute, storing the fdr thresholds, local moran-s Is, p and z values and the quadrant
+            in which each observation falls in a Moran's scatter plot.
+        """
 
         self.hotspots = LISA_site_level(self.dh_df,
                                     mode=mode,
@@ -198,18 +258,18 @@ class ProfileDynamics():
                                     crs_dict_string=self.ProfileSet.crs_dict_string)
 
     def discretise(self, lod=None, absolute = True, field="dh", appendix = ("_deposition","_erosion"), print_summary=False):
-        """
-        Fit discretiser to the dataframe containing the field of interest.
+        """Fit the discretiser (specified when the ProfileDynamics object got instantiated) to the column of interest (default is 'dh').
 
         Args:
-            df (Pandas DataFrame): Dataframe with colum to discretise.
+            lod (int, float, pd.DataFrame): Limit of Detections to use. Can be a single value for all surveys, an LoD dataframe or None if no LoD filtering is to be used.
             absolute (bool): wether to discretise the absolute values of the data or not. If True (default), the bins will
             be derived from absolute values, then, classes will be assigned to both negative and positive numbers accordingly.
             field (str): Name of the column with data to discretise. Data must be numeric.
             appendix (tuple): String to append at the end of each label when absolute is True. Defaults = ("_deposition","_erosion").
+            print_summary (bool): If True, prints out the bins specifications and the sum of absolute deviations around class medians as a goodness-metric.
 
-        returns:
-            Input dataframe with added columns containing the bins and a column with the labels (if provided).
+        Returns:
+            df_labelled (pd.DataFrame): Dataframe stored in the ProfileDynamics.df_labelled attribute, storing 'markov_tag' column, which holds the class of magnitude of change which will be used in discrete Markov models to compute BCDs.
         """
         df=self.hotspots
 
@@ -276,15 +336,13 @@ class ProfileDynamics():
         self.df_labelled = pd.concat([data_ero,data_depo],ignore_index=False)
 
     def infer_weights(self, markov_tag_field="markov_tag"):
-        """Compute weights from dataset with markov labels to use for e-BCDs computation.
-            The medians of each magnitude class will be used as weight.
+        """Compute weights from dataset with markov labels to use for e-BCDs computations. The medians of each magnitude class will be used as weight.
 
         Args:
-            data (Pandas Dataframe): Pandas dataframe.
             markov_tag_field (str): Name of the column where markov tags are stored.
 
         Returns:
-            dict, containing the markov tags and associated weights.
+            weights_dict (dict): Dictionary storing magnitude class (markov_tags) weigths, stored in the ProfileDynamics.weights_dict attribute.
         """
         joined_re = r"|".join(self.labels)
         self.df_labelled["magnitude_class"] = [re.findall(joined_re,tag)[0] for tag in self.df_labelled.loc[:,markov_tag_field]]
@@ -295,29 +353,25 @@ class ProfileDynamics():
         # create a dictionary with all the weights in each tag
         self.weights_dict={tag:class_abs_medians[re.findall(joined_re,tag)[0]] for tag in self.tags}
 
-    def BCD_compute_location(self,unique_field, mode,store_neg, filterit):
-        """It computes all the first order stochastic transition matrices, based on the timeseries
-        of elevation change magnituteds across the beachface dataset (markov_tag dataframe), at the site level.
-
-        Warning: changing label order is not supported as submatrix partitioning is hard-coded.
+    def BCD_compute_location(self,unique_field, mode, store_neg, filterit):
+        """It computes first order stochastic transition matrices, Empirical and Residual Beachface Cluster Dynamics (e-BCDS, r-BCDs) indices at the location scale.
 
         Args:
-            dataset (dataframe): Dataframe with dh values timeseries.
-            weigth_dict (dict): dictionary containing each magnitude class as keys and value to be used to weigth each class as values.
-            This can be manually set or objectively returned by the infer_weights function (reccommended).
-            mode (float,"all","drop"): insert a float (default is 0.75) to indicate the percentage of time that
-            the points need to be significant clusters across the periods. The no cluster state is renamed "nnn".
+            unique_field (dataframe): Field storing spatial IDs, which identify a point in spatial dimension but not in temporal dimension. This naturally fits the geometry column so use 'geometry' if in doubt.
+            mode (str, float): If a float is provided, this indicates the percentage of time that
+            the points need to be significant clusters across the periods in order to be retained. The no cluster state is renamed "nnn".
             Insert "drop" to remove all cluster to no-cluster transitions, or 'all' to keep them all and rename
             cluster-to-no clsuter state 'nnn'.
-            unique_field (str) : The field contianing unique spatial IDs. Default is "geometry".
-            label_order: order to arrange the states in the first-order and steady-state matrices.
             store_neg (bool): If True (default), use the subtraction for diminishing trends. Default True.
-            filter (str): if None (default), all points will be used.
+            filterit (str): if None (default), all points will be used.
             If 'lod' or 'hotspot', only points above the LoDs or statistically significant clusters (hot/coldspots)
             will be retained. If 'both', both lod and hotspot filters will be applied.
+
         Returns:
-           Two dataframes. One is the e-BCDs and the second is the steady-state distribution dataframes.
-           Optionally plots the transition matrices and save them in the specified output folder.
+           location_ebcds (pd.DataFrame): Dataframe storing e-BCDs indices and trends (new ProfileDynamics attribute)
+           transitions_matrices (dict): (new ProfileDynamics attribute)
+           markov_details (dict): Dictionary storing number of points (n), number of timesteps (t) and number of transitions (n_transitions) for each location (new ProfileDynamics attribute)
+           location_ss (pd.DataFrame): Dataframe storing steady-state vectors and r-BCDs indices (new ProfileDynamics attribute)
         """
 
         steady_state_victoria = pd.DataFrame()
@@ -487,8 +541,16 @@ class ProfileDynamics():
             self.location_ss=merged
 
     def BCD_compute_transects(self, loc_specs, reliable_action, dirNameTrans=None):
+        """It computes Residual Beachface Cluster Dynamics (r-BCDs) indices at the transect scale.
 
+        Args:
+            loc_specs (dict): Dictionary specifying minimum required valid points per transect and minimum number of timesteps required to consider a transect reliable. Must be provided in this neste dictionary form: loc_specs={'mar':{'thresh':6,'min_points':6}, 'leo': {'thresh':4, 'min_points':5}}
+            reliable_action (str): If 'drop', only retains transects that are reliable. Otherwise, keep all the transects. The transect reliability depends on the thresh and min_points parameters provided with loc_specs dictionary.
+            dirNameTrans (str): Path of the directory containing the transect files (.gpkg, .shp).
 
+        Returns:
+            transects_rbcd (gpd.GeoDataFrame): GeoDataframe storing r-BCDs indices (new ProfileDynamics attribute).
+        """
         self.transects_rbcd=get_rbcd_transect(df_labelled=self.df_labelled,
                   loc_specs=loc_specs,
                   dirNameTrans=self.ProfileSet.dirNameTrans,
@@ -499,7 +561,17 @@ class ProfileDynamics():
 
 
     def compute_volumetrics(self, lod, outliers=False, sigma_n=3):
+        """Generate volumetric and altimetric change statistics both at the transect and location levels.
 
+        Args:
+            lod (pd.DataFrame, float, bool): If a DataFRame is provided, it must be have a column named location with location codes and another called lod with lod values. If a float is provided, uses this value across all the serveys. If False is provided, then don't use LoD filters.
+            outliers (bool): When True, use the specified number of standard deviations (sigma_n) to exclude outliers. If False, retain all the points.
+            sigma_n (int): Number of standard deviation to use to exclude outliers (default=3).
+
+        Returns:
+            location_volumetrics (pd.DataFrame): Dataframe containing change information at the location level (new attribute add to ProfileDynamics object)
+            transects_volumetrics (pd.DataFrame): Dataframe containing change information at the site level (new attribute add to ProfileDynamics object)
+        """
         self.dh_df["date_pre_dt"]=[datetime.datetime.strptime(str(pre),'%Y%m%d') for pre in self.dh_df.date_pre]
         self.dh_df["date_post_dt"]=[datetime.datetime.strptime(str(post),'%Y%m%d') for post in self.dh_df.date_post]
 
@@ -524,7 +596,21 @@ class ProfileDynamics():
 
     def plot_transects(self, location, tr_id, classified, dt=None, from_date=None, to_date=None, details_df=None,
                        figsize=None, palette ={"sand": "r", "water": "b", "veg": "g", "no_sand": "k"}):
+        """Visualise elevation profile changes between pre and post dates in selected locations, transect ids and time periods. If the data has been classified, it can also see what class each point was classified into.
 
+        Warning:
+            if classified=False, the points that have been filtered out will not be displayed. If classified=True, then all points will be plotted. This is done to have a visual understanding of the cleaning procedure applied and appreciate what is actually retained to compute change statistics.
+
+        Args:
+            location (str): Location code of of the transect to visualise.
+            tr_id (int): Id of the transect ot visualise.
+            classified (bool): If True, colour the points (set palette argument to control the colors) based on class.
+            dt (list): List of time periods (dt) to plot, like ['dt_0', 'dt_4', 'dt_2'].
+            from_date (str): Date of the pre-survey in raw format (yyyymmdd).
+            to_date (str): Date of the pre-survey (yyyymmdd).
+            figsize (tuple): Width and hieght (in inches) of the figure.
+            palette (dict): Dictionary where keys are class names and values the assigned colors in matplotlib-understandable format, like {"sand": "r", "water": "b", "veg": "g", "no_sand": "k"}.
+        """
             if dt != None:
 
                 if isinstance(dt, list):
@@ -607,6 +693,14 @@ class ProfileDynamics():
 
 
     def plot_transect_mecs(self, location, tr_id, lod=None, figsize=(10,5)):
+        """ Barplots summarising MEC of each transect across time and regressionplot.
+
+        Args:
+            location (str): Location code of of the transect to visualise.
+            tr_id (int): Id of the transect ot visualise.
+            lod (pd.DataFrame): If provided, filter dataset using survey-specific LoDs.
+            figsize (tuple): Width and hieght (in inches) of the figure.
+        """
 
         details=self.dh_details.query(f"location=='{location}'")
         full_loc=details.iloc[0]["loc_full"]
@@ -663,6 +757,18 @@ class ProfileDynamics():
                         xlabel="Survey date" ,
                         ylabel="Volume change (m³)",
                         suptitle="Volumetric Timeseries"):
+        """ Volume change timeseries of a location. Solid line are period-specific change and dashed ones are the cumulative change from the start of the monitoring.
+
+        Args:
+            loc_subset (str): Location code of of the transect to visualise.
+            colors_dict (int): Id of the transect ot visualise.
+            figsize (tuple): Width and hieght (in inches) of the figure.
+            linewidth (float): Width of the lines.
+            out_date_format (str): Format of the output date. Must be in the datetime.strptime format, like "%d/%m/%Y".
+            xlabel (str): Label of the x axis.
+            ylabel (str): Label of the y axis.
+            suptitle (str): Title of the plot.
+        """
 
         plot_single_loc(self.location_volumetrics,
                         loc_subset=loc_subset,
@@ -677,8 +783,6 @@ class ProfileDynamics():
     def plot_alongshore_change(self,
         mode,
         lod,
-        full_specs_table=None,
-        return_data=False,
         location_subset=None,
         dt_subset=None,
         ax2_y_lims=(-8, 5),
@@ -688,24 +792,45 @@ class ProfileDynamics():
         img_type=".png",
         from_land=True,
         from_origin=True,
-        add_orient=False,
         fig_size=None,
         font_scale=1,
         plots_spacing=0,
         bottom=False,
         y_heat_bottom_limit=None,
-        transect_spacing=None,
         heat_yticklabels_freq=None,
         heat_xticklabels_freq=None,
         outliers=False,
         sigma_n=3):
+        """ Display longshore altimetric and volumetric beach changes plots. A subset of locations and periods can be plotted. If LoD parameter is True (default), then white cells in the altimetric heatmap are values within LoD. Grey cells is no data or filtered-out points.
 
+        Args:
+            mode (str): If 'subset', only a subset of locations and dts are plotted. If 'all', all periods and locations are plotted. .
+            lod (pd.DataFrame, float, bool): If a DataFRame is provided, it must be have a column named location with location codes and another called lod with lod values. If a float is provided, uses this value across all the serveys. If False is provided, then don't use LoD filters.
+            location_subset (list): List of strings containing the location codes (e.g. wbl) to be plotted.
+            dt_subset (list): List of strings containing the period codes (e.g. dt_0) to be plotted.
+            ax2_y_lims (tuple): Limits of y-axis of alonghsore volumetric change plot. Default is (-8,5).
+            save (bool): If True, saves the plots in the specified save_path. False is default.
+            save_path (path): Full path to a folder (e.g. C:\\preferred\\folder\\) where to save plots.
+            dpi (int): Resolution in Dot Per Inch (DPI) to save the images.
+            img_type (str): '.png','.pdf', '.ps', '.svg'. Format of the saved figures.
+            from_land (bool): If True (default), cross-shore distances are transformed into landward distances, where 0 is the end of beachface.
+            from_origin (bool): If True (default), transect IDS are transformed in alongshore distance from origin (tr_id=0). It requires regularly spaced transects.
+            fig_size (tuple): Width and hieght (in inches) of the figure.
+            font_scale (float): Scale of text. Default=1.
+            plots_spacing (flaot): Vertical spacing of the heatmap and alongshore change plots. Default = 0.
+            bottom (bool): If True (default), rows are extended seaward too, up to y_heat_bottom_limit. If False, only distances from 0 to the first valid values will be added.
+            y_heat_bottom_limit (int): Lower boundary distance (seaward) to extend all transects to.
+            heat_yticklabels_freq (int): Plot a labels every n labels in the heatmap y axis.
+            heat_xticklabels_freq (int): Plot a labels every n labels in the heatmap x axis.
+            outliers (bool): When True, use the specified number of standard deviation to exclude outliers. If False, retain all the points.
+            sigma_n (int): Number of standard deviation to use to exclude outliers (default=3).
+        """
 
         plot_alongshore_change(self.dh_df,
             mode=mode,
             lod=lod,
             full_specs_table=self.dh_details,
-            return_data=return_data,
+            return_data=False,
             location_subset=location_subset,
             dt_subset=dt_subset,
             ax2_y_lims=ax2_y_lims,
@@ -715,7 +840,7 @@ class ProfileDynamics():
             img_type=img_type,
             from_land=from_land,
             from_origin=from_origin,
-            add_orient=add_orient,
+            add_orient=False,
             fig_size=fig_size,
             font_scale=font_scale,
             plots_spacing=plots_spacing,
@@ -730,10 +855,7 @@ class ProfileDynamics():
 
 
     def plot_mec_evolution(self,
-        location_field,
-        loc_order,
-        date_from_field="date_from",
-        date_to_field="date_to",
+        loc_order=None,
         date_format="%d.%m.%y",
         scale_mode="equal",
         x_diff=None,
@@ -742,19 +864,36 @@ class ProfileDynamics():
         x_binning=5,
         figure_size=(7, 4),
         font_scale=0.75,
-        sort_locations=True,
         dpi=300,
         img_type=".png",
         save_fig=False,
         name_fig=f"Mean Elevation Changes",
         save_path=None):
+        """Plot all locations period-specific and cumulative MECs side by side in a comparable way.
+
+        Args:
+            loc_order (list): List of location codes specifying the order (left-to-right) to plot timeseries.
+            date_format (str): Format of the output date. Must be in the datetime.strptime format, like "%d.%m.%y".
+            scale_mode (str): If ""equal", each location x axis limits are the same. This is useful for reliable visual comparison of MEC. If "auto", each location will have different x limits optimised for each location.
+            x_diff (dict): A dictionary where keys are location codes and values are x_min and x_max in a list, like {'leo': [-0.12, 0.1]}. If provided, this allows to keep all the locations x axis equal, except the locations specified in this dictionary.
+            dates_step (int): Plot one date label ever n in the y-axis.
+            x_limits (tuple): A tuple containing x_min and x_max to apply to all the locations x axis (except those specified with x_diff, if any).
+            x_binning (int): Plot one label ever n in the locations x-axis.
+            figure_size(tuple): Width and hieght (in inches) of the figure.
+            font_scale (float): Scale of text. Default=1.
+            dpi (int): Resolution in Dot Per Inch (DPI) to save the images.
+            img_type (str): '.png','.pdf', '.ps', '.svg'. Format of the saved figures.
+            save_fig (bool): If True, saves the plots in the specified save_path. False is default.
+            name_fig (str): Name to give to the figure to be saved.
+            save_path (str): Full path to a folder, like r"C:\\preferred\\folder\\", where to save the figure.
+        """
 
 
         plot_mec_evolution(self.location_volumetrics,
-            location_field=location_field,
+            location_field='location',
             loc_order=loc_order,
-            date_from_field=date_from_field,
-            date_to_field=date_to_field,
+            date_from_field="date_from",
+            date_to_field="date_to",
             date_format=date_format,
             scale_mode=scale_mode,
             x_diff=x_diff,
@@ -763,14 +902,11 @@ class ProfileDynamics():
             x_binning=x_binning,
             figure_size=figure_size,
             font_scale=font_scale,
-            sort_locations=sort_locations,
             dpi=dpi,
             img_type=img_type,
             save_fig=save_fig,
             name_fig=name_fig,
             save_path=save_path)
-
-
 
 
     def plot_trans_matrices(self,
@@ -782,7 +918,20 @@ class ProfileDynamics():
                         font_scale=0.75,
                         dpi=300,
                         save_it=False,
-                        save_output="C:\\your\\preferred\\folder\\"):
+                        save_output=r"C:\\your\\preferred\\folder\\"):
+        """Plot location-specific first-order stochastic matrices, representing the probability of each transition of a point (discretised into magnitude of change classes) of going from an initial state (matrices row) to a second state (matrices column) in one time period. These probabilities are the absis for the computation of the e-BCDs
+
+        Args:
+            relabel_dict (dict): Dictionary where keys are the magnitude of change classes and values a corresponding abbreviation, like {'Undefined_deposition': 'ue','Undefined_erosion': 'ue', 'Small_deposition': 'sd'}. This is useful in case of long names and abbreviations allows a much better visualisation.
+            titles (list): List of names to assign to each submatrices, which define the behaviour of each matrices transitions. Default is ["Erosional", "Recovery", "Depositional", "Vulnerability"].
+            cmaps (list) : List of color ramps to assign to each matrices. It must be in the same order as specified in the titles parameter. Dafault is ["Reds", "Greens", "Blues", "PuRd"].
+            fig_size (tuple): Width and hieght (in inches) of the figure.
+            heat_annot_size (int): Size of the annotations (probabilities) inside each matrices cells.
+            font_scale (float): Scale of text. Default=1.
+            dpi (int): Resolution in Dot Per Inch (DPI) to save the images.
+            save_it (bool): If True, saves the plots in the specified save_path. False is default.
+            save_output (str): Full path to a folder, like r"C:\\preferred\\folder\\", where to save the figure.
+        """
 
         for loc in self.df_labelled.location.unique():
             std_excluding_nnn = np.array(self.transitions_matrices[f"{loc}"]).flatten().std()
@@ -821,13 +970,22 @@ class ProfileDynamics():
 
 
     def plot_location_ebcds(self,
-                        loc_order=["mar","leo"],
+                        loc_order,
                         palette_dyn_states ={"Erosional":"r","Recovery":"g","Depositional":"b","Vulnerability":"purple"},
-                        orders=["Erosional","Recovery","Depositional","Vulnerability"],
-                        xticks_labels=["Marengo","St. Leo."],
-                           figsize=(8,4),
-                           font_scale=0.8):
+                        b_order=["Erosional","Recovery","Depositional","Vulnerability"],
+                        xticks_labels=None,
+                        figsize=(8,4),
+                        font_scale=0.8):
+        """Plot location-specific Empirical Beachface Cluster Dynamics indices and their trend in the form as a plus sign for increasing trend and a minus for decreasing trends.
 
+        Args:
+            loc_order (list): List of location codes specifying the order (left-to-right) to plot.
+            palette_dyn_states (dict): Dictionary where keys are the behaviours and values the color to be assigned, like {"Erosional":"r","Recovery":"g","Depositional":"b","Vulnerability":"purple"}.
+            b_order (list) : List of behaviours specifying the order (left-to-right) to plot. Default is ["Erosional","Recovery","Depositional","Vulnerability"].
+            figsize (tuple): Width and height (in inches) of the figure.
+            xticks_labels (list): If provided, rename the x labels of the plot (locations) from left to right, like ["Marengo","St. Leo"].
+            font_scale (float): Scale of text. Default=0.8.
+        """
 
         f,ax=plt.subplots(figsize=figsize)
 
@@ -838,10 +996,10 @@ class ProfileDynamics():
                   order=loc_order, palette=palette_dyn_states)
 
 
-        ax.set_xticklabels(labels=xticks_labels)
+        if xticks_labels:
+            ax.set_xticklabels(labels=xticks_labels)
         ax.set_xlabel("")
         ax.set_ylabel("e-BCD")
-
 
         txt_heights=[i.get_height() for i in ax.patches]
 
@@ -869,8 +1027,7 @@ class ProfileDynamics():
 
         plt.tight_layout()
 
-    #f.savefig(r'E:\\path\\to\\save\\picture.png', dpi=600);
-
+###__________________FUNCTIONS________________________________
 
 def LISA_site_level(
     dh_df,
