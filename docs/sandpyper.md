@@ -1,1 +1,1 @@
-::: sandpyper.common
+::: sandpyper.sandpyper

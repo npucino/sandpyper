@@ -1,6 +1,23 @@
 """Main Sandpyper module defining the ProfileSet and ProfileDynamics classes with their analytical and plotting methods.
 """
+import numpy as np
+import pandas as pd
+import geopandas as gpd
+import pickle
+import re
+import datetime
+import seaborn as sb
+import matplotlib.pyplot as plt
 
+from pysal.explore.giddy.markov import Markov
+from pysal.viz.mapclassify import (EqualInterval,
+                                   FisherJenks,
+                                   HeadTailBreaks,
+                                   JenksCaspall,
+                                   KClassifiers,
+                                   Quantiles,
+                                   Percentiles,
+                                   UserDefined)
 
 from sandpyper.common import (
     compute_multitemporal,
