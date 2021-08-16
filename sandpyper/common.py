@@ -5819,11 +5819,11 @@ def shoreline_from_prediction(
 def LISA_site_level(
     dh_df,
     crs_dict_string,
-    geometry_column="coordinates",
-    mode="distance",
-    distance_value=35,
-    decay=-2,
-    k_value=300):
+    mode,
+    distance_value=None,
+    decay=None,
+    k_value=None,
+    geometry_column='geometry'):
     """Performs Hot-Spot analysis using Local Moran's I as LISA for all the survey.
         Please refer to PySAL package documentation for more info.
 
@@ -5914,12 +5914,11 @@ def LISA_site_level(
 
             elif mode == "knn":
 
-                k = k_value
                 dist_mode = "k"
                 decay = 0
                 dist = k_value
 
-                dist_w = weights.distance.KNN.from_dataframe(df=gdf_input, k=int(k))
+                dist_w = weights.distance.KNN.from_dataframe(df=gdf_input, k=int(k_value))
 
             lisa_ = moran.Moran_Local(gdf_input.dh, dist_w, permutations=999)
 

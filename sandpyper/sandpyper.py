@@ -474,9 +474,9 @@ class ProfileDynamics():
 
     def LISA_site_level(self,
                         mode,
-                        distance_value,
-                        decay=-2,
-                        k_value=300,
+                        distance_value=None,
+                        decay=None,
+                        k_value=None,
                         geometry_column="geometry"):
         """Performs Hot-Spot analysis using Local Moran's I as Location Indicator of Spatial Association (LISA) with False Discovery Rate (fdr) correction for all the surveys.
             Please refer to PySAL package documentation for more info.
@@ -496,11 +496,14 @@ class ProfileDynamics():
             in which each observation falls in a Moran's scatter plot.
         """
 
-        self.hotspots = LISA_site_level(self.dh_df,
+        self.hotspots = LISA_site_level(dh_df=self.dh_df,
                                     mode=mode,
                                     distance_value=distance_value,
                                     geometry_column=geometry_column,
+                                    decay=decay,
+                                    k_value=k_value,
                                     crs_dict_string=self.ProfileSet.crs_dict_string)
+
 
     def discretise(self, lod=None, absolute = True, field="dh", appendix = ("_deposition","_erosion"), print_summary=False):
         """Fit the discretiser (specified when the ProfileDynamics object got instantiated) to the column of interest (default is 'dh').

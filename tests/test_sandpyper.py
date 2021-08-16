@@ -359,24 +359,49 @@ class TestProfileDynamics(unittest.TestCase):
         self.assertEqual(list(self.D.dh_df.class_filter.unique()),  ['no_filters_applied'])
 
     def test_012_dh_details(self):
-        prepostcheck=[str(pre)+str(post) for pre,post in zipself.(D.dh_details.iloc[:5]['date_pre'],self.D.dh_details.iloc[:5]['date_post'])]
-        
+        prepostcheck=[str(pre)+str(post) for pre,post in zip(self.D.dh_details.iloc[:5]['date_pre'],self.D.dh_details.iloc[:5]['date_post'])]
+
         self.assertEqual(self.D.dh_details.shape, (13, 6))
         self.assertEqual(self.D.dh_details.n_days.sum(), 769)
         self.assertEqual(prepostcheck, ['2018060620180713','2018071320180920','2018092020190211','2019021120190328','2019032820190731'])
 
     def test_013_lod_tables(self):
         self.assertEqual(self.D.lod_dh.shape, (1155, 12))
-        self.assertEqual(self.D.lod_dh.shape, (1155, 12))
+        self.assertEqual(self.D.lod_df.shape, (13, 18))
 
         self.assertEqual(self.D.lod_dh.dh_abs.sum(), 193.05977356433868)
         self.assertEqual(self.D.lod_df.rrmse.sum(),1.2861174673896938)
 
+        self.assertEqual(self.D.lod_df.isna().sum().sum(),0)
+        self.assertEqual(self.D.lod_dh.isna().sum().sum(),0)
 
-        self.assertEqual(prepostcheck, ['2018060620180713','2018071320180920','2018092020190211','2019021120190328','2019032820190731'])
+    def test_014_LISA_notebook(self):
+        self.assertEqual(self.D.hotspots.shape, (5112, 21))
+        self.assertEqual(self.D.hotspots.isna().sum().sum(),0)
+        self.assertEqual(self.D.hotspots.lisa_I.sum(),1187.7767310601516)
+        self.assertEqual(self.D.hotspots.lisa_opt_dist.unique()[0],35)
+        self.assertEqual(self.D.hotspots.lisa_dist_mode.unique()[0],'distance_band')
+        self.assertEqual(self.D.hotspots.decay.unique()[0],0)
 
+    def test_014_LISA_idw(self):
+        self.D.LISA_site_level(mode="idw", distance_value=100)
 
+        self.assertEqual(self.D.hotspots.shape, (5112, 21))
+        self.assertEqual(self.D.hotspots.isna().sum().sum(),0)
+        self.assertEqual(self.D.hotspots.lisa_I.sum(),3693.3532825625425)
+        self.assertEqual(self.D.hotspots.lisa_opt_dist.unique()[0],100)
+        self.assertEqual(self.D.hotspots.lisa_dist_mode.unique()[0],'idw')
+        self.assertEqual(self.D.hotspots.decay.unique()[0],-2)
 
+    def test_014_LISA_knn(self):
+        self.D.LISA_site_level(mode="knn", k_value=20)
+
+        self.assertEqual(self.D.hotspots.shape, (5112, 21))
+        self.assertEqual(self.D.hotspots.isna().sum().sum(),0)
+        self.assertEqual(self.D.hotspots.lisa_I.sum(),)
+        self.assertEqual(self.D.hotspots.lisa_opt_dist.unique()[0],20)
+        self.assertEqual(self.D.hotspots.lisa_dist_mode.unique()[0],'knn')
+        self.assertEqual(self.D.hotspots.decay.unique()[0],-2)
 
 
 if __name__ == '__main__':
