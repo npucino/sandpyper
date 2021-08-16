@@ -1,5 +1,6 @@
 """Main Sandpyper module defining the ProfileSet and ProfileDynamics classes with their analytical and plotting methods.
 """
+import os
 import numpy as np
 import pandas as pd
 import geopandas as gpd
@@ -8,6 +9,7 @@ import re
 import datetime
 import seaborn as sb
 import matplotlib.pyplot as plt
+from itertools import product as prod
 
 from pysal.explore.giddy.markov import Markov
 from pysal.viz.mapclassify import (EqualInterval,
@@ -18,6 +20,8 @@ from pysal.viz.mapclassify import (EqualInterval,
                                    Quantiles,
                                    Percentiles,
                                    UserDefined)
+
+import shapely
 
 from sandpyper.common import (
     compute_multitemporal,

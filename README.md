@@ -179,6 +179,7 @@ For the API reference, see the [Documentation](https://npucino.github.io/sandpyp
 <ol>
     <li> Add raster support for Dems of Differences (DoDs) and LoDs.</li>
     <li> Add shoreline analysis from space.</li>
+    <li> Add [leafmap](https://github.com/giswqs/leafmap) to better (interactive) plotting.</li>
 </ol>
 
 See the [open issues](https://github.com/npucino/sandpyper/issues) for a list of proposed features (and known issues).

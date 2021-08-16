@@ -5,7 +5,7 @@ import os
 import re
 import random
 import glob
-from datetime import datetime
+import datetime
 import time
 import warnings
 import pickle
@@ -93,7 +93,6 @@ from shapely.geometry import Point
 import pandas as pd
 import geopandas as gpd
 from tqdm.notebook import tqdm
-import datetime
 
 import os
 import time
@@ -103,8 +102,6 @@ import pickle
 
 # TO MODIFY IN SPACE FUNCTIONS #################################
 import itertools as it
-import datetime as dt
-from itertools import product as prod
 
 
 
@@ -169,7 +166,7 @@ def find_date_string(
             return True
         else:
             group_split = group.split("_")
-            dt = datetime.strptime(
+            dt = datetime.datetime.strptime(
                 f"{group_split[1]}{group_split[2]}{group_split[3]}", "%d%b%Y"
             )
             return dt.strftime("%Y%m%d")
@@ -647,7 +644,7 @@ def create_details_df (dh_df, loc_full, fmt='%Y%m%d'):
         locs_dt_str=pd.concat([df_time_tmp,locs_dt_str], ignore_index=True)
 
     # add days between dates
-    deltas=[(datetime.strptime(str(d_to), fmt) - datetime.strptime(str(d_from), fmt)).days
+    deltas=[(datetime.datetime.strptime(str(d_to), fmt) - datetime.datetime.strptime(str(d_from), fmt)).days
             for d_to,d_from in zip(locs_dt_str.date_post,locs_dt_str.date_pre)]
     locs_dt_str['n_days']=deltas
 
@@ -4102,7 +4099,7 @@ def extract_shore_pts(
     df["geometry"] = correct_multi_detections(df, transects)
 
     gdf = gpd.GeoDataFrame(df, geometry="geometry", crs=crs)
-    #     gdf['date_formatted']=[dt.datetime.strptime(str(raw_date),raw_date_format) for raw_date in gdf.raw_date]
+    #     gdf['date_formatted']=[datetime.datetime.strptime(str(raw_date),raw_date_format) for raw_date in gdf.raw_date]
 
     return gdf
 
