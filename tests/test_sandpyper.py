@@ -5,28 +5,35 @@
 
 import unittest
 import os
+import pickle
 import numpy as np
 import geopandas as gpd
 import pandas as pd
-from sandpyper.profile import extract_from_folder
-from sandpyper.dynamics import compute_multitemporal
-from sandpyper.space import create_transects
-from sandpyper.labels import get_sil_location, get_opt_k, kmeans_sa
-from sandpyper.outils import coords_to_points, create_details_df
-from sandpyper.hotspot import LISA_site_level, Discretiser
-import re
+import shapely
+
+
+from sandpyper.sandpyper import ProfileSet, ProfileDynamics
+from sandpyper.common import get_sil_location, get_opt_k, create_transects, sensitivity_tr_rbcd
 
 pd.options.mode.chained_assignment = None  # default='warn'
 
+
 # create global variables used across the test analysis
 loc_codes=["mar","leo"]
+
 loc_full={'mar': 'Marengo',
          'leo': 'St. Leonards'}
+
+loc_specs={'mar':{'thresh':6,
+       'min_points':6}}
+
 loc_search_dict = {'leo': ['St', 'Leonards', 'leonards', 'leo'], 'mar': ['Marengo', 'marengo', 'mar'] }
 crs_dict_string = {'mar': {'init': 'epsg:32754'}, 'leo':{'init': 'epsg:32755'} }
 
 labels=["Undefined", "Small", "Medium", "High", "Extreme"]
+
 appendix=["_deposition", "_erosion"]
+
 relabel_dict={"Undefined_erosion":"ue",
             "Small_erosion":"se",
             "Medium_erosion":"me",
@@ -39,6 +46,80 @@ relabel_dict={"Undefined_erosion":"ue",
              "Extreme_deposition":"ed"
             }
 
+transects_spacing=20
+
+feature_set=["band1","band2","band3","distance"]
+
+water_dict={'leo_20180606':[0,9,10],
+'leo_20180713':[0,3,4,7],
+'leo_20180920':[0,2,6,7],
+'leo_20190211':[0,2,5],
+'leo_20190328':[2,4,5],
+'leo_20190731':[0,2,8,6],
+'mar_20180601':[1,6],
+'mar_20180621':[4,6],
+'mar_20180727':[0,5,9,10],
+'mar_20180925':[6],
+'mar_20181113':[1],
+'mar_20181211':[4],
+'mar_20190205':[],
+'mar_20190313':[],
+'mar_20190516':[4,7]}
+
+no_sand_dict={'leo_20180606':[5],
+'leo_20180713':[],
+'leo_20180920':[],
+'leo_20190211':[1],
+'leo_20190328':[],
+'leo_20190731':[1],
+'mar_20180601':[4,5],
+'mar_20180621':[3,5],
+'mar_20180727':[4,7],
+'mar_20180925':[5],
+'mar_20181113':[0],
+'mar_20181211':[0],
+'mar_20190205':[0,5],
+'mar_20190313':[4],
+'mar_20190516':[2,5]}
+
+veg_dict={'leo_20180606':[1,3,7,8],
+'leo_20180713':[1,5,9],
+'leo_20180920':[1,4,5],
+'leo_20190211':[4],
+'leo_20190328':[0,1,6],
+'leo_20190731':[3,7],
+'mar_20180601':[0,7],
+'mar_20180621':[1,7],
+'mar_20180727':[1,3],
+'mar_20180925':[1,3],
+'mar_20181113':[3],
+'mar_20181211':[2],
+'mar_20190205':[3],
+'mar_20190313':[1,5],
+'mar_20190516':[0]}
+
+sand_dict={'leo_20180606':[2,4,6],
+'leo_20180713':[2,6,8],
+'leo_20180920':[3],
+'leo_20190211':[3],
+'leo_20190328':[3],
+'leo_20190731':[4,5],
+'mar_20180601':[2,3],
+'mar_20180621':[0,2],
+'mar_20180727':[2,6,8],
+'mar_20180925':[0,4,2],
+'mar_20181113':[2,4],
+'mar_20181211':[3,1],
+'mar_20190205':[1,2,4],
+'mar_20190313':[0,2,3],
+'mar_20190516':[1,3,6]}
+
+
+l_dicts={'no_sand': no_sand_dict,
+         'sand': sand_dict,
+        'water': water_dict,
+        'veg':veg_dict}
+
 if os.getcwdb() != b'C:\\my_packages\\sandpyper\\tests': # if the script is running in github action as a workflow and not locally
 
     shoreline_leo_path = os.path.abspath("tests/test_data/shorelines/leo_shoreline_short.gpkg")
@@ -46,6 +127,11 @@ if os.getcwdb() != b'C:\\my_packages\\sandpyper\\tests': # if the script is runn
     dsms_dir_path = os.path.abspath('tests/test_data/dsm_1m/')
     orthos_dir_path = os.path.abspath('tests/test_data/orthos_1m')
     transects_path = os.path.abspath('tests/test_data/transects')
+    lod_mode=os.path.abspath('tests/test_data/lod_transects')
+    label_corrections_path=os.path.abspath("tests/test_data/clean/label_corrections.gpkg")
+    watermasks_path=os.path.abspath("tests/test_data/clean/watermasks.gpkg")
+    shoremasks_path=os.path.abspath("tests/test_data/clean/shoremasks.gpkg")
+    test_pickled=os.path.abspath("tests/test_data/test.p")
 
 else:
 
@@ -54,6 +140,11 @@ else:
     dsms_dir_path = os.path.abspath('test_data/dsm_1m/')
     orthos_dir_path = os.path.abspath('test_data/orthos_1m/')
     transects_path = os.path.abspath('test_data/transects/')
+    lod_mode=os.path.abspath('test_data/lod_transects')
+    label_corrections_path=os.path.abspath("test_data/clean/label_corrections.gpkg")
+    watermasks_path=os.path.abspath("test_data/clean/watermasks.gpkg")
+    shoremasks_path=os.path.abspath("test_data/clean/shoremasks.gpkg")
+    test_pickled=os.path.abspath("test_data/tests/test_data/test.p")
 
 
 class TestCreateProfiles(unittest.TestCase):
@@ -127,111 +218,67 @@ class TestCreateProfiles(unittest.TestCase):
                                   )
         self.assertTrue(right.touches(left).all())
 
-class TestSandpyper(unittest.TestCase):
-    """Tests the extraction from profiles function."""
+class TestProfileSet(unittest.TestCase):
+    """Tests the ProfileSet pipeline."""
 
     @classmethod
     def setUpClass(cls):
-        ############################# Profile extraction module ######################
+        ############################# Profile extraction ######################
 
-        cls.gdf = extract_from_folder(dataset_folder=dsms_dir_path,
-                        transect_folder=transects_path,
-                        mode="dsm",sampling_step=1,
-                        list_loc_codes=loc_codes,
-                        add_xy=True)
+        cls.P = ProfileSet(dirNameDSM=dsms_dir_path,
+                        dirNameOrtho=orthos_dir_path,
+                        dirNameTrans=transects_path,
+                        transects_spacing=transects_spacing,
+                        loc_codes=loc_codes,
+                        loc_search_dict=loc_search_dict,
+                        crs_dict_string=crs_dict_string,
+                        check="all")
 
-        cls.gdf_rgb = extract_from_folder(dataset_folder=orthos_dir_path,
-                        transect_folder=transects_path,
-                        mode="ortho",sampling_step=1,
-                        list_loc_codes=loc_codes,
-                        add_xy=True)
-
-
-        ############################# Silhouette Analysis and KMeans clustering module ######################
+        cls.P.extract_profiles(mode='all',tr_ids='tr_id',sampling_step=1,add_xy=True,lod_mode=lod_mode)
 
 
-        cls.rgbz_gdf = pd.merge(cls.gdf,cls.gdf_rgb[["band1","band2","band3","point_id"]],on="point_id",validate="one_to_one")
-        cls.rgbz_gdf['geometry']=cls.rgbz_gdf.coordinates
+        ############################# Iterative Silhouette Analysis with inflexion point search ######################
 
-        # replace empty values with np.NaN
-        cls.rgbz_gdf = cls.rgbz_gdf.replace("", np.NaN)
 
-        # and convert the z column into floats.
-        cls.rgbz_gdf['z'] = cls.rgbz_gdf.z.astype("float")
-
-        # Our rasters have NaN values set to -32767.0. Thus, we replace them with np.Nan.
-        cls.rgbz_gdf.z.replace(-32767.0,np.nan,inplace=True)
-
-        # Our rasters have NaN values set to -32767.0. Thus, we replace them with np.Nan.
-        feature_set=["band1","band2","band3","distance"]
-        cls.sil_df = get_sil_location(cls.rgbz_gdf,
+        cls.sil_df = get_sil_location(cls.P.profiles,
                                 ks=(2,15),
                                 feature_set=feature_set,
                                random_state=10)
 
         cls.opt_k = get_opt_k(cls.sil_df, sigma=0 )
-        cls.data_classified = kmeans_sa(cls.rgbz_gdf, cls.opt_k, feature_set=feature_set)
 
+        cls.P.kmeans_sa(cls.opt_k, feature_set=feature_set)
+        cls.check_pre_cleanit=(cls.P.profiles.label_k.iloc[171],cls.P.profiles.label_k.iloc[666],cls.P.profiles.label_k.iloc[0],cls.P.profiles.label_k.iloc[-1])
 
-        cls.dh_df=compute_multitemporal(cls.data_classified,
-                              date_field='raw_date', filter_sand=False,
-                              sand_label_field='label_sand')
+        ############################# Cleaning ######################
 
-        cls.dt_details = create_details_df(cls.dh_df, loc_full)
+        cls.P.cleanit(l_dicts=l_dicts,
+          watermasks_path=watermasks_path,
+          shoremasks_path=shoremasks_path,
+          label_corrections_path=label_corrections_path)
 
-
-        ############################# HotSpot module ######################
-
-        cls.lisa_df_dist=LISA_site_level(dh_df=cls.dh_df,
-                                mode='distance',
-                                distance_value=35,
-                                geometry_column="geometry",
-                                crs_dict_string=crs_dict_string)
-
-        cls.lisa_df_knn=LISA_site_level(dh_df=cls.dh_df,
-                                mode='knn',k_value=50,
-                                distance_value=0,
-                                geometry_column="geometry",
-                                crs_dict_string=crs_dict_string)
-
-        cls.lisa_df_idw=LISA_site_level(dh_df=cls.dh_df,
-                        mode='idw',k_value=0,
-                        distance_value=35,
-                        geometry_column="geometry",
-                        crs_dict_string=crs_dict_string)
-
-
-        ############################# Dynamics module ######################
-
-
-        cls.D = Discretiser(bins=5, method="JenksCaspall", labels=labels)
+        cls.check_post_cleanit=(cls.P.profiles.label_k.iloc[171],cls.P.profiles.label_k.iloc[666],cls.P.profiles.label_k.iloc[0],cls.P.profiles.label_k.iloc[-1])
 
 
     @classmethod
     def tearDownClass(cls):
-        cls.gdf
-        cls.gdf_rgb
-        cls.rgbz_gdf
+        cls.P
         cls.sil_df
         cls.opt_k
-        cls.data_classified
-        cls.dh_df
-        cls.dt_details
-        cls.lisa_df_dist
-        cls.lisa_df_knn
-        cls.lisa_df_idw
 
-    def test_004_extract_DSM(self):
-        """Test extraction from folders of DSMs."""
+    def test_004_check_dataframe(self):
+        """Test the check dataframe creation."""
 
-        nan_values=-10000 # the values representing NaN in the test rasters
-        nan_out = np.count_nonzero(np.isnan(np.array(self.gdf.z).astype("f"))) # count the number of points outside the raster extents
-        nan_raster = np.count_nonzero(self.gdf.z == nan_values) # count the number of points in NoData areas within the raster extents.Should be zero.
+        self.assertEqual(self.P.check.shape, (15, 8))
+        self.assertTrue((self.P.check.iloc[:,-2]==self.P.check.iloc[:,-1]).all())
+        self.assertIsInstance(self.P.check, pd.DataFrame)
+
+    def test_005_extractions(self):
 
         # check sampling step of points on first, last and random transects
-        test_slice=self.gdf.query("location=='mar' & survey_date=='2019-05-16'").copy()
+        test_slice=self.P.profiles.query("location=='mar' & survey_date=='2019-05-16'").copy()
         test_slice.loc[:,'next_point']=test_slice.loc[:,'coordinates'].shift(1)
-        test_slice_tr0=test_slice.query("tr_id==0").iloc[1:,:].copy()
+        test_slice_tr0=test_slice.query(f"tr_id=={test_slice.tr_id.iloc[-1]}").iloc[1:,:].copy()
         test_slice_last=test_slice.query(f"tr_id=={max(test_slice.tr_id.unique())}").copy()
         test_slice_rand=test_slice.query(f"tr_id=={np.random.randint(min(test_slice.tr_id.unique()),max(test_slice.tr_id.unique()))}").iloc[1:,:].copy()
 
@@ -240,60 +287,97 @@ class TestSandpyper(unittest.TestCase):
         pts_spacing_rand=np.nanmean(test_slice_rand.coordinates.set_crs(32754).distance(test_slice_rand.next_point.set_crs(32754)))
 
 
-        self.assertEqual(self.gdf.shape, (32805, 10))
-        self.assertEqual(nan_out, 9316) # differs from the printed out value from the function extract_from_folder as includes additional cleaning.
-        self.assertEqual(nan_raster, 0)
-        self.assertEqual(self.gdf.z.sum(), 55398.192078785054)
-        self.assertIsInstance(self.gdf,  gpd.GeoDataFrame)
+        self.assertEqual(self.P.profiles.shape[0], 17508)
+        self.assertEqual(self.P.profiles.isna()['z'].sum(), 0)
+        self.assertIsInstance(self.P.profiles,  gpd.GeoDataFrame)
         self.assertAlmostEqual(pts_spacing_0, 1) # check if the sampling point spacing is actually 1m, as specified in the fn parameter
         self.assertAlmostEqual(pts_spacing_last, 1) # check if the sampling point spacing is actually 1m, as specified in the fn parameter
         self.assertAlmostEqual(pts_spacing_rand, 1) # check if the sampling point spacing is actually 1m, as specified in the fn parameter
 
+    def test_006_iter_sil_location(self):
+        self.assertFalse(self.sil_df.empty)
+        self.assertEqual(self.sil_df.shape, (195, 4))
+        self.assertIsInstance(self.sil_df,  pd.DataFrame)
+        self.assertTrue(self.P.profiles.raw_date.unique().sort()==self.sil_df.raw_date.unique().sort())
+        self.assertEqual(self.sil_df.k.max(), 14)
+        self.assertEqual(self.sil_df.k.min(), 2)
 
-    def test_005_extract_ORTHO(self):
-        """Test extraction from folders of orthophotos"""
+    def test_007_optimal_k(self):
+        self.assertEqual(len(self.opt_k), 15)
+        self.assertIsInstance(self.opt_k,  dict)
+        self.assertTrue(len(self.opt_k)==self.P.profiles.groupby(["location","raw_date"]).raw_date.count().shape[0])
+        self.assertEqual(self.opt_k['leo_20190328'], 7)
+
+    def test_008_correction(self):
+        self.assertIsInstance(self.P.profiles.label_k[0],  np.int32)
+        self.assertEqual(check_pre_cleanit, (7, 1, 8, 0))
+        self.assertEqual(check_post_cleanit, (9, 0, 8, 2))
+
+class TestProfileDynamics(unittest.TestCase):
+    """Tests the ProfileDynamics pipeline."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.P = pickle.load(open(test_pickled, "rb"))
+        cls.D = ProfileDynamics(cls.P, bins=5, method="JenksCaspall", labels=labels)
+        cls.D.compute_multitemporal(loc_full=loc_full, filter_class='sand')
+        cls.D.compute_volumetrics(lod=cls.D.lod_df)
+        cls.D.LISA_site_level(mode="distance", distance_value=35)
+        cls.D.discretise(absolute=True, print_summary=True, lod=cls.D.lod_df, appendix=appendix)
+        cls.D.infer_weights()
+        cls.D.BCD_compute_location("geometry","all",True, filterit='lod')
+        cls.D.BCD_compute_transects(loc_specs=loc_specs,reliable_action='keep', dirNameTrans=cls.D.ProfileSet.dirNameTrans)
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.P
+        cls.D
+
+    def test_009_ProfileDynamics(self):
+        self.assertEqual(self.D.bins,  5)
+        self.assertEqual(self.D.labels,  ['Undefined', 'Small', 'Medium', 'High', 'Extreme'])
+        self.assertIsInstance(self.D.ProfileDynamics,  sandpyper.sandpyper.ProfileDynamics)
+        self.assertIsInstance(self.D.ProfileSet,  sandpyper.sandpyper.ProfileSet)
+
+    def test_010_ProfileDynamics_sand(self):
+        self.assertEqual(self.D.dh_df.shape, (5112, 11))
+        self.assertEqual(self.D.dh_df.dh.sum(),  265.5305953633506)
+        self.assertEqual(list(D.dh_df.query("location=='mar'").dt.unique()),['dt_7', 'dt_6', 'dt_5', 'dt_4', 'dt_3', 'dt_2', 'dt_1', 'dt_0'])
+        self.assertEqual(list(D.dh_df.query("location=='leo'").dt.unique()),['dt_4', 'dt_3', 'dt_2', 'dt_1', 'dt_0'])
+
+        self.assertIsInstance(self.D.dh_df.geometry.iloc[0],  shapely.geometry.point.Point)
+
+    def test_011_dh_class_filters(self):
+        self.D.compute_multitemporal(loc_full=loc_full, filter_class=['veg','no_sand'])
+        self.assertEqual(self.D.dh_df.shape, (1245, 11))
+        self.assertEqual(self.D.dh_df.dh.sum(),  -48.3220699429512)
+        self.assertEqual(list(self.D.dh_df.class_filter.unique()),  ['veg_no_sand'])
+
+        self.D.compute_multitemporal(loc_full=loc_full, filter_class=None)
+        self.assertEqual(self.D.dh_df.shape, (14800, 11))
+        self.assertEqual(self.D.dh_df.dh.sum(),  144.2691128794686)
+        self.assertEqual(list(self.D.dh_df.class_filter.unique()),  ['no_filters_applied'])
+
+    def test_012_dh_details(self):
+        prepostcheck=[str(pre)+str(post) for pre,post in zipself.(D.dh_details.iloc[:5]['date_pre'],self.D.dh_details.iloc[:5]['date_post'])]
+        
+        self.assertEqual(self.D.dh_details.shape, (13, 6))
+        self.assertEqual(self.D.dh_details.n_days.sum(), 769)
+        self.assertEqual(prepostcheck, ['2018060620180713','2018071320180920','2018092020190211','2019021120190328','2019032820190731'])
+
+    def test_013_lod_tables(self):
+        self.assertEqual(self.D.lod_dh.shape, (1155, 12))
+        self.assertEqual(self.D.lod_dh.shape, (1155, 12))
+
+        self.assertEqual(self.D.lod_dh.dh_abs.sum(), 193.05977356433868)
+        self.assertEqual(self.D.lod_df.rrmse.sum(),1.2861174673896938)
 
 
-        nan_values=-10000 # the values representing NaN in the test rasters
-        nan_out = np.count_nonzero(
-            np.isnan(np.array(self.gdf_rgb[["band1", "band2", "band3"]]).astype("f")) # count the number of points outside the raster extents
-        )
-        nan_raster = np.count_nonzero(self.gdf_rgb.band1 == nan_values) # count the number of points in NoData areas within the raster extents
-
-        # check sampling step of points on first, last and random transects.
-        test_slice=self.gdf_rgb.query("location=='mar' & survey_date=='2019-05-16'").copy()
-        test_slice.loc[:,'next_point']=test_slice.loc[:,'coordinates'].shift(1)
-        test_slice_tr0=test_slice.query("tr_id==0").iloc[1:,:].copy()
-        test_slice_last=test_slice.query(f"tr_id=={max(test_slice.tr_id.unique())}").copy()
-        test_slice_rand=test_slice.query(f"tr_id=={np.random.randint(min(test_slice.tr_id.unique()),max(test_slice.tr_id.unique()))}").iloc[1:,:].copy()
-
-        pts_spacing_0=np.nanmean(test_slice_tr0.coordinates.distance(test_slice_tr0.next_point.set_crs(test_slice.crs)))
-        pts_spacing_last=np.nanmean(test_slice_last.coordinates.distance(test_slice_last.next_point.set_crs(test_slice_last.crs)))
-        pts_spacing_rand=np.nanmean(test_slice_rand.coordinates.distance(test_slice_rand.next_point.set_crs(test_slice_rand.crs)))
+        self.assertEqual(prepostcheck, ['2018060620180713','2018071320180920','2018092020190211','2019021120190328','2019032820190731'])
 
 
-        self.assertEqual(self.gdf_rgb.shape, (32805, 11))
-        self.assertEqual(nan_out, 27954)
-        self.assertEqual(nan_raster, 0)
-        self.assertEqual(self.gdf_rgb.band1.sum(), 3178389.0) # check if the values are returned as expected by evaluating their summed value
-        self.assertEqual(self.gdf_rgb.band2.sum(), 3189458.0)
-        self.assertEqual(self.gdf_rgb.band3.sum(), 2920800.0)
-        self.assertIsInstance(self.gdf_rgb,  gpd.GeoDataFrame)
-        self.assertAlmostEqual(pts_spacing_0, 1) # check if the sampling point spacing is actually 1m, as specified in the fn parameter
-        self.assertAlmostEqual(pts_spacing_last, 1) # check if the sampling point spacing is actually 1m, as specified in the fn parameter
-        self.assertAlmostEqual(pts_spacing_rand, 1) # check if the sampling point spacing is actually 1m, as specified in the fn parameter
 
 
-    def test_006_point_IDs(self):
-        """Test extracted point IDs are the same"""
-        self.assertTrue((self.gdf_rgb.point_id==self.gdf.point_id).all())
-
-    def test_007_Dynamics_Class(self):
-        self.D.fit(self.lisa_df_dist, absolute=True, print_summary=True)
-        self.D.infer_weights()
-        self.D.BCD_compute_location("geometry","all",True)
-        self.D.plot_trans_matrices(relabel_dict)
-        self.D.plot_location_ebcds()
 
 if __name__ == '__main__':
     unittest.main()
