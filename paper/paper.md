@@ -27,7 +27,7 @@ bibliography: paper.bib
 
 # Summary
 
-**sandpyper** is a Python package that automates profile-based volumetric and altimetric sandy beaches analysis from a large amount of digital surface models and orthophotos.  It includes functions to facilitate the cleaning of the elevation data from unwanted non-sand points or swash areas (where waves run up on the beach slope and 3D reconstruction is inaccurate) and to model beachface behavioural regimes using the Beachface Cluster Dynamics indices.
+**Sandpyper** is a Python package that automates profile-based volumetric and altimetric sandy beaches analysis from a large amount of digital surface models and orthophotos.  It includes functions to facilitate the cleaning of the elevation data from unwanted non-sand points or swash areas (where waves run up on the beach slope and 3D reconstruction is inaccurate) and to model beachface behavioural regimes using the Beachface Cluster Dynamics indices.
 
 # Intro
 
@@ -42,8 +42,10 @@ Moreover, in coastal management, erosion assessments from multitemporal DSMs is 
 Therefore, tradeoffs for working within a GIS could include raster spatial downsampling, which might cause losing important information about equally important smaller scale geomorphological landforms [@Walker2017-iw], or, tiling the rasters into smaller and more manageable units, which ultimately further increases total pre-processing time.
 Furthermore, beach-specific challenges are (1) the water motion as waves wash in and out of the swash zone, which prevents SfM algorithm from modelling elevation accurately, (2) dune vegetation and (3) stranded beach wracks (macroalgae, woody debris), which should be removed or filtered as these can bias sediment volumetric computation.
 
-**sandpyper** is an open-source Python package that provides a user with tools specifically designed to overcome the aforementioned limitations, from the generation of cross-shore transects and extraction of colour and elevation information from a collection of rasters, to the analysis and plotting of beachface cluster dynamics indices. It offers users the possibility to perform volumetric and behavioural monitoring of beaches in a programmatic way, enabling them to chain functions one after the other or use them separately as standalone processing steps. Moreover, by using a naming convention, it allows to manage multiple locations with different coordinate reference systems. Although originally developed for coastal areas, **sandpyper** can be applied in many other environments where DSMs and orthophotos timeseries are used to monitor changes, such as river levee, glacier or gully monitoring.
+**Sandpyper** is an open-source Python package that provides users with a processing pipeline specifically designed to overcome the aforementioned limitations, from the generation of cross-shore transects and extraction of colour and elevation information from a collection of rasters, to the analysis of period-specific limits of detection and plotting of beachface cluster dynamics indices. It offers users the possibility to perform volumetric and behavioural monitoring of beaches in a programmatic and organised way at the location and single transect scale. Moreover, by using a naming convention, it allows to manage multiple locations with different coordinate reference systems. Although originally developed for coastal areas, **Sandpyper** can be applied in many other environments where DSMs and orthophotos timeseries are used to monitor changes, such as river levee, glacier or gully monitoring.
 
+Some previous works that are somehow related to **Sandpyper** include [Pybeach](https://github.com/TomasBeuzen/pybeach)[@Beuzen2019], a tool to automate beach dune toe identification and the [Digital Shoreline Analysis System (DSAS)](https://www.usgs.gov/centers/whcmsc/science/digital-shoreline-analysis-system-dsas?qt-science_center_objects=0#qt-science_center_objects), a tool to analyse shoreline shifts over time. While Pybeach is no longer maintained, the popularity of DSAS within the coastal erosion studies is fueled by its simple to use interface and the availability of a plug-in for [ESRI ArcMap](https://www.esri.com/en-us/arcgis/about-arcgis/overview) geographical information system. However, despite **Sandpyper**'s planned expansion to study satellite-derived-shorelines with a method inspired by DSAS, DSAS core objective is the study of horizontal shoreline migrations over time, with no functionalities in terms of three-dimensional profile extraction, volumetric and altimetric analysis or behavioural modeling.
+To the best of the authors knowledge, this is the first Python package with the specific aim to integrate within an erosion monitoring project employing UAVs and SfM. Moreover, it is the only package which currently implements the BCDs.
 
 Currently v0.1.1 allows to:
 
@@ -51,21 +53,21 @@ Currently v0.1.1 allows to:
 * facilitate unsupervised machine learning sand classification (Figure 1b) and profile masking.
 * compute altimetric and volumetric timeseries analysis and plotting the results, at the transect (Figure 1c) and site scales (Figure 1d).
 * use spatial autocorrelation measures to discard spatial outliers and obtain statistically significant Hotspots/Coldspots areas of beach change at the site scale (Figure 2a).
-* compute first-order transition probabilties of magnitude of change classes to derive Beachface Cluster Dynamics indices (Figure 2c) [@Pucino2021-ox].
+* compute first-order transition probabilities of magnitude of change classes to derive Beachface Cluster Dynamics indices (Figure 2c) [@Pucino2021-ox].
 
-Moreover, a module called “space” is under development, which adds some functionalities to the study of beach dynamics combining UAV-SfM surveys with satellite-derived shorelines. Some features already in **sandpyper** are:
+Moreover, **Sandpyper** is being currently developed to include raster-based volumetric and behavioural analysis and satellite-derived-shorelines analysis. Some features already in **Sandpyper** are:
 
 * custom spatial grid generation along a line (waterline, shoreline).
 * custom tiling of georeferenced imagery, including multispectral satellite imagery, UAV orthomosaics or single band images (DSMs, label masks).
 * shorelines tidal correction.
-* shoreline error assessments.
-* shoreline shift assessment.
+* shoreline error assessments in respect to groundtruth shorelines.
+* shoreline shifts statistics.
 
-**sandpyper** is aimed at being further developed to be a wider-scope package as its functions can be applied to any scope involving the extraction of information from a large amount of rasters.
+**Sandpyper** is aimed at being further developed to be a wider-scope package as its functions can be applied to any scope involving the extraction of information from a large amount of rasters.
 
 # Usage
 
-Various tutorials and documentation are available for using **sandpyper**, including:
+Various tutorials and documentation are available for using **Sandpyper**, including:
 
 -   [Jupyter notebook examples for using sandpyper](https://github.com/npucino/sandpyper/tree/master/examples)
 -   [Complete documentation on sandpyper modules and functions](https://npucino.github.io/sandpyper/)
