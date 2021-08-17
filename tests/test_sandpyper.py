@@ -321,7 +321,7 @@ class TestProfileDynamics(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
 
-        cls.D2 = ProfileDynamics(cls.P, bins=5, method="JenksCaspall", labels=labels)
+        cls.D2 = ProfileDynamics(P_test, bins=5, method="JenksCaspall", labels=labels)
         cls.D2.compute_multitemporal(loc_full=loc_full, filter_class='sand')
         cls.D2.compute_volumetrics(lod=cls.D2.lod_df)
         cls.D2.LISA_site_level(mode="distance", distance_value=35)
