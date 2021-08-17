@@ -31,9 +31,8 @@ The significant <img src="https://render.githubusercontent.com/render/math?math=
 
 For more information on LISAs, Ii and Moran’s scatterplot refer to [Anselin (1995)](https://onlinelibrary.wiley.com/doi/abs/10.1111/j.1538-4632.1995.tb00338.x) or watch Luc Anselin lecture below:
 
-<center> <a href="https://www.youtube.com/watch?v=HF25odbiV3U&t=1109s
-" target="_blank"><img src="images/luc_anselin.jpg"
-alt="Geoda lectures on spatial autocorrelation by Prof. Luc Anselin" width="240" height="180" border="3" /></a></center>
+![im](images/luc_anselin.jpg)
+[Watch here](https://www.youtube.com/watch?v=HF25odbiV3U&t=1109s)
 <br>
 
 In most use cases spatial outliers (LH and HL) are discarded, despite they represent interesting transition zones between the most and least affected areas. It is important to note that HH and LL clusters are relative to the mean of the whole dataset considered. Thus, counterintuitively, in an extreme case where erosion ( negative Δh ) has occurred on the totality of the dataset (either a whole survey or a specific transect), the HH clusters will represent higher negative values (closer to zero) indicating lower erosion magnitudes. On the other hand, LL clusters represent lower negative values (further from zero), indicating higher erosion magnitudes.
