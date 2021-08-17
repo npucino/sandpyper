@@ -147,6 +147,9 @@ else:
     test_pickled=os.path.abspath("test_data/test.p")
 
 
+P_test=pickle.load(open(test_pickled, "rb"))
+
+
 class TestCreateProfiles(unittest.TestCase):
     """Tests the creation profile function."""
 
@@ -317,7 +320,7 @@ class TestProfileDynamics(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.P = pickle.load(open(test_pickled, "rb"))
+
         cls.D2 = ProfileDynamics(cls.P, bins=5, method="JenksCaspall", labels=labels)
         cls.D2.compute_multitemporal(loc_full=loc_full, filter_class='sand')
         cls.D2.compute_volumetrics(lod=cls.D2.lod_df)
@@ -325,7 +328,7 @@ class TestProfileDynamics(unittest.TestCase):
         cls.D2.discretise(absolute=True, print_summary=True, lod=cls.D2.lod_df, appendix=appendix)
         cls.D2.infer_weights()
         cls.D2.BCD_compute_location("geometry","all",True, filterit='lod')
-        cls.D2.BCD_compute_transects(loc_specs=loc_specs,reliable_action='keep', dirNameTrans=cls.ProfileSet.dirNameTrans)
+        cls.D2.BCD_compute_transects(loc_specs=loc_specs,reliable_action='keep', dirNameTrans=P_test.ProfileSet.dirNameTrans)
 
     @classmethod
     def tearDownClass(cls):
