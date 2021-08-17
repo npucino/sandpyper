@@ -11,7 +11,7 @@ import geopandas as gpd
 import pandas as pd
 import shapely
 
-
+import sandpyper
 from sandpyper.sandpyper import ProfileSet, ProfileDynamics
 from sandpyper.common import get_sil_location, get_opt_k, create_transects, sensitivity_tr_rbcd
 
@@ -144,7 +144,7 @@ else:
     label_corrections_path=os.path.abspath("test_data/clean/label_corrections.gpkg")
     watermasks_path=os.path.abspath("test_data/clean/watermasks.gpkg")
     shoremasks_path=os.path.abspath("test_data/clean/shoremasks.gpkg")
-    test_pickled=os.path.abspath("test_data/tests/test_data/test.p")
+    test_pickled=os.path.abspath("test_data/test.p")
 
 
 class TestCreateProfiles(unittest.TestCase):
@@ -199,9 +199,6 @@ class TestCreateProfiles(unittest.TestCase):
                            location='leo' ,crs=crs_dict_string['leo'],
                            side='both'
                           )
-        the_exception = cm.exception
-        print(the_exception)
-        self.assertEqual(the_exception.args, ("Maximum allowed size exceeded",))
 
     def test_003_CreateTransects(self):
         right=create_transects(self.mar_shoreline,
@@ -265,6 +262,8 @@ class TestProfileSet(unittest.TestCase):
         cls.P
         cls.sil_df
         cls.opt_k
+        cls.check_pre_cleanit
+        cls.check_post_cleanit
 
     def test_004_check_dataframe(self):
         """Test the check dataframe creation."""
@@ -310,8 +309,8 @@ class TestProfileSet(unittest.TestCase):
 
     def test_008_correction(self):
         self.assertIsInstance(self.P.profiles.label_k[0],  np.int32)
-        self.assertEqual(check_pre_cleanit, (7, 1, 8, 0))
-        self.assertEqual(check_post_cleanit, (9, 0, 8, 2))
+        self.assertEqual(self.check_pre_cleanit, (7, 1, 8, 0))
+        self.assertEqual(self.check_post_cleanit, (9, 0, 8, 2))
 
 class TestProfileDynamics(unittest.TestCase):
     """Tests the ProfileDynamics pipeline."""
@@ -319,90 +318,138 @@ class TestProfileDynamics(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.P = pickle.load(open(test_pickled, "rb"))
-        cls.D = ProfileDynamics(cls.P, bins=5, method="JenksCaspall", labels=labels)
-        cls.D.compute_multitemporal(loc_full=loc_full, filter_class='sand')
-        cls.D.compute_volumetrics(lod=cls.D.lod_df)
-        cls.D.LISA_site_level(mode="distance", distance_value=35)
-        cls.D.discretise(absolute=True, print_summary=True, lod=cls.D.lod_df, appendix=appendix)
-        cls.D.infer_weights()
-        cls.D.BCD_compute_location("geometry","all",True, filterit='lod')
-        cls.D.BCD_compute_transects(loc_specs=loc_specs,reliable_action='keep', dirNameTrans=cls.D.ProfileSet.dirNameTrans)
+        cls.D2 = ProfileDynamics(cls.P, bins=5, method="JenksCaspall", labels=labels)
+        cls.D2.compute_multitemporal(loc_full=loc_full, filter_class='sand')
+        cls.D2.compute_volumetrics(lod=cls.D2.lod_df)
+        cls.D2.LISA_site_level(mode="distance", distance_value=35)
+        cls.D2.discretise(absolute=True, print_summary=True, lod=cls.D2.lod_df, appendix=appendix)
+        cls.D2.infer_weights()
+        cls.D2.BCD_compute_location("geometry","all",True, filterit='lod')
+        cls.D2.BCD_compute_transects(loc_specs=loc_specs,reliable_action='keep', dirNameTrans=cls.D2.ProfileSet.dirNameTrans)
 
     @classmethod
     def tearDownClass(cls):
         cls.P
-        cls.D
+        cls.D2
 
     def test_009_ProfileDynamics(self):
-        self.assertEqual(self.D.bins,  5)
-        self.assertEqual(self.D.labels,  ['Undefined', 'Small', 'Medium', 'High', 'Extreme'])
-        self.assertIsInstance(self.D.ProfileDynamics,  sandpyper.sandpyper.ProfileDynamics)
-        self.assertIsInstance(self.D.ProfileSet,  sandpyper.sandpyper.ProfileSet)
+        self.assertEqual(self.D2.bins,  5)
+        self.assertEqual(self.D2.labels,  ['Undefined', 'Small', 'Medium', 'High', 'Extreme'])
+        self.assertIsInstance(self.D2,  sandpyper.sandpyper.ProfileDynamics)
+        self.assertIsInstance(self.D2.ProfileSet,  sandpyper.sandpyper.ProfileSet)
 
     def test_010_ProfileDynamics_sand(self):
-        self.assertEqual(self.D.dh_df.shape, (5112, 11))
-        self.assertEqual(self.D.dh_df.dh.sum(),  265.5305953633506)
-        self.assertEqual(list(D.dh_df.query("location=='mar'").dt.unique()),['dt_7', 'dt_6', 'dt_5', 'dt_4', 'dt_3', 'dt_2', 'dt_1', 'dt_0'])
-        self.assertEqual(list(D.dh_df.query("location=='leo'").dt.unique()),['dt_4', 'dt_3', 'dt_2', 'dt_1', 'dt_0'])
+        self.assertEqual(self.D2.dh_df.shape, (5112, 13))
+        self.assertEqual(self.D2.dh_df.dh.sum(),  265.5305953633506)
+        self.assertEqual(list(self.D2.dh_df.query("location=='mar'").dt.unique()),['dt_7', 'dt_6', 'dt_5', 'dt_4', 'dt_3', 'dt_2', 'dt_1', 'dt_0'])
+        self.assertEqual(list(self.D2.dh_df.query("location=='leo'").dt.unique()),['dt_4', 'dt_3', 'dt_2', 'dt_1', 'dt_0'])
 
-        self.assertIsInstance(self.D.dh_df.geometry.iloc[0],  shapely.geometry.point.Point)
+        self.assertIsInstance(self.D2.dh_df.geometry.iloc[0],  shapely.geometry.point.Point)
 
     def test_011_dh_class_filters(self):
-        self.D.compute_multitemporal(loc_full=loc_full, filter_class=['veg','no_sand'])
-        self.assertEqual(self.D.dh_df.shape, (1245, 11))
-        self.assertEqual(self.D.dh_df.dh.sum(),  -48.3220699429512)
-        self.assertEqual(list(self.D.dh_df.class_filter.unique()),  ['veg_no_sand'])
+        self.D2.compute_multitemporal(loc_full=loc_full, filter_class=['veg','no_sand'])
+        self.assertEqual(self.D2.dh_df.shape, (1245, 11))
+        self.assertEqual(self.D2.dh_df.dh.sum(),  -48.3220699429512)
+        self.assertEqual(list(self.D2.dh_df.class_filter.unique()),  ['veg_no_sand'])
 
-        self.D.compute_multitemporal(loc_full=loc_full, filter_class=None)
-        self.assertEqual(self.D.dh_df.shape, (14800, 11))
-        self.assertEqual(self.D.dh_df.dh.sum(),  144.2691128794686)
-        self.assertEqual(list(self.D.dh_df.class_filter.unique()),  ['no_filters_applied'])
+        self.D2.compute_multitemporal(loc_full=loc_full, filter_class=None)
+        self.assertEqual(self.D2.dh_df.shape, (14800, 11))
+        self.assertEqual(self.D2.dh_df.dh.sum(),  144.2691128794686)
+        self.assertEqual(list(self.D2.dh_df.class_filter.unique()),  ['no_filters_applied'])
 
     def test_012_dh_details(self):
-        prepostcheck=[str(pre)+str(post) for pre,post in zip(self.D.dh_details.iloc[:5]['date_pre'],self.D.dh_details.iloc[:5]['date_post'])]
+        prepostcheck=[str(pre)+str(post) for pre,post in zip(self.D2.dh_details.iloc[:5]['date_pre'],self.D2.dh_details.iloc[:5]['date_post'])]
 
-        self.assertEqual(self.D.dh_details.shape, (13, 6))
-        self.assertEqual(self.D.dh_details.n_days.sum(), 769)
+        self.assertEqual(self.D2.dh_details.shape, (13, 6))
+        self.assertEqual(self.D2.dh_details.n_days.sum(), 769)
         self.assertEqual(prepostcheck, ['2018060620180713','2018071320180920','2018092020190211','2019021120190328','2019032820190731'])
 
     def test_013_lod_tables(self):
-        self.assertEqual(self.D.lod_dh.shape, (1155, 12))
-        self.assertEqual(self.D.lod_df.shape, (13, 18))
+        self.assertEqual(self.D2.lod_dh.shape, (1155, 12))
+        self.assertEqual(self.D2.lod_df.shape, (13, 18))
 
-        self.assertEqual(self.D.lod_dh.dh_abs.sum(), 193.05977356433868)
-        self.assertEqual(self.D.lod_df.rrmse.sum(),1.2861174673896938)
+        self.assertEqual(self.D2.lod_dh.dh_abs.sum(), 193.05977356433868)
+        self.assertEqual(self.D2.lod_df.rrmse.sum(),1.2861174673896938)
 
-        self.assertEqual(self.D.lod_df.isna().sum().sum(),0)
-        self.assertEqual(self.D.lod_dh.isna().sum().sum(),0)
+        self.assertEqual(self.D2.lod_df.isna().sum().sum(),0)
+        self.assertEqual(self.D2.lod_dh.isna().sum().sum(),0)
 
     def test_014_LISA_notebook(self):
-        self.assertEqual(self.D.hotspots.shape, (5112, 21))
-        self.assertEqual(self.D.hotspots.isna().sum().sum(),0)
-        self.assertEqual(self.D.hotspots.lisa_I.sum(),1187.7767310601516)
-        self.assertEqual(self.D.hotspots.lisa_opt_dist.unique()[0],35)
-        self.assertEqual(self.D.hotspots.lisa_dist_mode.unique()[0],'distance_band')
-        self.assertEqual(self.D.hotspots.decay.unique()[0],0)
+        self.assertEqual(self.D2.hotspots.shape, (5112, 23))
+        self.assertEqual(self.D2.hotspots.isna().sum().sum(),0)
+        self.assertEqual(self.D2.hotspots.lisa_I.sum(),1187.7767310601516)
+        self.assertEqual(self.D2.hotspots.lisa_opt_dist.unique()[0],35)
+        self.assertEqual(self.D2.hotspots.lisa_dist_mode.unique()[0],'distance_band')
+        self.assertEqual(self.D2.hotspots.decay.unique()[0],0)
 
-    def test_014_LISA_idw(self):
-        self.D.LISA_site_level(mode="idw", distance_value=100)
+    def test_015_LISA_idw(self):
+        self.D2.compute_multitemporal(loc_full=loc_full, filter_class='sand')
+        self.D2.LISA_site_level(mode="idw", distance_value=100, decay=-2)
 
-        self.assertEqual(self.D.hotspots.shape, (5112, 21))
-        self.assertEqual(self.D.hotspots.isna().sum().sum(),0)
-        self.assertEqual(self.D.hotspots.lisa_I.sum(),3693.3532825625425)
-        self.assertEqual(self.D.hotspots.lisa_opt_dist.unique()[0],100)
-        self.assertEqual(self.D.hotspots.lisa_dist_mode.unique()[0],'idw')
-        self.assertEqual(self.D.hotspots.decay.unique()[0],-2)
+        self.assertEqual(self.D2.hotspots.shape, (5112, 21))
+        self.assertEqual(self.D2.hotspots.isna().sum().sum(),0)
+        self.assertEqual(self.D2.hotspots.lisa_I.sum(),3693.3532825625425)
+        self.assertEqual(self.D2.hotspots.lisa_opt_dist.unique()[0],100)
+        self.assertEqual(self.D2.hotspots.lisa_dist_mode.unique()[0],'idw')
+        self.assertEqual(self.D2.hotspots.decay.unique()[0],-2)
 
-    def test_014_LISA_knn(self):
-        self.D.LISA_site_level(mode="knn", k_value=20)
+    def test_016_LISA_knn(self):
+        self.D2.LISA_site_level(mode="knn", k_value=50)
 
-        self.assertEqual(self.D.hotspots.shape, (5112, 21))
-        self.assertEqual(self.D.hotspots.isna().sum().sum(),0)
-        self.assertEqual(self.D.hotspots.lisa_I.sum(),)
-        self.assertEqual(self.D.hotspots.lisa_opt_dist.unique()[0],20)
-        self.assertEqual(self.D.hotspots.lisa_dist_mode.unique()[0],'knn')
-        self.assertEqual(self.D.hotspots.decay.unique()[0],-2)
+        self.assertEqual(self.D2.hotspots.shape, (5112, 21))
+        self.assertEqual(self.D2.hotspots.isna().sum().sum(),0)
+        self.assertEqual(self.D2.hotspots.lisa_I.sum(),1594.5027919977902)
+        self.assertEqual(self.D2.hotspots.lisa_opt_dist.unique()[0],50)
+        self.assertEqual(self.D2.hotspots.lisa_dist_mode.unique()[0],'k')
+        self.assertEqual(self.D2.hotspots.decay.unique()[0],0)
 
+    def test_017_discretiser(self):
+        self.assertTrue(list(set(np.isin(['markov_tag', 'magnitude_class', 'spatial_id'], self.D2.df_labelled.columns)))[0])
+        self.assertEqual(self.D2.df_labelled.shape, (5112, 29))
+        self.assertEqual(self.D2.df_labelled.markov_tag.value_counts()['Medium_deposition'], 629)
+        self.assertTrue(len(self.D2.df_labelled.markov_tag.unique())==len(labels)*len(appendix))
+
+    def test_018_BCDs(self):
+
+        # infer_weights
+        self.assertTrue(list(self.D2.weights_dict.values())==[0.05, 0.05, 0.17, 0.17, 0.33, 0.33, 0.58, 0.58, 1.62, 1.62])
+        self.assertTrue(len(list(self.D2.weights_dict.keys()))==len(labels)*len(appendix))
+
+        # location_ebcd
+        self.assertEqual(self.D2.location_ebcds.shape, (8, 6))
+        self.assertEqual(self.D2.location_ebcds.coastal_markov_idx.sum(),12.714)
+        self.assertEqual(self.D2.location_ebcds.isna().sum().sum(),0)
+        # check wether sign and trend makes sense
+        self.assertTrue(list(set((np.select([[self.D2.location_ebcds.trend > 0 , self.D2.location_ebcds.sign == '+'],
+          [self.D2.location_ebcds.trend < 0 , self.D2.location_ebcds.sign == '-']], [ True, True], default=False)).flatten()))[0])
+        # location_ss
+        self.assertEqual(self.D2.location_ss.shape, (13, 2))
+        self.assertEqual(self.D2.location_ss.leo.sum(), 0.7210473593811956)
+        self.assertEqual(self.D2.location_ss.isna().sum().sum(),0)
+        self.assertEqual(self.D2.location_ss.loc['Extreme_deposition','leo'], 0.0)
+        # transects_r-bcds
+        self.assertEqual(self.D2.transects_rbcd.shape, (51, 6))
+        self.assertEqual(self.D2.transects_rbcd.residual.sum(), 1.2806354281813492)
+        self.assertEqual(self.D2.transects_rbcd.isna().sum().sum(),0)
+        self.assertIsInstance(self.D2.transects_rbcd,  gpd.GeoDataFrame)
+        self.assertEqual(self.D2.transects_rbcd.crs.to_epsg(),32754)
+        self.assertEqual(list(self.D2.transects_rbcd.location.unique()),['mar', 'leo'])
+
+    def test_019_volumetrics_with_LODs(self):
+        # location_volumetrics
+        self.assertEqual(self.D2.location_volumetrics.shape, (13, 18))
+        self.assertEqual(self.D2.location_volumetrics.isna().sum().sum(),0)
+        self.assertEqual(self.D2.location_volumetrics[['abs_in','abs_net_change','tot_vol_ero','n_days','n_obs_valid']].sum().sum(), -3443.7290466835893)
+        self.assertIsInstance(self.D2.location_volumetrics,  pd.DataFrame)
+        self.assertIsInstance(self.D2.location_volumetrics.dt.iloc[0],  str)
+        self.assertEqual(list(self.D2.location_volumetrics.location_full.unique()),['St. Leonards', 'Marengo'])
+        # transects_volumetrics
+        self.assertEqual(self.D2.transects_volumetrics.shape, (309, 17))
+        self.assertEqual(self.D2.transects_volumetrics.isna().sum().sum(),0)
+        self.assertEqual(self.D2.transects_volumetrics[['abs_in','abs_net_change','n_days','n_obs_valid']].sum().sum(), 25226.484578590374)
+        self.assertIsInstance(self.D2.transects_volumetrics,  pd.DataFrame)
+        self.assertIsInstance(self.D2.transects_volumetrics.dt.iloc[0],  str)
+        self.assertEqual(list(self.D2.transects_volumetrics.location_full.unique()),['St. Leonards', 'Marengo'])
 
 if __name__ == '__main__':
     unittest.main()
