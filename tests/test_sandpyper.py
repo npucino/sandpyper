@@ -139,7 +139,7 @@ else:
     shoreline_mar_path = os.path.abspath('test_data/shorelines/mar_shoreline_short.gpkg')
     dsms_dir_path = os.path.abspath('test_data/dsm_1m/')
     orthos_dir_path = os.path.abspath('test_data/orthos_1m/')
-    transects_path = os.path.abspath('test_data/transects/')
+    transects_path = os.path.abspath('test_data/transects')
     lod_mode=os.path.abspath('test_data/lod_transects')
     label_corrections_path=os.path.abspath("test_data/clean/label_corrections.gpkg")
     watermasks_path=os.path.abspath("test_data/clean/watermasks.gpkg")
