@@ -27,7 +27,6 @@ plugins:
         execute: False
 
 markdown_extensions:
-    - mathjax
     - admonition
     - codehilite
     - attr_list
