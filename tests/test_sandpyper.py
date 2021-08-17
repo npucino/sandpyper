@@ -328,7 +328,7 @@ class TestProfileDynamics(unittest.TestCase):
         cls.D2.discretise(absolute=True, print_summary=True, lod=cls.D2.lod_df, appendix=appendix)
         cls.D2.infer_weights()
         cls.D2.BCD_compute_location("geometry","all",True, filterit='lod')
-        cls.D2.BCD_compute_transects(loc_specs=loc_specs,reliable_action='keep', dirNameTrans=P_test.ProfileSet.dirNameTrans)
+        cls.D2.BCD_compute_transects(loc_specs=loc_specs,reliable_action='keep', dirNameTrans=P_test.dirNameTrans)
 
     @classmethod
     def tearDownClass(cls):
