@@ -19,6 +19,7 @@ jobs:
                   conda config --add channels conda-forge
                   conda config --set channel_priority strict
                   conda install --file requirements.txt
+                  conda install -c conda-forge ipywidgets
             - name: PKG-TEST
               run: |
                   python -m unittest discover tests/
