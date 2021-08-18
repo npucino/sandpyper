@@ -3,7 +3,7 @@
 The exclusion of points within the swash extent and variations in UAV survey coverage often results in irregularities in the number of transects and valid points per survey. Therefore, to compare subaerial changes across sites and time, Sandpyper computes the mean elevation change (MEC), as follows:
 
 $$
-Mean\,Elevation\,Change\,(MEC) = \frac{1}{n}\mathop \sum \limits_{z = 0}^{n} (z_{post} - z_{pre} )
+Mean\,elevation\,change \left( {MEC} \right) = \frac{1}{n}\mathop \sum \limits_{z = 0}^{n} (z_{post} - z_{pre} )
 $$
 
 where $n$ is the total number of valid elevation points, $z_{pre}$ and $z_{post}$ are the elevations above the height datum used occurring at the same location in both pre and post surveys.
