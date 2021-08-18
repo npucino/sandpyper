@@ -4,9 +4,6 @@ site_url: https://npucino.github.io/sandpyper/
 
 repo_url: https://github.com//npucino//sandpyper
 
-use_directory_urls: false
-
-
 theme:
     palette:
         scheme: preference

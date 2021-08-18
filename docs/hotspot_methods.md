@@ -4,7 +4,7 @@ Spatial autocorrelation analysis uses defined statistics, such as Moran’s Inde
 In order to obtain spatially explicit and statistically significant clusters of erosion or deposition at the site level, the Local Moran-I ($I_{i}$) statistics with False Discovery Rate correction has been implemented in Sandpyper and is performed for every elevation difference (Δh) points (observations). The $I_{i}$ statistics is considered a Local Indicator of Spatial Association (LISA),  and is defined as:
 
 $$
-\operatorname{Local\,Moran^{\prime}s\,Index \left( { I_{i} } \right)} = \frac{{z_{i} - \mu_{z} }}{{\sigma^{2} }}\mathop \sum \limits_{j = 1, j \ne i }^{n} \left[ {w_{ij} \left( {z_{j} - \mu_{z} } \right)} \right]
+Local\,Moran^{\prime}s\,Index \left( { I_{i} } \right) = \frac{{z_{i} - \mu_{z} }}{{\sigma^{2} }}\mathop \sum \limits_{j = 1, j \ne i }^{n} \left[ {w_{ij} \left( {z_{j} - \mu_{z} } \right)} \right]
 $$
 
 

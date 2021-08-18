@@ -31,7 +31,7 @@ Sandpyper implements Elkan's KMeans algorithm ([Elkan, 2003](https://www.aaai.or
 4. precomputed distances if n_samples * n_clusters < 12 million
 
 Have a look at this short and easy video about the intuition of KMeans.<br>
-![im](images/kmeans.jpg)
+![im](images/kmeans.JPG)
 [Watch here](https://www.youtube.com/watch?v=4b5d3muPQmA)
 
 
@@ -51,7 +51,7 @@ SA in the example can be summarised in the following steps:
 In the example, ![im](https://bit.ly/3yEAgOL), in fact it is easily seen that the average lengths of all segments connecting ![im](https://bit.ly/3CzNTRH) to the elements in cluster C is smaller than that of![im](https://bit.ly/3CzNTRH) to cluster B.
 The neighbour C could be considered  as a potential candidate for a misinterpreted partitioning from the clustering algorithm (KMeans, in our case). Thus, the silhouette coefficient ![im](https://bit.ly/3CBc56j) of ![im](https://bit.ly/3CzNTRH)  in A ![im](https://bit.ly/3lR5ZIZ) can now be computed as:
 
-![im](images/graph_equation_sa.jpg)
+![im](images/graph_equation_sa.JPG)
 
 
 It follows that:
@@ -69,7 +69,7 @@ With the `get_sil_location()` function we basically run the KMeans algorithm mul
 
 ## Inflexion point search
 
-![im](images/inflexion_search_sa.jpg)
+![im](images/inflexion_search_sa.JPG)
 
 Once SA has been run iteratively and the SA coefficient has been stored, Sandpyper searches for the inflexion points to propose a __sub-optimal k__ number where an additional cluster does not degrade the overall clustering performance.
 Sandpyper uses a Gaussian smoothed regression of __k__ against mean silhouette scores to identify first order relative minima as possible inlfexion points.
@@ -81,7 +81,7 @@ Once the sub-optimal k for each survey has been found, the user is ready to fina
 
 ## Visual identification of point classes in a GIS
 
-![im](images/gis_labels.jpg)
+![im](images/gis_labels.JPG)
 
 As the unsupervised procedure outlined above retunes labels in the form of a number (cluster ID), and not a human interpretable class (like sand, road, wrack, water), we need to visually check which labels are what class, and take notes of these associations in the form of class dictionaries.
 
@@ -109,7 +109,7 @@ water_dict = {'leo_20180606':[4],
 ## Correction polygons
 
 ### Shoremasks file
-![im](images/shoremasks_table_attributes.jpg)
+![im](images/shoremasks_table_attributes.JPG)
 
 Shoremask file (geopackages or shapefiles) holds digitised polygons, which are clipping masks essentialy, which are used to remove unwanted backshore areas. In the above picture, the __red dashed line__ represents the boundary of the polygon, in this case, in Marengo (mar). It is one single clipping mask that will be applied to all surveys. The only required field is:
 
@@ -119,7 +119,7 @@ Every polygon has its own row and represent the shoremask of each location.
 Working with only one geopackage or shapefile implies that only one CRS has to be used for all the locations. This is automatically taken into account in Sandpyper using the __crs_dict_string__ global setting.
 
 ### Watermasks
-![im](images/watermasks_table_attributes.jpg)
+![im](images/watermasks_table_attributes.JPG)
 
 Watermasks files (geopackages or shapefiles) are digitised over water areas and swash areas. It is one single file. The required fields are:
 
@@ -129,7 +129,7 @@ Watermasks files (geopackages or shapefiles) are digitised over water areas and 
 Every polygon has its own row and represent the watermask for each survey in each location.
 
 ### Label correction file
-![im](images/label_corr_attributes.jpg)
+![im](images/label_corr_attributes.JPG)
 
 Label correction files (geopackages or shapefiles) are digitised over points which have cluster labels (assigned by KMeans algorithm) which we are not totally happy with. The attribute __target_label_k__ specifies which label k will be affected by the correction, leaving untouched all other points falling within the polygon but having different label k. This is useful to fine-tune the point classification, as it is covered in the notebook __AAAAAAA__. If you want to apply the correction to all the points, regardless of the label k, just assign 999 to this field.
 The field __new_class__ specifies the class to be assigned by the polygon. It is one single file. The required fields are:

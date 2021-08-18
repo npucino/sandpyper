@@ -3,7 +3,7 @@
 The exclusion of points within the swash extent and variations in UAV survey coverage often results in irregularities in the number of transects and valid points per survey. Therefore, to compare subaerial changes across sites and time, Sandpyper computes the mean elevation change (MEC), as follows:
 
 $$
-\operatorname{Mean\,Elevation\,Change\,(MEC)} = \frac{1}{n}\mathop \sum \limits_{z = 0}^{n} (z_{post} - z_{pre} )
+Mean\,Elevation\,Change\,(MEC) = \frac{1}{n}\mathop \sum \limits_{z = 0}^{n} (z_{post} - z_{pre} )
 $$
 
 where $n$ is the total number of valid elevation points, $z_{pre}$ and $z_{post}$ are the elevations above the height datum used occurring at the same location in both pre and post surveys.
@@ -11,7 +11,7 @@ where $n$ is the total number of valid elevation points, $z_{pre}$ and $z_{post}
 Additionally, when no inter-site comparisons is involved, Sandpyper allows to approximate the alongshore volumetric change (in m3/m) as:
 
 $$
-\operatorname{Along.\,beachface\,change} = \mathop \smallint \limits_{{x_{swash} }}^{{x_{limit} }} \left( {z_{post} - z_{pre} } \right)dx
+Along.\,beachface\,change = \mathop \smallint \limits_{{x_{swash} }}^{{x_{limit} }} \left( {z_{post} - z_{pre} } \right)dx
 $$
 
 where $x_{swash}$ and $x_{limit}$ are the upper swash and landward limit respectively. Plus or minus ($\pm$) error intervals for both MEC and volumetric change estimates represent the uncertainty related to changes within the limit of detection thresholds.
