@@ -800,7 +800,7 @@ def get_terrain_info(x_coord, y_coord, rdarray):
         rdarray (rdarray): rdarray dataset.
 
     Returns:
-        rdarray pixel value.
+        px (int, float): rdarray pixel value.
     """
 
     geotransform = rdarray.geotransform
@@ -823,12 +823,13 @@ def get_elevation(x_coord, y_coord, raster, bands, transform):
     Returns the value of the raster at a specified location and band.
 
     Args:
-        x_coord, y_coord (float): Projected coordinates of pixel to extract value.
+        x_coord (float): Projected X coordinates of pixel to extract value.
+        y_coord (float): Projected Y coordinates of pixel to extract value.
         raster (rasterio open file): Open raster object, from rasterio.open(raster_filepath).
         bands (int): number of bands.
         transform (Shapely Affine obj): Geotransform of the raster.
     Returns:
-        raster pixel value.
+        px (int,float): raster pixel value.
     """
     elevation = []
     row, col = rowcol(transform, x_coord, y_coord, round)
@@ -903,17 +904,17 @@ def get_profiles(
     at a user-defined (step) meters gap along each transect.
 
     Args:
-    dsm (str): path to the DSM raster.
-    transect_file (str): path to the transect file.
-    transect_index (int): index of the transect to extract information from.
-    step (int,float): sampling distance from one point to another in meters along the transect.
-    location (str): location code
-    date_string: raw format of the survey date (20180329)
-    add_xy (bool): True to add X and Y coordinates fields.
-    add_terrain (bool): True to add slope in degrees. Default to False.
+        dsm (str): path to the DSM raster.
+        transect_file (str): path to the transect file.
+        transect_index (int): index of the transect to extract information from.
+        step (int,float): sampling distance from one point to another in meters along the transect.
+        location (str): location code
+        date_string (str): raw format of the survey date (20180329)
+        add_xy (bool): True to add X and Y coordinates fields.
+        add_terrain (bool): True to add slope in degrees. Default to False.
 
     Returns:
-    gdf (GeoDataFrame) : Profile data extracted from the raster.
+        gdf (gpd.GeoDataFrame) : Profile data extracted from the raster.
     """
 
     ds = ras.open(dsm, "r")
@@ -1017,12 +1018,13 @@ def get_dn(x_coord, y_coord, raster, bands, transform):
     Returns the value of the raster at a specified location and band.
 
     Args:
-        x_coord, y_coord (float): Projected coordinates of pixel to extract value.
+        x_coord (float): Projected X coordinates of pixel to extract value.
+        y_coord (float): Projected Y coordinates of pixel to extract value.
         raster (rasterio open file): Open raster object, from rasterio.open(raster_filepath).
         bands (int): number of bands.
         transform (Shapely Affine obj): Geotransform of the raster.
     Returns:
-        raster pixel value.
+        px (int, float): raster pixel value.
     """
     # Let's create an empty list where we will store the elevation (z) from points
     # With GDAL, we extract 4 components of the geotransform (gt) of our north-up image.
@@ -1050,16 +1052,16 @@ def get_profile_dn(
     at a user-defined (step) meters gap along each transect.
 
     Args:
-    ortho (str): path to the DSM raster.
-    transect_file (str): path to the transect file.
-    transect_index (int): index of the transect to extract information from.
-    step (int,float): sampling distance from one point to another in meters along the transect.
-    location (str): location code
-    date_string: raw format of the survey date (20180329)
-    add_xy (bool): True to add X and Y coordinates fields.
+        ortho (str): path to the DSM raster.
+        transect_file (str): path to the transect file.
+        transect_index (int): index of the transect to extract information from.
+        step (int,float): sampling distance from one point to another in meters along the transect.
+        location (str): location code
+        date_string (str): raw format of the survey date (20180329)
+        add_xy (bool): True to add X and Y coordinates fields.
 
     Returns:
-    gdf (GeoDataFrame) : Profile data extracted from the raster.
+        gdf (gpd.GeoDataFrame) : Profile data extracted from the raster.
     """
 
     ds = ras.open(ortho, "r")
@@ -1469,23 +1471,20 @@ def plot_lod_normality_check(multitemp_data, lod_df, details_table, locations,al
             ax1.grid(b=None,axis='x')
 
 def get_rbcd_transect(df_labelled, loc_specs, reliable_action, dirNameTrans, labels_order, loc_codes, crs_dict_string):
-    """It computes the r-BCDs at the transect level, based on the timeseries
-    of elevation change magnituteds across the beachface dataset (markov_tag dataframe).
+    """It computes the r-BCDs at the transect level, based on the timeseries of elevation change magnituteds across the beachface dataset (markov_tag dataframe).
 
     Args:
         dataset (dataframe): Pandas dataframe with dh magnitude labelled.
-        mode ("nnn","drop"): Insert "drop" to remove all cluster to no-cluster transitions,
-        or 'nnn' (default) to keep them all and rename cluster-to-no clsuter state 'nnn'.
-        unreal (str) : Insert "drop" (default) to remove transects that have less than the
-        specified number of non-nnn points (thresh) or "keep" to keep them.
+        mode (str): Insert "drop" to remove all cluster to no-cluster transitions, or 'nnn' (default) to keep them all and rename cluster-to-no clsuter state 'nnn'.
+        unreal (str) : Insert "drop" (default) to remove transects that have less than the specified number of non-nnn points (thresh) or "keep" to keep them.
         thresh (int): Drop all rows with less than specified cluster transitions (i.e. non "nnn").
         min_points (int): Minumum of non-"nnn" points per transect to consider a transect reliable.
         field_markov_tags (str): The name of the column storing the magnitude classes. Default is "markov_tag".
         field_unique_id (str): The name of the column storing the unique ID of the points. Default is "geometry".
-        field_discrete_time (str): he name of the column storing the period IDs. Default is "dt".
+        field_discrete_time (str): The name of the column storing the period IDs. Default is "dt".
 
     Returns:
-       A dataframes containing the steady-state distribution of each transect.
+       rbcd_transects (gpd.GeoDataFrame): A GeoDataFrames containing the steady-state distribution of each transect.
     """
     steady_state_tr = pd.DataFrame()
 
@@ -1914,13 +1913,13 @@ def get_sil_location(merged_df, ks, feature_set, random_state=10):
         It might take up to 8h for tables of 6,000,000 observations.
 
     Args:
-        merged_df (Pandas dataframe): The clean and merged dataframe containing the features.
+        merged_df (pd.DataFrame): The clean and merged dataframe containing the features.
         ks (tuple): starting and ending number of clusters to run KMeans and compute SA on.
         feature_set (list): List of strings of features in the dataframe to use for clustering.
         random_state (int): Random seed used to make the randomisation deterministic.
 
     Returns:
-        A dataframe containing average Silhouette scores for each survey, based on the provided feature set.
+        sil_locations (pd.DataFrame): A dataframe containing average Silhouette scores for each survey, based on the provided feature set.
     """
 
     # Creates the range of k to be used for Silhouette Analysis
@@ -2008,7 +2007,7 @@ def get_opt_k(sil_df, sigma=1):
         sil_df (Pandas dataframe): Dataframe containing the mean silhouette score per k in each survey.
         sigma (int): Number of standard deviations to use in the Gaussian filter. Default is 1.
     Returns:
-        Dictionary with optimal k for each survey.
+        opt_k (dict): Dictionary with optimal k for each survey.
     """
 
     si_arr = sil_df.groupby(["location", "raw_date"])["silhouette_mean"].apply(
@@ -2615,10 +2614,10 @@ def get_m3_m_location(data_in, transect_spacing=20, dx=0.1):
     Get alongshore-shore net volumetric change in cubic meters per meter of beach.
 
     Args:
-        data_in (Pandas Dataframe): Dataframe generated by prep_heatmap function.
-        transect_spacing (numeric): Spacing between transects in meters.
+        data_in (pd.Dataframe): Dataframe generated by prep_heatmap function.
+        transect_spacing (int,float): Spacing between transects in meters.
     Returns:
-        Cubic meters of change per meter of beach alongshore, at the site level.
+        m3_m (float): Cubic meters of change per meter of beach alongshore, at the site level.
     """
 
     # compute alongshore beachface length
@@ -2655,7 +2654,7 @@ def get_state_vol_table(
 
 
     Returns:
-        A dataframe storing altimetric beach change info and other information for every period and location.
+        volumetrics_location (pd.DataFrame): A dataframe storing altimetric beach change info and other information for every period and location.
     """
 
     if isinstance(full_specs_table, bool):
@@ -2806,7 +2805,7 @@ def get_transects_vol_table(
         sigma_n (int): number of standard deviation to use to exclude outliers (default=3).
 
     Returns:
-        A dataframe storing altimetric beach change info at the transect level, and other information for every period and location.
+        volumetrics_transects (pd.DataFrame): A dataframe storing altimetric beach change info at the transect level, and other information for every period and location.
     """
 
     transects_df_full = pd.DataFrame()
@@ -3574,9 +3573,6 @@ def images_to_dirs(images_folder, target_folder, op=None):
         images_folder (str): path to the directory where the images are stored.
         target_folder (str): target path where create subfolders named as the images.
         op (None, "copy", "move"): Move or copy the images into the newly created folders. None, creates empty subfolders.
-    Returns:
-        Create folders (optionally, containing the images).
-
     """
 
     images = os.listdir(images_folder)
@@ -3718,13 +3714,13 @@ def grid_from_pts(pts_gdf, width, height, crs, offsets=(0, 0, 0, 0)):
     Create a georeferenced grid of polygones from points along a line (shoreline).
     Used to extract tiles (images patches) from rasters.
     Args:
-        pts_gdf (GeoDataFrame): The geodataframe storing points along a shoreline.
-        width, height (int,float): The width and heigth of each single tile of the grid, given in the CRS unit (use projected CRS).
+        pts_gdf (gpd.GeoDataFrame): The geodataframe storing points along a shoreline.
+        width (int, float) The width of each single tile of the grid, given in the CRS unit (use projected CRS).
+        height (int,float): The heigth of each single tile of the grid, given in the CRS unit (use projected CRS).
         crs (str): Coordinate Reference System in the dictionary format (example: {'init' :'epsg:4326'})
-        offsets (tuple): Offsets in meters (needs projected CRS) from the bounds of the pts_gdf,
-            in the form of (xmin, ymin, xmax, ymax). Default to (0,0,0,0).
+        offsets (tuple): Offsets in meters (needs projected CRS) from the bounds of the pts_gdf, in the form of (xmin, ymin, xmax, ymax). Default to (0,0,0,0).
     Returns:
-        Grid : A GeoDataFrame storing polygon grids, with IDs and geometry columns.
+        Grid (gpd.GeoDataFrame): A GeoDataFrame storing polygon grids, with IDs and geometry columns.
     """
 
     xmin, ymin, xmax, ymax = tuple(map(operator.add, pts_gdf.total_bounds, offsets))
