@@ -146,15 +146,15 @@ def find_date_string(
     ],
     to_rawdate=True,
 ):
-    """
-    It finds the date and returns True or a formatted version of it, from a filename of the type "Seaspray_22_Oct_2020_GeoTIFF_DSM_GDA94_MGA_zone_55.tiff".
+    """It finds the date and returns True or a formatted version of it, from a filename of the type "Seaspray_22_Oct_2020_GeoTIFF_DSM_GDA94_MGA_zone_55.tiff".
 
     Args:
         filenames (str): filename to test, of the type "Seaspray_22_Oct_2020_GeoTIFF_DSM_GDA94_MGA_zone_55.tiff".
         list_months (list): expected denominations for the months. Default to ['jan','feb','mar',...,'dec'].
         to_rawdate (bool): True to format the found date into raw_date (20201022). False, return True if the date is found or False if not.
+
     Returns:
-        bool
+        bool (bool, str): True if it was already formatted or a new string formatted correctly.
     """
 
     re_list_months = "|".join(list_months)
@@ -175,14 +175,14 @@ def find_date_string(
 
 
 def filter_filename_list(filenames_list, fmt=[".tif", ".tiff"]):
-    """
-    It returns a list of only specific file formats from a list of filenames.
+    """It returns a list of only specific file formats from a list of filenames.
 
     Args:
         filenames_list (list): list of filenames.
         fmt (list): list of formats to be filtered (DEFAULT = [".tif",".tiff"])
+
     Returns:
-        A filtered list of filenames.
+        filtered_list (list): A filtered list of filenames.
     """
     return [name for name in filenames_list if os.path.splitext(name)[1] in fmt]
 
@@ -197,10 +197,10 @@ def coords_to_points(string_of_coords):
     Function to create Shapely Point geometries from strings representing Shapely Point geometries.
     Used when loading CSV with point geometries in string type.
 
-    Args:
+    args:
         string_of_coords (str): the string version of Shapely Point geometry
 
-    Returns:
+    returns:
         pt_geom : Shapely Point geometry
     """
     num_ditis = re.findall("\\d+", string_of_coords)
@@ -223,19 +223,17 @@ def create_id(
     dist_field="distance",
     random_state=42,
 ):
-    """
-    Function to create unique IDs from random permutations of integers and letters from the distance, tr_id, location,
-    coordinates and survey_date fields of the rgb and z tables.
+    """Function to create unique IDs from random permutations of integers and letters from the distance, tr_id, location, coordinates and survey_date fields of the rgb and z tables.
 
-    Args:
-        Series (Pandas series): series having the selected fields.
-        tr_id_field (str)= Field name holding the transect ID (Default="tr_id").
-        loc_field (str)= Field name holding the location of the survey (Default="location").
-        dist_field (str)= Field name holding the distance from start of the transect (Default="distance").
+    args:
+        Series (pd.Series): series having the selected fields.
+        tr_id_field (str): Field name holding the transect ID (Default="tr_id").
+        loc_field (str): Field name holding the location of the survey (Default="location").
+        dist_field (str): Field name holding the distance from start of the transect (Default="distance").
         random_state (int): Random seed.
 
-    Returns:
-        A series od unique IDs.
+    returns:
+        ids (list): A series od unique IDs.
     """
 
     dist_c = str(np.round(float(series.loc[dist_field]), 2))
@@ -265,15 +263,14 @@ def create_id(
 
 
 def create_spatial_id(series, random_state=42):
-    """
-    Function to create IDs indipended on the survey_date, but related to to distance, tr_id and location only.
-    Equivalent to use coordinates field.
+    """Function to create IDs indipended on the survey_date, but related to to distance, tr_id and location only. Equivalent to use coordinates field.
 
-    Args:
-        Series (Pandas Series): series of merged table.
+    args:
+        series (pd.Series): series of merged table.
         random_state (int): Random seed.
-    Returns:
-        A series od unique spatial IDs.
+
+    returns:
+        ids (list): A series od unique spatial IDs.
     """
 
     # ID indipended on the survey_date, but only related to distance, tr_id
@@ -467,7 +464,7 @@ def getCrs_from_raster_path(ras_path):
         ras_path (str): Path of the raster.
 
     Returns:
-        EPSG code of the input raster.
+        epsg_code (int): EPSG code of the input raster.
     """
     with ras.open(r"{}".format(ras_path)) as raster:
         return raster.crs.to_epsg()
@@ -513,19 +510,17 @@ def check_dicts_duplicated_values(l_dicts):
 def cross_ref(
     dir_inputs, dirNameTrans, loc_search_dict, list_loc_codes, print_info=False
 ):
-    """
-    Returns a dataframe with location, raw_date, filenames (paths)
-    and CRS of each raster and associated transect files. Used to double-check.
+    """Returns a dataframe with location, raw_date, filenames (paths) and CRS of each raster and associated transect files. Used to double-check.
 
-    Args:
+    args:
         dirNameDSM (str): Path of the directory containing the geotiffs datasets (.tiff or .tif).
         dirNameTrans (str): Path of the directory containing the transects (geopackages, .gpkg).
         loc_search_dict (list): Dictionary used to match filename with right location code.
         list_loc_codes (list): list of strings containing location codes.
         print_info (bool): If True, prints count of datasets/location and total. Default = False.
 
-    Returns:
-        Dataframe and information about raster-transect files matches.
+    returns:
+        rasters_df (pd.DataFRame): Dataframe and information about raster-transect files matches.
     """
 
     ras_type_dict={0:"dsm",
@@ -696,15 +691,16 @@ def split_transects(geom, side="left"):
 def create_transects(baseline, sampling_step, tick_length, location, crs, side="both"):
     """Creates a GeoDataFrame with transects normal to the baseline, with defined spacing and length.
 
-    Args:
-        baseline (gdf): baseline geodataframe.
+    args:
+        baseline (gdp.GeoDataFrame): baseline geodataframe.
         sampling_step (int,float): alognshore spacing of transects in the CRS reference unit.
         tick_length (int,float): transects length
         location (str): location code
-        crs (): coordinate reference system to georeference the transects. It must be in dictionary form.
-        side ("both", "left", "right"): If "both", the transects will be centered on the baseline. If "left" or "right", transects will start from the baseline and extend to the left/right of it.
-    Returns:
-        Geodataframe of transects.
+        crs (dict): coordinate reference system to georeference the transects. It must be in dictionary form.
+        side (str): If "both", the transects will be centered on the baseline. If "left" or "right", transects will start from the baseline and extend to the left/right of it.
+
+    returns:
+        gdf_transects (gpd.GeoDataFrame): Geodataframe of transects.
     """
 
     if side != "both":
@@ -1146,27 +1142,24 @@ def extract_from_folder(
     add_slope=False,
     default_nan_values=-10000
 ):
-    """
-    Wrapper to extract profiles from all rasters inside a folder.
+    """Wrapper to extract profiles from all rasters inside a folder.
 
     Warning: The folders must contain the geotiffs and geopackages only.
 
     Args:
         dataset_folder (str): Path of the directory containing the datasets (geotiffs, .tiff).
         transect_folder (str): Path of the directory containing the transects (geopackages, .gpkg).
-        tr_ids (str): If 'reset', a new incremental transect_id will be automatically assigned.\
-        If the name of a column in the transect files is provided, use that column as transect IDs.
+        tr_ids (str): If 'reset', a new incremental transect_id will be automatically assigned. If the name of a column in the transect files is provided, use that column as transect IDs.
         list_loc_codes (list): list of strings containing location codes.
         mode (str): If 'dsm', extract from DSMs. If 'ortho', extracts from orthophotos.
         sampling_step (float): Distance along-transect to sample points at. In meters.
         add_xy (bool): If True, adds extra columns with long and lat coordinates in the input CRS.
         add_slope (bool): If True, computes slope raster in degrees (increased procesing time)
         and extract slope values across transects.
-        nan_values (int): Value used for NoData in the raster format.
-        In Pix4D, this is -10000 (Default).
+        nan_values (int): Value used for NoData in the raster format. In Pix4D, this is -10000 (Default).
 
     Returns:
-        A geodataframe with survey and topographical or color information extracted.
+        gdf (gpd.GeoDataFrame): A geodataframe with survey and topographical or color information extracted.
     """
 
     # Get a list of all the filenames and path
@@ -1637,12 +1630,15 @@ def get_coastal_Markov(arr_markov, weights_dict, store_neg=True):
     """Compute BCDs from first-order transition matrices of dh magnitude classes (as states).
 
     Args:
-        arr_markov (array): Numpy array of markov transition matrix.
+        arr_markov (np.array): Numpy array of markov transition matrix.
         weights_dict (dict): Dictionary with keys:dh classes, values: weigth (int). Especially useful for the e-BCDs magnitude trend (sign).
-        store_neg: If True (default), use the subtraction for diminishing trends.
+        store_neg (bool): If True (default), use the subtraction for diminishing trends.
 
     Returns:
-        BCD index, value of the trend, the sign ('-' or '+') for plotting purposes.
+        (tuple): Tple containing:
+            BCD(float) the actual BCD indices
+            trend(float) value of the indices trend
+            sign(str) can be '-' or '+' for plotting purposes.
     """
 
     combs = pd.Series(product(arr_markov.index, (arr_markov.columns)))
@@ -1701,10 +1697,9 @@ def compute_multitemporal (df,
         date_field (str): the name of the column storing the survey date.
         sand_label_field (str): the name of the column storing the sand label (usually sand=0, no_sand=1).
         filter_classes (list): list of integers specifiying the label numbers of the sand_label_field that are sand. Default [0].
-        common_field (str): name of the field where the points share the same name. It is usually the geometry or spatial IDs.
 
     Returns:
-        A multitemporal dataframe of sand-specific elevation changes.
+        multiteporal_df (pd.DataFrame): A multitemporal dataframe of sand-specific elevation changes.
     """
     if filter_class != None:
         # check if pt_class in columns
@@ -2525,22 +2520,20 @@ def prep_heatmap(df, lod, outliers=False, sigma_n=3):
 
 
 def fill_gaps(data_in, y_heat_bottom_limit, spacing, bottom=True, y_heat_start=0):
-    """
-    Function to fill the pivoted table (returned from prep_heatmap function) with missing across-shore distances, due to align data on heatmaps.
-    Empty rows (NaN) will be added on top (from 0 to the first valid distance) and, optionally on the bottom of each transect,
-    (from the last valid distance to a specified seaward limit).
+    """Function to fill the pivoted table (returned from prep_heatmap function) with missing across-shore distances, due to align data on heatmaps. Empty rows (NaN) will be added on top (from 0 to the first valid distance) and, optionally on the bottom of each transect, (from the last valid distance to a specified seaward limit).
 
     Warning:
         This function assume along-transect distances to be going from land to water, which is not what the profiles distances represent originally.
 
     Args:
-        data_in (Pandas dataframe): Pivoted dataframe, where each column is a transect and row is a along-shore distance.
+        data_in (pd.DataFrame): Pivoted dataframe, where each column is a transect and row is a along-shore distance.
         y_heat_bottom_limit (int): Lower boundary distance to extend all transects.
         bottom (bool): If True (default), rows are extended seaward too, up to y_heat_bottom_limit. If False, only distances from 0 to the first valid values will be added.
         y_heat_start (int): Landward starting distance value (default=0)
-        spacing(float): Sampling step (meters) used to extract points (default=0.1)
+        spacing (float): Sampling step (meters) used to extract points (default=0.1)
+
     Returns:
-        Complete dataframe with extra rows of NaN added.
+        complete_df (pd.DataFrame): Complete dataframe with extra rows of NaN added.
     """
     if y_heat_bottom_limit < data_in.index[-1]:
         raise ValueError(f"y_heat_bottom_limit ({y_heat_bottom_limit}) cannot be lower than the maximum distance already present in the data ({data_in.index[-1]}).")
@@ -2601,13 +2594,13 @@ def interpol_integrate(series, dx):
 
 
 def get_beachface_length(series):
-    """
-    Get across-shore beachface length from series of elevation change with distance as indices.
+    """Get across-shore beachface length from series of elevation change with distance as indices.
 
     Args:
-        Series (Pandas Series): series of elevation change with distance as indices.
+        Series (pd.Series): series of elevation change with distance as indices.
+
     Returns:
-        Across-shore beachface length in meters.
+        beachface_length (float): Across-shore beachface length in meters.
     """
 
     min_dist, max_dist = series.first_valid_index(), series.last_valid_index()
@@ -3775,11 +3768,11 @@ def add_grid_loc_coords(grid_gdf, location=None):
     Add coordinate fields of the corners of each grid tiles.
 
     Args:
-        grid_gdf (GeoDataFrame): The geodataframe storing the grid, returned by the grid_from_pts function.
+        grid_gdf (gpd.GeoDataFrame): The geodataframe storing the grid, returned by the grid_from_pts function.
         location (str): The location code associated with the grid. Defaults to None.
 
     Returns:
-        The original grid, with UpperLeft X and Y (ulx,uly), UpperRight X and Y (urx,ury), LowerLeft X and Y (llx,llr) and LowerRigth X and Y (lrx,lry) coordinates fields added.
+        grid_gdf (gpd.GeoDataFrame): The original grid, with UpperLeft X and Y (ulx,uly), UpperRight X and Y (urx,ury), LowerLeft X and Y (llx,llr) and LowerRigth X and Y (lrx,lry) coordinates fields added.
     """
 
     if location is None:
@@ -3933,18 +3926,14 @@ def grid_from_shore(
 
 
 def dissolve_shores(gdf_shores, field="date"):
-    """
-    Dissolves multi-part shorelines into one geometry per location-date.
-    Uses GeoPandas.GeoDataFrame.dissolve method.
+    """Dissolves multi-part shorelines into one geometry per location-date. Uses GeoPandas.GeoDataFrame.dissolve method.
 
-    To Do: multi-location can be infered by len
-
-    Args:
-        gdf_shores (GeoDataFrame): The geodataframe storing the shoreline.
+    args:
+        gdf_shores (gpd.GeoDataFrame): The geodataframe storing the shoreline.
         field (str): The field to be used to dissolve shorelines. Default to "date".
 
-    Returns:
-        GeoDataFrame with one geometry per location-date combination.
+    returns:
+        dissolved (gpd.GeoDataFrame): GeoDataFrame with one geometry per location-date combination.
     """
     if len(gdf_shores.location.unique()) != 1:
         multi_location = True
@@ -3968,7 +3957,7 @@ def dissolve_shores(gdf_shores, field="date"):
 
 
 def check_overlay(line_geometry, img_path):
-    """Evaluate wether a line intesects the extent of a raster.
+    """Evaluates wether a line intesects the extent of a raster.
         Returns True if a valid intersection is found or False if not. In case of MultiLine features,
         evaluate if any of the lines intersects with the raster extent,
         which confirms that the CRS of both shapes geometries are correctly matched.
@@ -3978,7 +3967,7 @@ def check_overlay(line_geometry, img_path):
         img_path (str): Path to the geotiff to evaluate line overlay with.
 
     Returns:
-        True, if a valid match is found. False, if the line do not intersect the raster."""
+        bool (bool): True, if a valid match is found. False, if the line do not intersect the raster."""
 
     # create a polygone with raster bounds
     with ras.open(img_path, "r") as dataset:
@@ -4023,14 +4012,13 @@ def check_overlay(line_geometry, img_path):
 
 
 def correct_multi_detections(shore_pts, transects):
-    """.
+    """Corrects for multiple points detections on shorelnes transects.
 
     Args:
-        shore_pts (array): array to be transformed.
-        transects (min,max): tuple with minimum and maximum brightness values. Defaults is 0-255.
+        shore_pts (np.array): array to be transformed.
+        transects (pd.DataFRame): transects to correct.
     Returns:
-        Transformed array.
-
+        geometries (list): List of geometries of correct points.
     """
 
     geometries = []
@@ -4174,25 +4162,21 @@ def error_from_gt(
     that a new set of transects will be created on each groundtruth shoreline.
 
     Args:
-        shorelines (gdf): GeoDataFrame of shorelines to test.
-        groundtruths (gdf): GeoDataFrame of shorelines to test.
+        shorelines (gpd.GeoDataFrame): GeoDataFrame of shorelines to test.
+        groundtruths (gpd.GeoDataFrame): GeoDataFrame of shorelines to test.
         crs_dict_string (dict): Dictionary storing location codes as key and crs information as values, in dictionary form.
-        Example: crs_dict_string = {'wbl': {'init': 'epsg:32754'},
-                   'apo': {'init': 'epsg:32754'},
-                   'prd': {'init': 'epsg:32755'},
-                   'dem': {'init': 'epsg:32755'} }
         location (str): Strings of location code ("apo").
         sampling_step (int, float): Alongshore distanace to separate each evaluation transect.
         tick_length (int, float): Length of transects.
         shore_geometry_field (str): Field where the geometry of the test shoreline is stored.
         gt_geometry_field (str): Field where the geometry of the groundtruth shoreline is stored.
-        gt_date_field, shore_date_field (str): Fields where the survey dates are stored in the groundtruth and to-correct datasets respectively.
-        side (str, "right, "left,"both"): Wether to create transect on the right, left or both sides. Default to "both".
-        baseline_mode (str, "dynamic", "fixed"): If "dynamic" (default), statistics will be computed from transects created from each groundtruth shoreline.
-        If path to a .gpkg is provided, then use those arbitrary location specific baselines and transects will be fixed.
+        gt_date_field (str): Field where the survey dates are stored in the groundtruth dataset.
+        shore_date_field (str): Field where the survey dates are stored in the to-correct dataset.
+        side (str): Wether to create transect on the right, left or both sides. Default to "both".
+        baseline_mode (str): If "dynamic" (default), statistics will be computed from transects created from each groundtruth shoreline. If path to a .gpkg is provided, then use those arbitrary location specific baselines and transects will be fixed.
 
     Returns:
-        shore_shift_df: Dataframe containing the distances from groundtruth at each timestep.
+        shore_shift_df (pd.DataFrame): Dataframe containing the distances from groundtruth at each timestep.
     """
     crs = crs_dict_string[location]
 
@@ -5828,17 +5812,10 @@ def LISA_site_level(
         Please refer to PySAL package documentation for more info.
 
     Args:
-        dh_df (df, str): Pandas dataframe or local path of the timeseries files,
-        as returned by the multitemporal extraction.
+        dh_df (pd.DataFrame, str): Pandas dataframe or local path of the timeseries files, as returned by the multitemporal extraction.
         crs_dict_string (dict): Dictionary storing location codes as key and crs information as values, in dictionary form.
-        Example: crs_dict_string = {'wbl': {'init': 'epsg:32754'},
-                   'apo': {'init': 'epsg:32754'},
-                   'prd': {'init': 'epsg:32755'},
-                   'dem': {'init': 'epsg:32755'} }
-
         geometry_column (str): field storing the geometry column. If in string form (as loaded from a csv), it will be converted to Point objects. Default='coordinates'.
-
-        mode (str)('distance','knn','idw'): If 'distance'(Default), compute spatial weigth matrix using a distance-band kernel, specified in distance_value parameter.
+        mode (str): If 'distance'(Default), compute spatial weigth matrix using a distance-band kernel, specified in distance_value parameter.
                                         If 'knn', spatial weigth matrix uses a specified (k_value parameter) of k number closest points to compute weigths.
                                         if 'idw', Inverse Distance Weigthing is used with the specified decay power (decay parameter) to compute weigth.
 
@@ -5848,8 +5825,7 @@ def LISA_site_level(
 
 
     Returns:
-        Dataframe with the fdr threshold, local moran-s Is, p and z values and the quadrant
-        in which each observation falls in a Moran's scatter plot.
+        lisa_df (pd.DataFrame): Dataframe with the fdr threshold, local moran-s Is, p and z values and the quadrant in which each observation falls in a Moran's scatter plot.
     """
 
     if isinstance(dh_df, str):
