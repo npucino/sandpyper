@@ -69,21 +69,21 @@ class ProfileSet():
                  loc_search_dict,
                  crs_dict_string,
                 check='all'):
-    """This class sets up the monitoring global parameters, input files directories and creates a check dataframe to confirm all CRSs and files are matched up correctly.
+        """This class sets up the monitoring global parameters, input files directories and creates a check dataframe to confirm all CRSs and files are matched up correctly.
 
-    Args:
-        dirNameDSM (str): Path of the directory containing the DSM datasets.
-        dirNameOrtho (str): Path of the directory containing the orthophotos datasets.
-        dirNameTrans (str): Path of the directory containing the transect files (.gpkg, .shp).
-        transects_spacing (float): The alonghsore spacing between transects.
-        loc_codes (list): List of strings of location codes.
-        loc_search_dict (dict): A dictionary where keys are the location codes and values are lists containing the expected full location string, including the location code itself (["wbl","Warrnambool", "warrnambool","warrny"]).
-        crs_dict_string (dict): Dictionary storing location codes as key and crs information as values, in dictionary form.
-        check (str, optional): If 'all', the check dataframe will contain both DSMs and orthophotos information. If one of 'dsm' or 'ortho', only check the desired data type.
+        Args:
+            dirNameDSM (str): Path of the directory containing the DSM datasets.
+            dirNameOrtho (str): Path of the directory containing the orthophotos datasets.
+            dirNameTrans (str): Path of the directory containing the transect files (.gpkg, .shp).
+            transects_spacing (float): The alonghsore spacing between transects.
+            loc_codes (list): List of strings of location codes.
+            loc_search_dict (dict): A dictionary where keys are the location codes and values are lists containing the expected full location string, including the location code itself (["wbl","Warrnambool", "warrnambool","warrny"]).
+            crs_dict_string (dict): Dictionary storing location codes as key and crs information as values, in dictionary form.
+            check (str, optional): If 'all', the check dataframe will contain both DSMs and orthophotos information. If one of 'dsm' or 'ortho', only check the desired data type.
 
-    Returns:
-        object: ProfileSet object.
-    """
+        Returns:
+            object: ProfileSet object.
+        """
 
 
         self.dirNameDSM=dirNameDSM
