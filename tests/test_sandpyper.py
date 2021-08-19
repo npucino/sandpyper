@@ -332,7 +332,6 @@ class TestProfileDynamics(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls):
-        cls.P
         cls.D2
 
     def test_009_ProfileDynamics(self):
