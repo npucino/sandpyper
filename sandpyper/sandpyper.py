@@ -784,7 +784,7 @@ class ProfileDynamics():
 
             self.location_ss=merged
 
-    def BCD_compute_transects(self, loc_specs, reliable_action, dirNameTrans=None):
+    def BCD_compute_transects(self, loc_specs, reliable_action, dirNameTrans):
         """It computes Residual Beachface Cluster Dynamics (r-BCDs) indices at the transect scale.
 
         Args:
@@ -797,7 +797,7 @@ class ProfileDynamics():
         """
         self.transects_rbcd=get_rbcd_transect(df_labelled=self.df_labelled,
                   loc_specs=loc_specs,
-                  dirNameTrans=self.ProfileSet.dirNameTrans,
+                  dirNameTrans=dirNameTrans,
                   reliable_action=reliable_action,
                   labels_order=self.tags_order,
                   loc_codes=self.ProfileSet.loc_codes,
