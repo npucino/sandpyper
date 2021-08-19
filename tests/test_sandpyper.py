@@ -136,6 +136,17 @@ class TestCreateProfiles(unittest.TestCase):
 
     def setUp(self):
         """Load shorelines examples and create necessary objects"""
+        shoreline_leo_path = os.path.abspath("examples/test_data/shorelines/leo_shoreline_short.gpkg")
+        shoreline_mar_path = os.path.abspath('examples/test_data/shorelines/mar_shoreline_short.gpkg')
+        dsms_dir_path = os.path.abspath('examples/test_data/dsm_1m/')
+        orthos_dir_path = os.path.abspath('examples/test_data/orthos_1m')
+        transects_path = os.path.abspath('examples/test_data/transects/')
+        lod_mode=os.path.abspath('examples/test_data/lod_transects/')
+        label_corrections_path=os.path.abspath("examples/test_data/clean/label_corrections.gpkg")
+        watermasks_path=os.path.abspath("examples/test_data/clean/watermasks.gpkg")
+        shoremasks_path=os.path.abspath("examples/test_data/clean/shoremasks.gpkg")
+        test_pickled=os.path.abspath("examples/test_data/test.p")
+        P_test=pickle.load(open(test_pickled, "rb"))
 
         self.leo_shoreline = gpd.read_file(shoreline_leo_path)
         self.mar_shoreline = gpd.read_file(shoreline_mar_path)
@@ -315,6 +326,18 @@ class TestProfileDynamics(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
 
+        shoreline_leo_path = os.path.abspath("examples/test_data/shorelines/leo_shoreline_short.gpkg")
+        shoreline_mar_path = os.path.abspath('examples/test_data/shorelines/mar_shoreline_short.gpkg')
+        dsms_dir_path = os.path.abspath('examples/test_data/dsm_1m/')
+        orthos_dir_path = os.path.abspath('examples/test_data/orthos_1m')
+        transects_path = os.path.abspath('examples/test_data/transects/')
+        lod_mode=os.path.abspath('examples/test_data/lod_transects/')
+        label_corrections_path=os.path.abspath("examples/test_data/clean/label_corrections.gpkg")
+        watermasks_path=os.path.abspath("examples/test_data/clean/watermasks.gpkg")
+        shoremasks_path=os.path.abspath("examples/test_data/clean/shoremasks.gpkg")
+        test_pickled=os.path.abspath("examples/test_data/test.p")
+        P_test=pickle.load(open(test_pickled, "rb"))
+
         cls.D2 = ProfileDynamics(P_test, bins=5, method="JenksCaspall", labels=labels)
         cls.D2.compute_multitemporal(loc_full=loc_full, filter_class='sand')
         cls.D2.compute_volumetrics(lod=cls.D2.lod_df)
@@ -322,7 +345,7 @@ class TestProfileDynamics(unittest.TestCase):
         cls.D2.discretise(absolute=True, print_summary=True, lod=cls.D2.lod_df, appendix=appendix)
         cls.D2.infer_weights()
         cls.D2.BCD_compute_location("geometry","all",True, filterit='lod')
-        cls.D2.BCD_compute_transects(loc_specs=loc_specs,reliable_action='keep')
+        cls.D2.BCD_compute_transects(loc_specs=loc_specs,reliable_action='keep',dirNameTrans=transects_path)
 
     @classmethod
     def tearDownClass(cls):
