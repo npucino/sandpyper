@@ -22,7 +22,7 @@ jobs:
                   conda install -c conda-forge ipywidgets
             - name: PKG-TEST
               run: |
-                  python -m unittest discover tests/
+                  python -m unittest discover
             - run: pip install mkdocs==1.1.2 mkdocs-material mkdocstrings mkdocs-git-revision-date-plugin mkdocs-jupyter livereload python-markdown-math
 
             - run: mkdocs gh-deploy --force
