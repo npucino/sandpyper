@@ -59,6 +59,16 @@ from sandpyper.common import (
     extract_from_folder)
 
 class ProfileSet():
+
+    def __init__(self,
+                 dirNameDSM,
+                 dirNameOrtho,
+                 dirNameTrans,
+                 transects_spacing,
+                 loc_codes,
+                 loc_search_dict,
+                 crs_dict_string,
+                check='all'):
     """This class sets up the monitoring global parameters, input files directories and creates a check dataframe to confirm all CRSs and files are matched up correctly.
 
     Args:
@@ -74,15 +84,6 @@ class ProfileSet():
     Returns:
         object: ProfileSet object.
     """
-    def __init__(self,
-                 dirNameDSM,
-                 dirNameOrtho,
-                 dirNameTrans,
-                 transects_spacing,
-                 loc_codes,
-                 loc_search_dict,
-                 crs_dict_string,
-                check='all'):
 
 
         self.dirNameDSM=dirNameDSM
@@ -116,7 +117,7 @@ class ProfileSet():
             out_dir (str): Path to the directory where to save the object.
 
         Returns:
-            pickle file.
+            file (pkl): pickle file.
         """
 
         savetxt=f"{os.path.join(out_dir,name)}.p"
@@ -138,13 +139,11 @@ class ProfileSet():
             tr_ids (str): The name of the field in the transect file that is used to store the transects ID.
             sampling_step (float): Distance along-transect to extract data points from. In meters.
             add_xy (bool): If True, adds extra columns with long and lat coordinates in the input CRS.
-            add_slope (bool): If True, computes slope raster in degrees (increased procesing time)
-            and extract slope values across transects.
-            default_nan_values (int): Value used for NoData specification in the rasters used.
-            In Pix4D, this is -10000 (default).
+            add_slope (bool): If True, computes slope raster in degrees (increased procesing time) and extract slope values across transects.
+            default_nan_values (int): Value used for NoData specification in the rasters used. In Pix4D, this is -10000 (default).
 
          Returns:
-            attribute: .profiles dataframe
+            profiles (pd.DataFrame): adds an attribute (.profiles) to the ProfileSet object.
         """
 
         if mode=="dsm":
@@ -312,10 +311,10 @@ class ProfileDynamics():
         """Instantiates a ProfileDynamics object with a discretisation scheme for future behavioural dynamics computation.
 
         Args:
-            ProfileSet (object)= ProfileSet object that stores all the monitoring information.
-            bins (int)= Number of bins that both erosional and depositional classes will be partitioned into.
-            method (str)= Name of the algorithm used to discretise the data. Choose between 'EqualInterval', 'FisherJenks', 'HeadTailBreaks', 'JenksCaspall', 'KClassifiers', 'Quantiles', 'Percentiles'. Head to Pysal GitHub page https://github.com/pysal/mapclassify for more info on classifiers.
-            labels (list)= List of labels to assign to the bins, in order to be able to name them and keep the analysis meaningful. Name labels from low to high magnitudes, like ["small","medium","high"] in case of bins=3.
+            ProfileSet (object): ProfileSet object that stores all the monitoring information.
+            bins (int): Number of bins that both erosional and depositional classes will be partitioned into.
+            method (str): Name of the algorithm used to discretise the data. Choose between 'EqualInterval', 'FisherJenks', 'HeadTailBreaks', 'JenksCaspall', 'KClassifiers', 'Quantiles', 'Percentiles'. Head to Pysal GitHub page https://github.com/pysal/mapclassify for more info on classifiers.
+            labels (list): List of labels to assign to the bins, in order to be able to name them and keep the analysis meaningful. Name labels from low to high magnitudes, like ["small","medium","high"] in case of bins=3.
 
         Returns:
             object: ProfileDynamics object.
@@ -373,7 +372,7 @@ class ProfileDynamics():
             out_dir (str): Path to the directory where to save the object.
 
         Returns:
-            pickle file.
+            file (pkl): pickle file.
         """
 
         savetxt=f"{os.path.join(out_dir,name)}.p"
@@ -510,8 +509,7 @@ class ProfileDynamics():
 
         Args:
             lod (int, float, pd.DataFrame): Limit of Detections to use. Can be a single value for all surveys, an LoD dataframe or None if no LoD filtering is to be used.
-            absolute (bool): wether to discretise the absolute values of the data or not. If True (default), the bins will
-            be derived from absolute values, then, classes will be assigned to both negative and positive numbers accordingly.
+            absolute (bool): wether to discretise the absolute values of the data or not. If True (default), the bins will be derived from absolute values, then, classes will be assigned to both negative and positive numbers accordingly.
             field (str): Name of the column with data to discretise. Data must be numeric.
             appendix (tuple): String to append at the end of each label when absolute is True. Defaults = ("_deposition","_erosion").
             print_summary (bool): If True, prints out the bins specifications and the sum of absolute deviations around class medians as a goodness-metric.
@@ -606,20 +604,18 @@ class ProfileDynamics():
 
         Args:
             unique_field (dataframe): Field storing spatial IDs, which identify a point in spatial dimension but not in temporal dimension. This naturally fits the geometry column so use 'geometry' if in doubt.
-            mode (str, float): If a float is provided, this indicates the percentage of time that
-            the points need to be significant clusters across the periods in order to be retained. The no cluster state is renamed "nnn".
-            Insert "drop" to remove all cluster to no-cluster transitions, or 'all' to keep them all and rename
-            cluster-to-no clsuter state 'nnn'.
+            mode (str, float): If a float is provided, this indicates the percentage of time that the points need to be significant clusters across the periods in order to be retained. The no cluster state is renamed "nnn". Insert "drop" to remove all cluster to no-cluster transitions, or 'all' to keep them all and rename cluster-to-no clsuter state 'nnn'.
             store_neg (bool): If True (default), use the subtraction for diminishing trends. Default True.
-            filterit (str): if None (default), all points will be used.
-            If 'lod' or 'hotspot', only points above the LoDs or statistically significant clusters (hot/coldspots)
-            will be retained. If 'both', both lod and hotspot filters will be applied.
+            filterit (str): if None (default), all points will be used. If 'lod' or 'hotspot', only points above the LoDs or statistically significant clusters (hot/coldspots) will be retained. If 'both', both lod and hotspot filters will be applied.
 
         Returns:
-           location_ebcds (pd.DataFrame): Dataframe storing e-BCDs indices and trends (new ProfileDynamics attribute)
-           transitions_matrices (dict): (new ProfileDynamics attribute)
-           markov_details (dict): Dictionary storing number of points (n), number of timesteps (t) and number of transitions (n_transitions) for each location (new ProfileDynamics attribute)
-           location_ss (pd.DataFrame): Dataframe storing steady-state vectors and r-BCDs indices (new ProfileDynamics attribute)
+            (tuple): Tuple containing:
+                location_ebcds (pd.DataFrame) Dataframe storing e-BCDs indices and trends (new ProfileDynamics attribute)
+                transitions_matrices (dict) (new ProfileDynamics attribute)
+                sign(str) can be '-' or '+' for plotting purposes
+                markov_details (dict) Dictionary storing number of points (n), number of timesteps (t) and number of transitions (n_transitions) for each location (new ProfileDynamics attribute)
+                location_ss (pd.DataFrame) Dataframe storing steady-state vectors and r-BCDs indices (new ProfileDynamics attribute)
+
         """
 
         steady_state_victoria = pd.DataFrame()
@@ -1127,7 +1123,7 @@ class ProfileDynamics():
             dates_step (int): Plot one date label ever n in the y-axis.
             x_limits (tuple): A tuple containing x_min and x_max to apply to all the locations x axis (except those specified with x_diff, if any).
             x_binning (int): Plot one label ever n in the locations x-axis.
-            figure_size(tuple): Width and hieght (in inches) of the figure.
+            figure_size (tuple): Width and hieght (in inches) of the figure.
             font_scale (float): Scale of text. Default=1.
             dpi (int): Resolution in Dot Per Inch (DPI) to save the images.
             img_type (str): '.png','.pdf', '.ps', '.svg'. Format of the saved figures.

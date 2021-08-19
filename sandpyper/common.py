@@ -1633,7 +1633,7 @@ def get_coastal_Markov(arr_markov, weights_dict, store_neg=True):
         store_neg (bool): If True (default), use the subtraction for diminishing trends.
 
     Returns:
-        (tuple): Tple containing:
+        (tuple): Tuple containing:
             BCD(float) the actual BCD indices
             trend(float) value of the indices trend
             sign(str) can be '-' or '+' for plotting purposes.
