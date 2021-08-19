@@ -112,10 +112,10 @@ def test_format(filename, loc_search_dict):
     It returns True if the filename matches the required format (regx) or False if it doesn't.
 
     Args:
-        filenames (str): filename to test, of the type "Seaspray_22_Oct_2020_GeoTIFF_DSM_GDA94_MGA_zone_55.tiff".
+        filename (str): filename to test, of the type "Seaspray_22_Oct_2020_GeoTIFF_DSM_GDA94_MGA_zone_55.tiff".
         loc_search_dict (dict): a dictionary where keys are the location codes and values are lists containing the expected full location string (["Warrnambool", "warrnambool","warrny"]).
     Returns:
-        bool
+        bool (bool): True if the filename matches the required format (regx) or False if it doesn't.
     """
 
     re_list_loc = "|".join(loc_search_dict.keys())
@@ -149,7 +149,7 @@ def find_date_string(
     """It finds the date and returns True or a formatted version of it, from a filename of the type "Seaspray_22_Oct_2020_GeoTIFF_DSM_GDA94_MGA_zone_55.tiff".
 
     Args:
-        filenames (str): filename to test, of the type "Seaspray_22_Oct_2020_GeoTIFF_DSM_GDA94_MGA_zone_55.tiff".
+        filename (str): filename to test, of the type "Seaspray_22_Oct_2020_GeoTIFF_DSM_GDA94_MGA_zone_55.tiff".
         list_months (list): expected denominations for the months. Default to ['jan','feb','mar',...,'dec'].
         to_rawdate (bool): True to format the found date into raw_date (20201022). False, return True if the date is found or False if not.
 
@@ -226,7 +226,7 @@ def create_id(
     """Function to create unique IDs from random permutations of integers and letters from the distance, tr_id, location, coordinates and survey_date fields of the rgb and z tables.
 
     args:
-        Series (pd.Series): series having the selected fields.
+        series (pd.Series): series having the selected fields.
         tr_id_field (str): Field name holding the transect ID (Default="tr_id").
         loc_field (str): Field name holding the location of the survey (Default="location").
         dist_field (str): Field name holding the distance from start of the transect (Default="distance").
@@ -484,7 +484,7 @@ def getCrs_from_transect(trs_path):
         trs_path (str): Path of the transect file.
 
     Returns:
-        EPSG code of the input transect file.
+        epsg_code (int): EPSG code of the input transect file.
     """
     return gpd.read_file(trs_path).crs
 
@@ -513,7 +513,7 @@ def cross_ref(
     """Returns a dataframe with location, raw_date, filenames (paths) and CRS of each raster and associated transect files. Used to double-check.
 
     args:
-        dirNameDSM (str): Path of the directory containing the geotiffs datasets (.tiff or .tif).
+        dir_inputs (str): Path of the directory containing the geotiffs datasets (.tiff or .tif).
         dirNameTrans (str): Path of the directory containing the transects (geopackages, .gpkg).
         loc_search_dict (list): Dictionary used to match filename with right location code.
         list_loc_codes (list): list of strings containing location codes.
@@ -796,7 +796,8 @@ def get_terrain_info(x_coord, y_coord, rdarray):
     Returns the value of the rdarray rasters.
 
     Args:
-        x_coord, y_coord (float): Projected coordinates of pixel to extract value.
+        x_coord (float): Projected X coordinates of pixel to extract value.
+        y_coord (float): Projected Y coordinates of pixel to extract value.
         rdarray (rdarray): rdarray dataset.
 
     Returns:
@@ -1014,16 +1015,16 @@ def get_profiles(
 
 
 def get_dn(x_coord, y_coord, raster, bands, transform):
-    """
-    Returns the value of the raster at a specified location and band.
+    """Returns the value of the raster at a specified location and band.
 
-    Args:
+    args:
         x_coord (float): Projected X coordinates of pixel to extract value.
         y_coord (float): Projected Y coordinates of pixel to extract value.
         raster (rasterio open file): Open raster object, from rasterio.open(raster_filepath).
         bands (int): number of bands.
         transform (Shapely Affine obj): Geotransform of the raster.
-    Returns:
+
+    returns:
         px (int, float): raster pixel value.
     """
     # Let's create an empty list where we will store the elevation (z) from points
@@ -1047,9 +1048,7 @@ def get_profile_dn(
     transect_index, tr_ids,
     step, location, date_string, add_xy=False
 ):
-    """
-    Returns a tidy GeoDataFrame of profile data, extracting raster information
-    at a user-defined (step) meters gap along each transect.
+    """Returns a tidy GeoDataFrame of profile data, extracting raster information at a user-defined (step) meters gap along each transect.
 
     Args:
         ortho (str): path to the DSM raster.
@@ -1156,9 +1155,8 @@ def extract_from_folder(
         mode (str): If 'dsm', extract from DSMs. If 'ortho', extracts from orthophotos.
         sampling_step (float): Distance along-transect to sample points at. In meters.
         add_xy (bool): If True, adds extra columns with long and lat coordinates in the input CRS.
-        add_slope (bool): If True, computes slope raster in degrees (increased procesing time)
-        and extract slope values across transects.
-        nan_values (int): Value used for NoData in the raster format. In Pix4D, this is -10000 (Default).
+        add_slope (bool): If True, computes slope raster in degrees (increased procesing time) and extract slope values across transects.
+        default_nan_values (int): Value used for NoData in the raster format. In Pix4D, this is -10000 (Default).
 
     Returns:
         gdf (gpd.GeoDataFrame): A geodataframe with survey and topographical or color information extracted.
@@ -1474,14 +1472,13 @@ def get_rbcd_transect(df_labelled, loc_specs, reliable_action, dirNameTrans, lab
     """It computes the r-BCDs at the transect level, based on the timeseries of elevation change magnituteds across the beachface dataset (markov_tag dataframe).
 
     Args:
-        dataset (dataframe): Pandas dataframe with dh magnitude labelled.
-        mode (str): Insert "drop" to remove all cluster to no-cluster transitions, or 'nnn' (default) to keep them all and rename cluster-to-no clsuter state 'nnn'.
-        unreal (str) : Insert "drop" (default) to remove transects that have less than the specified number of non-nnn points (thresh) or "keep" to keep them.
-        thresh (int): Drop all rows with less than specified cluster transitions (i.e. non "nnn").
-        min_points (int): Minumum of non-"nnn" points per transect to consider a transect reliable.
-        field_markov_tags (str): The name of the column storing the magnitude classes. Default is "markov_tag".
-        field_unique_id (str): The name of the column storing the unique ID of the points. Default is "geometry".
-        field_discrete_time (str): The name of the column storing the period IDs. Default is "dt".
+        df_labelled (pd.DataFrame): Pandas dataframe with dh magnitude labelled.
+        loc_specs (dict): Dictionary where keys are the location codes and values are location-specific (inner) dictionaries where keys are 'thresh' and 'min_points' and values are the associated values, like loc_specs={'mar':{'thresh':6,'min_points':6}, 'leo':{'thresh':4,'min_points':20}}.
+        reliable_action (str) : Insert "drop" (default) to remove transects that have less than the specified number of non-nnn points (thresh) or "keep" to keep them.
+        dirNameTrans (str): Path of the directory containing the transects (geopackages, .gpkg).
+        labels_order (list): Order of labels (magnitude of change) to be preserved.
+        loc_codes (list): List of strings containing location codes.
+        crs_dict_string (dict): Dictionary storing location codes as key and crs information as values, in dictionary form.
 
     Returns:
        rbcd_transects (gpd.GeoDataFrame): A GeoDataFrames containing the steady-state distribution of each transect.
@@ -1571,8 +1568,10 @@ def get_rbcd_transect(df_labelled, loc_specs, reliable_action, dirNameTrans, lab
     # what to do with unreliable transects?
     if reliable_action =='drop':
         steady_state_tr=steady_state_tr.query("reliable == True")
-    else:
+    elif reliable_action =='keep':
         pass
+    else:
+        raise ValueError("The parameter 'reliable_action' must be either 'drop' or 'keep'.")
 
     ss_transects_idx = pd.DataFrame()
 
@@ -1693,9 +1692,9 @@ def compute_multitemporal (df,
     with time-periods sand-specific elevation changes.
 
     Args:
-        date_field (str): the name of the column storing the survey date.
-        sand_label_field (str): the name of the column storing the sand label (usually sand=0, no_sand=1).
-        filter_classes (list): list of integers specifiying the label numbers of the sand_label_field that are sand. Default [0].
+        date_field (str): The name of the column storing the survey date.
+        geometry_column (str): Name of the column containing the geometry.
+        filter_classes (str,list): Name of the class of list of classes to be retained in the multitemporal computation.
 
     Returns:
         multiteporal_df (pd.DataFrame): A multitemporal dataframe of sand-specific elevation changes.
@@ -1919,7 +1918,7 @@ def get_sil_location(merged_df, ks, feature_set, random_state=10):
         random_state (int): Random seed used to make the randomisation deterministic.
 
     Returns:
-        sil_locations (pd.DataFrame): A dataframe containing average Silhouette scores for each survey, based on the provided feature set.
+        sil_df (pd.DataFrame): A dataframe containing average Silhouette scores for each survey, based on the provided feature set.
     """
 
     # Creates the range of k to be used for Silhouette Analysis
@@ -2069,13 +2068,13 @@ def kmeans_sa(merged_df, ks, feature_set, thresh_k=5, random_state=10):
 
     Args:
         merged_df (Pandas dataframe): The clean and merged dataframe containing the features. Must contain the columns point_id, location and survey_date, as well as the
-        opt_k_dict (int, dict): number of clusters (k) or dictionary containing the optimal k for each survey. See get_opt_k function.
+        ks (int, dict): number of clusters (k) or dictionary containing the optimal k for each survey. See get_opt_k function.
         feature_set (list): List of names of features in the dataframe to use for clustering.
         thresh_k (int): Minimim k to be used. If survey-specific optimal k is below this value, then k equals the average k of all above threshold values.
         random_state (int): Random seed used to make the randomisation deterministic.
 
     Returns:
-        A dataframe containing the label_k column, with point_id, location, survey_date and the features used to cluster the data.
+        data_classified (pd.DataFrame): A dataframe containing the label_k column, with point_id, location, survey_date and the features used to cluster the data.
     """
 
 
@@ -2429,14 +2428,12 @@ def prep_heatmap(df, lod, outliers=False, sigma_n=3):
 
     Args:
         df (Pandas dataframe): Location-period specific subset (filtered for a location and a timeperiod) of multitemporal table.
+        lod (path, value, False): if valid path to an Limit of Detection table, use the table. If a value is provided, use the value across all surveys. If False, do not apply LoD filter. All elevation changes within +- LoD will be set to zero.
         outliers: when True, use the specified number of standard deviation to exclude outliers. If False, retain all the points.
         sigma_n (int): number of standard deviation to use to exclude outliers (default=3).
-        lod (path, value, False): if valid path to an Limit of Detection table, use the table.
-            If a value is provided, use the value across all surveys. If False, do not apply LoD filter.
-             All elevation changes within +- LoD will be set to zero.
 
     Returns:
-        Pivoted and clean Pandas Dataframe, ready to be used to plot heatmaps and compute volumetrics.
+        piv_df (pd.DataFrame): Pivoted and clean Pandas Dataframe, ready to be used to plot heatmaps and compute volumetrics.
     """
 
     # pivoting and sorting
@@ -2575,10 +2572,10 @@ def interpol_integrate(series, dx):
     Linearly interpolate NaN values (non-sand) within the first and last valid points (from the swash to the landward end of each transect),
     and intergrate the area below this interoplated profile, to obtain transect specific estimates of volumetric change.
     Args:
-        Series (Pandas Series): series of elevation change with distance as indices.
-
+        series (pd.Series): Series of elevation change with distance as indices.
+        dx (int,float): The along-transect point spacing.
     Returns:
-        Volumetric change in cubic meters.
+        integrated_area (float): Volumetric change in cubic meters.
     """
     min_dist, max_dist = (
         series.first_valid_index(),
@@ -2596,7 +2593,7 @@ def get_beachface_length(series):
     """Get across-shore beachface length from series of elevation change with distance as indices.
 
     Args:
-        Series (pd.Series): series of elevation change with distance as indices.
+        series (pd.Series): series of elevation change with distance as indices.
 
     Returns:
         beachface_length (float): Across-shore beachface length in meters.
@@ -2609,13 +2606,14 @@ def get_beachface_length(series):
     return across_shore_beachface_length
 
 
-def get_m3_m_location(data_in, transect_spacing=20, dx=0.1):
+def get_m3_m_location(data_in, dx, transect_spacing=20):
     """
     Get alongshore-shore net volumetric change in cubic meters per meter of beach.
 
     Args:
         data_in (pd.Dataframe): Dataframe generated by prep_heatmap function.
         transect_spacing (int,float): Spacing between transects in meters.
+        dx (int,float): The along-transect point spacing
     Returns:
         m3_m (float): Cubic meters of change per meter of beach alongshore, at the site level.
     """
@@ -2644,10 +2642,9 @@ def get_state_vol_table(
 
     Args:
         sand_pts (Pandas dataframe): multitemporal table.
-        lod (path, value, False): if valid path to an LoD table, use the table.
-            If a value is provided, use the value across all surveys. If False, do not apply LoD filter.
-             All elevation change (dh) values within LoD will be set to zero.
+        lod (str, bool): if valid path to an LoD table, use the table. If a value is provided, use the value across all surveys. If False, do not apply LoD filter.cAll elevation change (dh) values within LoD will be set to zero.
         full_specs_table (False, path): Full path to the table with extended monitoring info. If False, monitoring period information are limited.
+        dx (int,float): The along-transect point spacing.
         transect_spacing (int): Alongshore spacing of transects (m)
         outliers (bool): when True, use the specified number of standard deviation to exclude outliers. If False, retain all the points.
         sigma_n (int): number of standard deviation to use to exclude outliers (default=3).
@@ -2795,12 +2792,10 @@ def get_transects_vol_table(
     - normalised altimetric change: meters of rising, lowering and net elevation change per valid survey point (MEC)
 
     Args:
-        sand_pts (Pandas dataframe): multitemporal table.
-        lod (path, value, False): if valid path to an LoD table, use the table.
-            If a value is provided, use the value across all surveys. If False, do not apply LoD filter.
-             All elevation change (dh) values within LoD will be set to zero.
-        full_specs_table (False, path): Full path to the table with extended monitoring info. If False, monitoring period information are limited.
-        lod (bool): when True (default), dh values within LoD are zeroed. If False, all the points are retained.
+        sand_pts (pd.DataFrame): Multitemporal dh table.
+        lod (str, float, False): If valid path to an LoD table, use the table. If a value is provided, use the value across all surveys. If False, do not apply LoD filter. All elevation change (dh) values within LoD will be set to zero.
+        dx (int,float): The along-transect point spacing.
+        full_specs_table (str, pd.DataFRame, bool): Full path to the table with extended monitoring info or the table itself. If False, monitoring period information are limited.
         outliers: when True, use the specified number of standard deviation to exclude outliers. If False, retain all the points.
         sigma_n (int): number of standard deviation to use to exclude outliers (default=3).
 
@@ -2932,8 +2927,7 @@ def plot_alongshore_change(
     Args:
         sand_pts (Pandas dataframe): multitemporal table.
         mode (str): if 'subset', only a subset of locations and dts are plotted. If 'all', all periods and locations are plotted. .
-        lod (path, value, False): if valid path to an LoD table, use the table.
-        If a value is provided, use the value across all surveys. If False, do not apply LoD filter. All elevation change (dh) values within LoD will be set to zero.
+        lod (path, value, False): if valid path to an LoD table, use the table. If a value is provided, use the value across all surveys. If False, do not apply LoD filter. All elevation change (dh) values within LoD will be set to zero.
         full_specs_table (False, path): Full path to the table with extended monitoring info. If False, monitoring period information are limited.
         location_subset (list): list of strings containing the location codes (e.g. wbl) to be plotted.
         dt_subset (list): list of strings containing the period codes (e.g. dt_0) to be plotted.
@@ -2945,18 +2939,15 @@ def plot_alongshore_change(
         from_land (bool): If True (default), cross-shore distances are transformed into landward distances, where 0 is the end of beachface.
         from_origin (bool): If True (default), transect IDS are transformed in alongshore distance from origin (tr_id=0). It requires regularly spaced transects.
         add_orient (bool): if True, an additional lineplot is added to the volumetric plot containing orientation info. It needs pre-computed orientations (tr_orient parameter) (TO UPDAte). False is default.
-        tr_orient (Pandas dataframe): dataframe containign transect orientations.
         fig_size (tuple): Tuple of float to specify images size. Default is (7.3,3).
         font_scale (float): Scale of text. Default=1.
         plots_spacing (flaot): Vertical spacing of the heatmap and alongshore change plots. Default = 0.
-        bottom (bool): bottom (bool): If True (default), rows are extended seaward too, up to y_heat_bottom_limit. If False, only distances from 0 to the first valid values will be added.
-        y_heat_bottom_limit(int): y_heat_bottom_limit (int): Lower boundary distance (seaward) to extend all transects to.
-        transect_spacing(int): Alongshore spacing of transects (m).
+        bottom (bool): If True (default), rows are extended seaward too, up to y_heat_bottom_limit. If False, only distances from 0 to the first valid values will be added.
+        y_heat_bottom_limit (int): Lower boundary distance (seaward) to extend all transects to.
+        transect_spacing (float): Alongshore spacing of transects (m).
         outliers (bool): when True, use the specified number of standard deviation to exclude outliers. If False, retain all the points.
         sigma_n (int): number of standard deviation to use to exclude outliers (default=3).
 
-    Returns:
-        Prints and save alongshore beach change plots.
     """
 
     sb.set_context("paper", font_scale=font_scale, rc={"lines.linewidth": 0.8})
@@ -3476,11 +3467,10 @@ def plot_single_loc(
         colors_dict (dict): Dictionary with keys=location code and values=color (in matplotlib specification).
         linewidth (float, int): linewidths of the plot lines.
         out_date_format (str): format of the dates plotted in the x axis (datetime format).
-        xlabel,ylabel (str): labels for x and y axis.
+        xlabel (str): labels for x axis.
+        ylabel (str): labels for y axis.
         suptitle: title of the plot.
 
-    Returns:
-        An matplotlib.ax containing the plot.
     """
     f, ax = plt.subplots(figsize=figsize)
 
@@ -3630,13 +3620,12 @@ def s2_to_rgb(imin, scaler_range=(0, 255), re_size=False, dtype=False):
     """Transform image pixels into specified range. Used to obtain 8-bit RGB images.
 
     Args:
-        imin (array): array to be transformed.
-        scaler_range (min,max): tuple with minimum and maximum brightness values. Defaults is 0-255.
+        imin (np.array): image array to be transformed.
+        scaler_range (tuple): (min,max) tuple with minimum and maximum brightness values. Defaults is 0-255.
         re_size (False, tuple): if a tuple of size 2 is provided, reshape the transformed array with the provided shape. Default to False.
         dtype (False, dtype): optional data type for the transformed array. False, keep the original dtype.
     Returns:
-        Transformed array.
-
+        img_array_rgb (np.array): Transformed array.
     """
 
     scaler = MinMaxScaler(scaler_range)
@@ -3692,7 +3681,7 @@ def shoreline_from_prediction(
         shape (tuple): Shape of the tiles (default= (64,64), minimum requirement for Unet).
 
     Returns:
-        Geodataframe containing the contours (shoreline) extracted from the prediction.
+        contours_gdf (gpd.GeoDataFrame): Geodataframe containing the contours (shoreline) extracted from the prediction.
     """
     # get shoreline
     shore_arr = contours_to_multiline(
@@ -4353,7 +4342,7 @@ def toes_candidates(
         peak_height (int): Threshold to use to define a peak in the smoothed slope profile.
 
     Returns:
-        Candidate distances of the each slope profile."""
+        df_formatted (pd.DataFrame): Candidate distances of the each slope profile."""
 
     apply_dict = {
         "distance_field": distance_field,
@@ -4422,68 +4411,30 @@ def tidal_correction(
     Simple tidal correction for input shorelines. It can automatically extract subaerial beachfaces and more.
 
     Args:
-        shoreline (GeoDataFrame): The geodataframe storing points along a shoreline.
-        cs_shores (GeoDataFrame): The width and heigth of each single tile of the grid, given in the CRS unit (use projected CRS).
-        gdf (GeoDataFrame): Coordinate Reference System in the dictionary format (example: {'init' :'epsg:4326'})
-        baseline_folder: Path to the folder storing the baseline Geopackages (.gpkgs).
-        crs_dict_string: Dictionary storing location codes as key and crs information as values, in dictionary form.
-        Example: crs_dict_string = {'wbl': {'init': 'epsg:32754'},
-                   'apo': {'init': 'epsg:32754'},
-                   'prd': {'init': 'epsg:32755'},
-                   'dem': {'init': 'epsg:32755'} }
-
-        limit_correction (bool): If True, only use beachface slopes to compute the statistic for tidal correction.
-        When False, retain the full transects to compute the slope statistics to correct shorelines. When a slope value is
-        provided, it automatically sets to False. Defaults to True.
-
-        mode (str, 'sat' or 'gt'): If 'sat', use satellite shorelines as seaward edge to classify beachfaces.
-        If 'gt', use groundthruth shorelines instead.
-
-        alongshore_resolution ('infer', int, float): The alongshore spacing between transects, in the unit of measure of the
-        location CRS. If 'infer', use the gdf file to detect the spacing with 10cm precision. If the transects
-        spacing is less than 10cm, set the spacing manually.
-        Note: It also smoothes the original line if this value is greater of the original line vertex spacing.
-
-        slope_value (int,float,'mean','median','min','max'): If a numeric value is provided (assumed to be in degrees),
-        use it to correct the shorelines. If one of 'mean','median','min','max', use this statistics instead.
-        It also computes range, standard deviation and variance for
-        analytical purposes, despite should not be used to correct shorelines.
-
-        side (str, 'left', 'right', 'both'): Wether if retain only the left, right or both sides of the transects once created.
-        Defaults to 'both'.
-
+        shoreline (gpd.GeoDataFrame): The geodataframe storing points along a shoreline.
+        cs_shores (gpd.GeoDataFrame): The width and heigth of each single tile of the grid, given in the CRS unit (use projected CRS).
+        gdf (gpd.GeoDataFrame): Coordinate Reference System in the dictionary format (example: {'init' :'epsg:4326'})
+        baseline_folder (str): Path to the folder storing the baseline Geopackages (.gpkgs).
+        crs_dict_string (dict): Dictionary storing location codes as key and crs information as values, in dictionary form.
+        limit_correction (bool): If True, only use beachface slopes to compute the statistic for tidal correction. When False, retain the full transects to compute the slope statistics to correct shorelines. When a slope value is provided, it automatically sets to False. Defaults to True.
+        mode (str): If 'sat', use satellite shorelines as seaward edge to classify beachfaces. If 'gt', use groundthruth shorelines instead.
+        alongshore_resolution (str, float): The alongshore spacing between transects, in the unit of measure of the location CRS. If 'infer', use the gdf file to detect the spacing with 10cm precision. If the transects spacing is less than 10cm, set the spacing manually. Note: It also smoothes the original line if this value is greater of the original line vertex spacing.
+        slope_value (int,float,'mean','median','min','max'): If a numeric value is provided (assumed to be in degrees), use it to correct the shorelines. If one of 'mean','median','min','max', use this statistics instead. It also computes range, standard deviation and variance for analytical purposes, despite should not be used to correct shorelines.
+        side (str, 'left', 'right', 'both'): Wether if retain only the left, right or both sides of the transects once created. Defaults to 'both'.
         tick_length (int, float): Across-shore length of each transect in the unit of measure of the location CRS.
-
         subset_loc (list). List of string of location codes to limit the corection. Default to None.
-
-        limit_vertex (int): Sets the minimum number of consecutive transect ids to create one segment
-        of the corrected shoreline. Defaults to 1.
-
-        baseline_threshold ("infer", float, None): If a number is provided, it sets the minimum distance the original un-corrected and the tidal-corrected shorelines
-        must be in order to consider the correction valid.
-        If the distance between the original the tidal-corrected shorelines at one point is less than this value,
-        then the original shoreline is retained. If it is above, then the tidal-corrected value is retained.
-        This is done to avaoid to correct areas where an artificial shoreline occurs (seawalls or harbours). If "infer", then the Otsu method
-        is used to find this threshold value. This option works where artificial shorelines are present. If None, do not use this option.
-        Default to "infer".
-
-        replace_slope_outliers (bool): If True (default), replace the values of the defined slope statistics (slope_value parameter)
-        with its survey-level median.
-
+        limit_vertex (int): Sets the minimum number of consecutive transect ids to create one segment of the corrected shoreline. Defaults to 1.
+        baseline_threshold ("infer", float, None): If a number is provided, it sets the minimum distance the original un-corrected and the tidal-corrected shorelines must be in order to consider the correction valid. If the distance between the original the tidal-corrected shorelines at one point is less than this value, then the original shoreline is retained. If it is above, then the tidal-corrected value is retained. This is done to avaoid to correct areas where an artificial shoreline   occurs (seawalls or harbours). If "infer", then the Otsu method is used to find this threshold value. This option works where artificial shorelines are present. If None, do not use this option. Default to "infer".
+        replace_slope_outliers (bool): If True (default), replace the values of the defined slope statistics (slope_value parameter) with its survey-level median.
         save_trs_details (bool): True to save a .CSV file with transect-specific information. It defaults to False.
-
         trs_details_folder (str): Folder where to save the transect details. Defaults to None.
-
         gdf_date_field (str): Date field of the slope geodataframe used to correct the shoreline.Defaults to "raw_date".
-
         distance_field (str): Field storing the distance values. Default to "distance".
-
         date_field (str): Field storing the survey date values. Default to "raw_date".
-
         toe_field (str): Field storing the toe distances values. Default to "toe".
 
     Returns:
-        GeoDataFrame containing both the original shorelines and the corrected ones, stored in two different geometry fields.
+        corr_shorelines (gpd.GeoDataFrame): GeoDataFrame containing both the original shorelines and the corrected ones, stored in two different geometry fields.
     """
 
     if isinstance(slope_value, (int, float)):
@@ -5724,8 +5675,9 @@ def arr2geotiff(
         dtype (data type object): Default to numpy.float32.
         save (None,path). If a full path is provided, save the file to a geotiff image (C:\my\new\image.tif).
         If None (default), the geotiff is saved in the memory but not to the disk.
+
     Returns:
-        Geotiff image.
+        mem_dataset (rasterio.io.MemoryFile): Geotiff image saved into memory or optionally saved to a new raster.
 
     """
 
