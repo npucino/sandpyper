@@ -28,7 +28,7 @@ jobs:
             - name: CHECKOUT CODE
               uses: actions/checkout@v2
             - name: SETUP PYTHON
-              uses: actions/setup-python@v1
+              uses: actions/setup-python@v2
               with:
                   python-version: ${{ matrix.config.py }}
 
@@ -36,9 +36,10 @@ jobs:
               uses: s-weigand/setup-conda@v1
 
             - name: Install dependencies
+              #run: |
+                #  python -m pip install --upgrade pip
+                #  pip install --user --no-cache-dir Cython
               run: |
-                  python -m pip install --upgrade pip
-                  pip install --user --no-cache-dir Cython
                   conda config --add channels conda-forge
                   conda config --set channel_priority strict
                   conda install --file requirements.txt
