@@ -120,31 +120,22 @@ l_dicts={'no_sand': no_sand_dict,
         'water': water_dict,
         'veg':veg_dict}
 
-if os.getcwdb() != b'C:\\my_packages\\sandpyper\\tests': # if the script is running in github action as a workflow and not locally
+#if os.getcwdb() != b'C:\\my_packages\\sandpyper\\tests': # if the script is running in github action as a workflow and not locally
 
-    shoreline_leo_path = os.path.abspath("examples/test_data/shorelines/leo_shoreline_short.gpkg")
-    shoreline_mar_path = os.path.abspath('examples/test_data/shorelines/mar_shoreline_short.gpkg')
-    dsms_dir_path = os.path.abspath('examples/test_data/dsm_1m/')
-    orthos_dir_path = os.path.abspath('examples/test_data/orthos_1m')
-    transects_path = os.path.abspath('examples/test_data/transects/')
-    lod_mode=os.path.abspath('examples/test_data/lod_transects/')
-    label_corrections_path=os.path.abspath("examples/test_data/clean/label_corrections.gpkg")
-    watermasks_path=os.path.abspath("examples/test_data/clean/watermasks.gpkg")
-    shoremasks_path=os.path.abspath("examples/test_data/clean/shoremasks.gpkg")
-    test_pickled=os.path.abspath("examples/test_data/test.p")
+shoreline_leo_path = os.path.abspath("examples/test_data/shorelines/leo_shoreline_short.gpkg")
+shoreline_mar_path = os.path.abspath('examples/test_data/shorelines/mar_shoreline_short.gpkg')
+dsms_dir_path = os.path.abspath('examples/test_data/dsm_1m/')
+orthos_dir_path = os.path.abspath('examples/test_data/orthos_1m')
+transects_path = os.path.abspath('examples/test_data/transects/')
+lod_mode=os.path.abspath('examples/test_data/lod_transects/')
+label_corrections_path=os.path.abspath("examples/test_data/clean/label_corrections.gpkg")
+watermasks_path=os.path.abspath("examples/test_data/clean/watermasks.gpkg")
+shoremasks_path=os.path.abspath("examples/test_data/clean/shoremasks.gpkg")
+test_pickled=os.path.abspath("examples/test_data/test.p")
 
-else:
+#else:
 
-    shoreline_leo_path = os.path.abspath("test_data/shorelines/leo_shoreline_short.gpkg")
-    shoreline_mar_path = os.path.abspath('test_data/shorelines/mar_shoreline_short.gpkg')
-    dsms_dir_path = os.path.abspath('test_data/dsm_1m/')
-    orthos_dir_path = os.path.abspath('test_data/orthos_1m/')
-    transects_path = os.path.abspath('test_data/transects')
-    lod_mode=os.path.abspath('test_data/lod_transects')
-    label_corrections_path=os.path.abspath("test_data/clean/label_corrections.gpkg")
-    watermasks_path=os.path.abspath("test_data/clean/watermasks.gpkg")
-    shoremasks_path=os.path.abspath("test_data/clean/shoremasks.gpkg")
-    test_pickled=os.path.abspath("test_data/test.p")
+
 
 
 P_test=pickle.load(open(test_pickled, "rb"))
@@ -224,7 +215,18 @@ class TestProfileSet(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         ############################# Profile extraction ######################
+        shoreline_leo_path = os.path.abspath("examples/test_data/shorelines/leo_shoreline_short.gpkg")
+        shoreline_mar_path = os.path.abspath('examples/test_data/shorelines/mar_shoreline_short.gpkg')
+        dsms_dir_path = os.path.abspath('examples/test_data/dsm_1m/')
+        orthos_dir_path = os.path.abspath('examples/test_data/orthos_1m')
+        transects_path = os.path.abspath('examples/test_data/transects/')
+        lod_mode=os.path.abspath('examples/test_data/lod_transects/')
+        label_corrections_path=os.path.abspath("examples/test_data/clean/label_corrections.gpkg")
+        watermasks_path=os.path.abspath("examples/test_data/clean/watermasks.gpkg")
+        shoremasks_path=os.path.abspath("examples/test_data/clean/shoremasks.gpkg")
+        test_pickled=os.path.abspath("examples/test_data/test.p")
 
+        
         cls.P = ProfileSet(dirNameDSM=dsms_dir_path,
                         dirNameOrtho=orthos_dir_path,
                         dirNameTrans=transects_path,
