@@ -443,7 +443,7 @@ class TestProfileDynamics(unittest.TestCase):
           [self.D2.location_ebcds.trend < 0 , self.D2.location_ebcds.sign == '-']], [ True, True], default=False)).flatten()))[0])
         # location_ss
         self.assertEqual(self.D2.location_ss.shape, (13, 2))
-        self.assertEqual(self.D2.location_ss.leo.sum(), 0.7210473593811956)
+        self.assertAlmostEqual(self.D2.location_ss.leo.sum(), 0.7210473593811956)
         self.assertEqual(self.D2.location_ss.isna().sum().sum(),0)
         self.assertEqual(self.D2.location_ss.loc['Extreme_deposition','leo'], 0.0)
         # transects_r-bcds
