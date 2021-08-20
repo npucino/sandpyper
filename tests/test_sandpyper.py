@@ -138,15 +138,6 @@ class TestCreateProfiles(unittest.TestCase):
         """Load shorelines examples and create necessary objects"""
         shoreline_leo_path = os.path.abspath("examples/test_data/shorelines/leo_shoreline_short.gpkg")
         shoreline_mar_path = os.path.abspath('examples/test_data/shorelines/mar_shoreline_short.gpkg')
-        dsms_dir_path = os.path.abspath('examples/test_data/dsm_1m/')
-        orthos_dir_path = os.path.abspath('examples/test_data/orthos_1m')
-        transects_path = os.path.abspath('examples/test_data/transects/')
-        lod_mode=os.path.abspath('examples/test_data/lod_transects/')
-        label_corrections_path=os.path.abspath("examples/test_data/clean/label_corrections.gpkg")
-        watermasks_path=os.path.abspath("examples/test_data/clean/watermasks.gpkg")
-        shoremasks_path=os.path.abspath("examples/test_data/clean/shoremasks.gpkg")
-        test_pickled=os.path.abspath("examples/test_data/test.p")
-        P_test=pickle.load(open(test_pickled, "rb"))
 
         self.leo_shoreline = gpd.read_file(shoreline_leo_path)
         self.mar_shoreline = gpd.read_file(shoreline_mar_path)
@@ -216,8 +207,6 @@ class TestProfileSet(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         ############################# Profile extraction ######################
-        shoreline_leo_path = os.path.abspath("examples/test_data/shorelines/leo_shoreline_short.gpkg")
-        shoreline_mar_path = os.path.abspath("examples/test_data/shorelines/mar_shoreline_short.gpkg")
 
         dsms_dir_path = os.path.abspath("examples/test_data/dsm_1m/")
         orthos_dir_path = os.path.abspath("examples/test_data/orthos_1m")
@@ -228,8 +217,6 @@ class TestProfileSet(unittest.TestCase):
         label_corrections_path=os.path.abspath("examples/test_data/clean/label_corrections.gpkg")
         watermasks_path=os.path.abspath("examples/test_data/clean/watermasks.gpkg")
         shoremasks_path=os.path.abspath("examples/test_data/clean/shoremasks.gpkg")
-
-        print(f"THIS IS THE CURRENT DIRECTORY FOR DSMS: {dsms_dir_path} AND TRANSECTS {transects_path} ")
 
         cls.P = ProfileSet(dirNameDSM=dsms_dir_path,
                         dirNameOrtho=orthos_dir_path,
@@ -254,7 +241,11 @@ class TestProfileSet(unittest.TestCase):
         cls.opt_k = get_opt_k(cls.sil_df, sigma=0 )
 
         cls.P.kmeans_sa(cls.opt_k, feature_set=feature_set)
+
+        print(f"SHAPE OF THE PROFILES PRE CLEAN {cls.P.profiles}")
+
         cls.check_pre_cleanit=(cls.P.profiles.label_k.iloc[171],cls.P.profiles.label_k.iloc[666],cls.P.profiles.label_k.iloc[0],cls.P.profiles.label_k.iloc[-1])
+        print(f" PRE CLEAN LABELS {cls.check_pre_cleanit}")
 
         ############################# Cleaning ######################
 
@@ -263,8 +254,12 @@ class TestProfileSet(unittest.TestCase):
           shoremasks_path=shoremasks_path,
           label_corrections_path=label_corrections_path)
 
-        cls.check_post_cleanit=(cls.P.profiles.label_k.iloc[171],cls.P.profiles.label_k.iloc[666],cls.P.profiles.label_k.iloc[0],cls.P.profiles.label_k.iloc[-1])
+        print(f"SHAPE OF THE PROFILES POST CLEAN {cls.P.profiles}")
 
+
+
+        cls.check_post_cleanit=(cls.P.profiles.label_k.iloc[171],cls.P.profiles.label_k.iloc[666],cls.P.profiles.label_k.iloc[0],cls.P.profiles.label_k.iloc[-1])
+        print(f" POST CLEAN LABELS {cls.check_post_cleanit}")
 
     @classmethod
     def tearDownClass(cls):
@@ -331,8 +326,6 @@ class TestProfileDynamics(unittest.TestCase):
         lod_mode=os.path.abspath("examples/test_data/lod_transects/")
         test_pickled=os.path.abspath("examples/test_data/test.p")
         P_test=pickle.load(open(test_pickled, "rb"))
-
-        print(f"THIS IS THE CURRENT DIRECTORY TRANSECTS {transects_path} ")
 
         cls.D2 = ProfileDynamics(P_test, bins=5, method="JenksCaspall", labels=labels)
         cls.D2.compute_multitemporal(loc_full=loc_full, filter_class='sand')
@@ -413,7 +406,7 @@ class TestProfileDynamics(unittest.TestCase):
 
         self.assertEqual(self.D2.hotspots.shape, (5112, 21))
         self.assertEqual(self.D2.hotspots.isna().sum().sum(),0)
-        self.assertEqual(self.D2.hotspots.lisa_I.sum(),1594.5027919977902)
+        self.assertAlmostEqual(self.D2.hotspots.lisa_I.sum(),1594.5027919977902)
         self.assertEqual(self.D2.hotspots.lisa_opt_dist.unique()[0],50)
         self.assertEqual(self.D2.hotspots.lisa_dist_mode.unique()[0],'k')
         self.assertEqual(self.D2.hotspots.decay.unique()[0],0)
