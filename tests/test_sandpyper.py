@@ -448,7 +448,7 @@ class TestProfileDynamics(unittest.TestCase):
         self.assertEqual(self.D2.location_ss.loc['Extreme_deposition','leo'], 0.0)
         # transects_r-bcds
         self.assertEqual(self.D2.transects_rbcd.shape, (51, 6))
-        self.assertEqual(self.D2.transects_rbcd.residual.sum(), 1.2806354281813492)
+        self.assertAlmostEqual(self.D2.transects_rbcd.residual.sum(), 1.2806354281813492)
         self.assertEqual(self.D2.transects_rbcd.isna().sum().sum(),0)
         self.assertIsInstance(self.D2.transects_rbcd,  gpd.GeoDataFrame)
         self.assertEqual(self.D2.transects_rbcd.crs.to_epsg(),32754)
