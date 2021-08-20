@@ -43,7 +43,7 @@ For instance, let’s consider $N=11$ observations partitioned into $k=3$ cluste
 
 ![im](images/sa_diagr.png)
 
-SA in the example can be summarised in the following steps:
+SA in the example can be summarized in the following steps:
 1. ${\overline{d}}_{iA}$: Compute the mean dissimilarity of $i$ to the other elements within $A$.
 2. ${\overline{d}}_{i\neq A}$: Compute the mean dissimilarity of $i$ to the other elements of any remaining clusters different than $A$.
 3. $\min{\left(\ {\overline{d}}_{i\neq A}\right)}$: Find  $i$ other cluster (neighbour) by finding the minimum ${\overline{d}}_{i\neq A}$
@@ -58,7 +58,7 @@ It follows that:
 1. The silhouette coefficient of any observation can be computed and ranges from -1 to 1.
 2. When of positive sign, the closest $s_i$ is to 1, the better fit in its current cluster
 3. When of negative sign, the closest  $s_i$ is to -1, the better fit in its neighbor cluster
-4. When  $s=0$, then  $i$ could be equally placed in the current cluster or in its neighbour.
+4. When  $s=0$, then  $i$ could be equally placed in the current cluster or in its neighbor.
 With this on mind, it is now possible to compute the overall clustering performance as:
 
 $$
@@ -75,12 +75,12 @@ With the `get_sil_location()` function we basically run the KMeans algorithm mul
 
 
 Once SA has been run iteratively and the SA coefficient has been stored, Sandpyper searches for the inflexion points to propose a __sub-optimal k__ number where an additional cluster does not degrade the overall clustering performance.
-Sandpyper uses a Gaussian smoothed regression of  ```k``` against mean silhouette scores to identify first order relative minima as possible inlfexion points.
-When multiple relative minimas are found, the smaller k will be the sub-optimal one.
+Sandpyper uses a Gaussian smoothed regression of  ```k``` against mean silhouette scores to identify first order relative minima as possible inflexion points.
+When multiple relative minima are found, the smaller k will be the sub-optimal one.
 When no relative minima are found, it searches for peaks in the second order derivative of such regression line.
 If multiple peaks are found, the mean k, computed so far, will be used as optimal.
 
-Once the sub-optimal k for each survey has been found, the user is ready to finally run the KMeans algorithm with the sub-optimal k using the the `ProfileSet.kmeans_sa()` method.
+Once the sub-optimal k for each survey has been found, the user is ready to finally run the KMeans algorithm with the sub-optimal k using the `ProfileSet.kmeans_sa()` method.
 
 ## Visual identification of point classes in a GIS
 
@@ -93,7 +93,7 @@ Here is a simple procedure the users can follow to achieve this step:
 1. export the ProfileSet.profiles attribute (after having run all the SA + Kmeans procedure) to a csv file by running `ProfileSet.profiles.to_csv(r"path/to/a/directory/points_to_classify.csv", index=False)`
 
 2. open Qgis, add these points as a Delimited Text Layer, file format is CSV and the geometry definition is stored as a Well known text (WKT) format in the coordinates column. Remember to set the right CRS for your points and add it as a point layer to the GIS.
-3. use the filter option to select one location and one survey date (column raw_date) at a time, display the points using a categorized symbology with the label_k field to cleary distinguish different label_k.
+3. use the filter option to select one location and one survey date (column raw_date) at a time, display the points using a categorized symbology with the label_k field to clearly distinguish different label_k.
 4. open the corresponding orthophoto and put it below the points
 5. now check where each label_k falls and take note in one dictionary per class, using the below format:
 
@@ -115,7 +115,7 @@ water_dict = {'leo_20180606':[4],
 
 ![im](images/shoremasks_table_attributes.JPG)
 
-Shoremask file (geopackages or shapefiles) holds digitised polygons, which are clipping masks essentially, which are used to remove unwanted backshore areas. In the above picture, the __red dashed line__ represents the boundary of the polygon, in this case, in Marengo (mar). It is one single clipping mask that will be applied to all surveys. The only required field is:
+Shoremask file (geopackages or shapefiles) holds digitized polygons, which are clipping masks essentially, which are used to remove unwanted backshore areas. In the above picture, the __red dashed line__ represents the boundary of the polygon, in this case, in Marengo (mar). It is one single clipping mask that will be applied to all surveys. The only required field is:
 
 * location (string): location code
 
@@ -135,7 +135,7 @@ Every polygon has its own row and represent the watermask for each survey in eac
 ### Label correction file
 ![im](images/label_corr_attributes.JPG)
 
-Label correction files (geopackages or shapefiles) are digitised over points which have cluster labels (assigned by KMeans algorithm) which we are not totally happy with. The attribute __target_label_k__ specifies which label k will be affected by the correction, leaving untouched all other points falling within the polygon but having different label k. This is useful to fine-tune the point classification, as it is covered in the notebook __AAAAAAA__. If you want to apply the correction to all the points, regardless of the label k, just assign 999 to this field.
+Label correction files (geopackages or shapefiles) are digitized over points which have cluster labels (assigned by KMeans algorithm) which we are not totally happy with. The attribute __target_label_k__ specifies which label k will be affected by the correction, leaving untouched all other points falling within the polygon but having different label k. This is useful to fine-tune the point classification, as it is covered in the notebook __2 - Profiles extraction, unsupervised sand labelling and cleaning__. If you want to apply the correction to all the points, regardless of the label k, just assign 999 to this field.
 The field __new_class__ specifies the class to be assigned by the polygon. It is one single file. The required fields are:
 
 * location (string): location code

@@ -4,7 +4,7 @@ The Beachface Cluster Dynamics (BCD) indices are purposefully designed novel met
 The fundamental difference between the two types is that e-BCDs are computed based on dynamics observed over the monitoring period (represented in the transition matrices) while r-BCDs represent what one would expect the sediment budget to be when the same erosional or depositional dynamics are projected over an infinite time steps (steady-state).
 Their fact that they contain the terms __beachface cluster__ in their names indicate that BCDs are originally conceived to characterize beachface sediment dynamics of hotspots (technically better named statistically significant clusters) of changes. However, in case of BCDs at transect-level, the scarcity of valid and usable points can lead to the decision to take all the points into account rather than only the hotspots.
 
-Moreover, as the r-BCD to incorporates full 3D profile timeseries, this index can also be seen as a behavioural regime indicator, as it describes what was the underlying tendency of the system during the monitoring period.
+Moreover, as the r-BCD to incorporates full 3D profile timeseries, this index can also be seen as a behavioral regime indicator, as it describes what was the underlying tendency of the system during the monitoring period.
 
 ## Discrete Markov chain
 
@@ -55,7 +55,7 @@ $$
 \mathop \sum \limits_{j = 1}^{m} \pi_{j} = 1
 $$
 
-The steady-state can be seen in a descriptive way as representing the states hierarchy, which is unique to the system being modelled ([Brown, 1970](http://dx.doi.org/10.2307/143152)), from which we derive the stochastic tendency the system had towards depositional or erosional states at the end of monitoring. We interpret this tendency as the most likely behavioural regime the system was subjected to, given the drivers of change and boundary conditions that influenced its evolution during the monitoring period.
+The steady-state can be seen in a descriptive way as representing the states hierarchy, which is unique to the system being modelled ([Brown, 1970](http://dx.doi.org/10.2307/143152)), from which we derive the stochastic tendency the system had towards depositional or erosional states at the end of monitoring. We interpret this tendency as the most likely behavioral regime the system was subjected to, given the drivers of change and boundary conditions that influenced its evolution during the monitoring period.
 
 The computation of the r-BCDs is as follows:
 

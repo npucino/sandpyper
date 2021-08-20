@@ -2,7 +2,7 @@
 
 ## Virtual network of elevation profiles
 
-A virtual network of digital transects is used and kept fixed for every site during the analysis. Transects can be any line, digitised in a GIS, of irregular shape, spacing and lengths. Alternatively, the function `create_transects()` allows an user to create alongshore uniformingly distributed transects, normal to an user-provided shoreline.
+A virtual network of digital transects is used and kept fixed for every site during the analysis. Transects can be any line, digitized in a GIS, of irregular shape, spacing and lengths. Alternatively, the function `create_transects()` allows an user to create alongshore uniformingly distributed transects, normal to an user-provided shoreline.
 This function can be useful in case a very long shoreline must be monitored in multiple sites.
 
 
