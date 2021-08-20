@@ -1609,7 +1609,7 @@ def get_rbcd_transect(df_labelled, loc_specs, reliable_action, dirNameTrans, lab
         )
         to_plot["location"] = loc
 
-        path_trs=glob.glob(f"{dirNameTrans}\{loc}*")[0]
+        path_trs=glob.glob(rf"{dirNameTrans}/{loc}*")[0]
         transect_in = gpd.read_file(path_trs)
         transect_in.columns= transect_in.columns.str.lower()
 
