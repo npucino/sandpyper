@@ -16,7 +16,7 @@ from sandpyper.sandpyper import ProfileSet, ProfileDynamics
 from sandpyper.common import get_sil_location, get_opt_k, create_transects, sensitivity_tr_rbcd
 
 pd.options.mode.chained_assignment = None  # default='warn'
-
+np.random.seed(10)
 
 # create global variables used across the test analysis
 loc_codes=["mar","leo"]
