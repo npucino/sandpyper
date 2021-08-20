@@ -431,7 +431,7 @@ class TestProfileDynamics(unittest.TestCase):
         self.assertEqual(self.D2.location_ebcds.shape, (8, 6))
         self.assertEqual(self.D2.location_ebcds.coastal_markov_idx.sum(),12.714)
         self.assertEqual(self.D2.location_ebcds.isna().sum().sum(),0)
-        # check wether sign and trend makes sense
+        # check whether sign and trend makes sense
         self.assertTrue(list(set((np.select([[self.D2.location_ebcds.trend > 0 , self.D2.location_ebcds.sign == '+'],
           [self.D2.location_ebcds.trend < 0 , self.D2.location_ebcds.sign == '-']], [ True, True], default=False)).flatten()))[0])
         # location_ss

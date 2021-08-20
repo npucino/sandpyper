@@ -1688,7 +1688,7 @@ def compute_multitemporal (df,
                            date_field='survey_date',
                            filter_class='sand'):
     """
-    From a dataframe containing the extracted points and a column specifying wether they are sand or non-sand, returns a multitemporal dataframe
+    From a dataframe containing the extracted points and a column specifying whether they are sand or non-sand, returns a multitemporal dataframe
     with time-periods sand-specific elevation changes.
 
     Args:
@@ -3942,7 +3942,7 @@ def dissolve_shores(gdf_shores, field="date"):
 
 
 def check_overlay(line_geometry, img_path):
-    """Evaluates wether a line intesects the extent of a raster.
+    """Evaluates whether a line intesects the extent of a raster.
         Returns True if a valid intersection is found or False if not. In case of MultiLine features,
         evaluate if any of the lines intersects with the raster extent,
         which confirms that the CRS of both shapes geometries are correctly matched.
@@ -4157,7 +4157,7 @@ def error_from_gt(
         gt_geometry_field (str): Field where the geometry of the groundtruth shoreline is stored.
         gt_date_field (str): Field where the survey dates are stored in the groundtruth dataset.
         shore_date_field (str): Field where the survey dates are stored in the to-correct dataset.
-        side (str): Wether to create transect on the right, left or both sides. Default to "both".
+        side (str): Whether to create transect on the right, left or both sides. Default to "both".
         baseline_mode (str): If "dynamic" (default), statistics will be computed from transects created from each groundtruth shoreline. If path to a .gpkg is provided, then use those arbitrary location specific baselines and transects will be fixed.
 
     Returns:
@@ -4420,7 +4420,7 @@ def tidal_correction(
         mode (str): If 'sat', use satellite shorelines as seaward edge to classify beachfaces. If 'gt', use groundthruth shorelines instead.
         alongshore_resolution (str, float): The alongshore spacing between transects, in the unit of measure of the location CRS. If 'infer', use the gdf file to detect the spacing with 10cm precision. If the transects spacing is less than 10cm, set the spacing manually. Note: It also smoothes the original line if this value is greater of the original line vertex spacing.
         slope_value (int,float,'mean','median','min','max'): If a numeric value is provided (assumed to be in degrees), use it to correct the shorelines. If one of 'mean','median','min','max', use this statistics instead. It also computes range, standard deviation and variance for analytical purposes, despite should not be used to correct shorelines.
-        side (str, 'left', 'right', 'both'): Wether if retain only the left, right or both sides of the transects once created. Defaults to 'both'.
+        side (str, 'left', 'right', 'both'): Whether if retain only the left, right or both sides of the transects once created. Defaults to 'both'.
         tick_length (int, float): Across-shore length of each transect in the unit of measure of the location CRS.
         subset_loc (list). List of string of location codes to limit the correction. Default to None.
         limit_vertex (int): Sets the minimum number of consecutive transect ids to create one segment of the corrected shoreline. Defaults to 1.
@@ -4908,7 +4908,7 @@ def tidal_correction(
         corrs = orig_shore_corr_dist_gdf.corr_dist.values
         originals = orig_shore_corr_dist_gdf.sat_from_baseline.values
 
-        # wether to correct or not shorelines closer to this threshold
+        # whether to correct or not shorelines closer to this threshold
         if baseline_threshold == "infer":
             baseline_threshold_value = np.round(
                 threshold_multiotsu(
@@ -5792,7 +5792,7 @@ def LISA_site_level(
 
     locs = df.location.unique()  # obtain list of locations
 
-    # check wether a geometry type column is present
+    # check whether a geometry type column is present
     if not isinstance((df.loc[0,geometry_column]), Point):
         df[geometry_column] = df[geometry_column].apply(wkt.loads)
     else:

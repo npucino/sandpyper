@@ -458,7 +458,7 @@ class ProfileDynamics():
         """
         if self.lod_created != 'yes':
             raise ValueError("LoD dataset has not been created.\
-            Please run the profile extraction agains, providing transects specifically placed in pseudo-invariant areas, in order to create the LoD data and statistics.")
+            Please run the profile extraction again, providing transects specifically placed in pseudo-invariant areas, in order to create the LoD data and statistics.")
 
         plot_lod_normality_check(multitemp_data=self.lod_dh,
             lod_df=self.lod_df,
@@ -509,7 +509,7 @@ class ProfileDynamics():
 
         Args:
             lod (int, float, pd.DataFrame): Limit of Detections to use. Can be a single value for all surveys, an LoD dataframe or None if no LoD filtering is to be used.
-            absolute (bool): wether to discretise the absolute values of the data or not. If True (default), the bins will be derived from absolute values, then, classes will be assigned to both negative and positive numbers accordingly.
+            absolute (bool): whether to discretise the absolute values of the data or not. If True (default), the bins will be derived from absolute values, then, classes will be assigned to both negative and positive numbers accordingly.
             field (str): Name of the column with data to discretise. Data must be numeric.
             appendix (tuple): String to append at the end of each label when absolute is True. Defaults = ("_deposition","_erosion").
             print_summary (bool): If True, prints out the bins specifications and the sum of absolute deviations around class medians as a goodness-metric.
@@ -941,7 +941,7 @@ class ProfileDynamics():
 
         Args:
             location (str): Location code of of the transect to visualise.
-            tr_id (int): Id of the transect ot visualise.
+            tr_id (int): Id of the transect to visualise.
             lod (pd.DataFrame): If provided, filter dataset using survey-specific LoDs.
             figsize (tuple): Width and height (in inches) of the figure.
         """
@@ -1005,7 +1005,7 @@ class ProfileDynamics():
 
         Args:
             loc_subset (str): Location code of of the transect to visualise.
-            colors_dict (int): Id of the transect ot visualise.
+            colors_dict (int): Id of the transect to visualise.
             figsize (tuple): Width and height (in inches) of the figure.
             linewidth (float): Width of the lines.
             out_date_format (str): Format of the output date. Must be in the datetime.strptime format, like "%d/%m/%Y".
