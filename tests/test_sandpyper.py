@@ -218,10 +218,16 @@ class TestProfileSet(unittest.TestCase):
         ############################# Profile extraction ######################
         shoreline_leo_path = os.path.abspath("examples/test_data/shorelines/leo_shoreline_short.gpkg")
         shoreline_mar_path = os.path.abspath("examples/test_data/shorelines/mar_shoreline_short.gpkg")
+
         dsms_dir_path = os.path.abspath("examples/test_data/dsm_1m/")
         orthos_dir_path = os.path.abspath("examples/test_data/orthos_1m")
+
         transects_path = os.path.abspath("examples/test_data/transects/")
         lod_mode=os.path.abspath("examples/test_data/lod_transects/")
+
+        label_corrections_path=os.path.abspath("examples/test_data/clean/label_corrections.gpkg")
+        watermasks_path=os.path.abspath("examples/test_data/clean/watermasks.gpkg")
+        shoremasks_path=os.path.abspath("examples/test_data/clean/shoremasks.gpkg")
 
         print(f"THIS IS THE CURRENT DIRECTORY FOR DSMS: {dsms_dir_path} AND TRANSECTS {transects_path} ")
 
@@ -323,9 +329,6 @@ class TestProfileDynamics(unittest.TestCase):
 
         transects_path = os.path.abspath("examples/test_data/transects/")
         lod_mode=os.path.abspath("examples/test_data/lod_transects/")
-        label_corrections_path=os.path.abspath("examples/test_data/clean/label_corrections.gpkg")
-        watermasks_path=os.path.abspath("examples/test_data/clean/watermasks.gpkg")
-        shoremasks_path=os.path.abspath("examples/test_data/clean/shoremasks.gpkg")
         test_pickled=os.path.abspath("examples/test_data/test.p")
         P_test=pickle.load(open(test_pickled, "rb"))
 
