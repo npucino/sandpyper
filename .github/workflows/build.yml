@@ -28,7 +28,7 @@ jobs:
             - name: CHECKOUT CODE
               uses: actions/checkout@v2
             - name: SETUP PYTHON
-              uses: actions/setup-python@v2
+              uses: actions/setup-python@v1
               with:
                   python-version: ${{ matrix.config.py }}
 
