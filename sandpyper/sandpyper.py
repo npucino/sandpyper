@@ -847,7 +847,7 @@ class ProfileDynamics():
 
         Args:
             location (str): Location code of of the transect to visualise.
-            tr_id (int): Id of the transect ot visualise.
+            tr_id (int): Id of the transect to visualise.
             classified (bool): If True, colour the points (set palette argument to control the colors) based on class.
             dt (list): List of time periods (dt) to plot, like ['dt_0', 'dt_4', 'dt_2'].
             from_date (str): Date of the pre-survey in raw format (yyyymmdd).

@@ -24,7 +24,7 @@ jobs:
                   conda install -c conda-forge ipywidgets
                   conda install codespell
             - name: Discover typos with codespell
-              run: codespell --skip="*.csv,*.gpkg,*.p,*.js,*.html,*cff" --ignore-words-list="aci,acount,acounts,fallow,hart,hist,nd,ned,ois,wqs"
+              run: codespell --skip="*.ipynb" -I codespell_ignore_words.txt
             - name: PKG-TEST
               run: |
                   python -m unittest discover
