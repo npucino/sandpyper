@@ -14,7 +14,7 @@ A typical Sandpyper pipeline consists of:
 1. Automated iterative Silhouette Analysis with inflexion point search at the site level, implemented with `get_sil_location()` function
 2. Inflexion points search, implemented with `get_opt_k()` function
 3. Run KMeans with the identified sub-optimal k, implemented with the `ProfileSet.kmeans_sa()` method.
-4. Visual assesment of KMeans generated labels and creation of class dictionaries and correction polygons in a GIS
+4. Visual assessment of KMeans generated labels and creation of class dictionaries and correction polygons in a GIS
 5. Semi-automated classification and cleaning, implemented with `ProfileSet.cleanit()` method.
 
 
@@ -115,7 +115,7 @@ water_dict = {'leo_20180606':[4],
 
 ![im](images/shoremasks_table_attributes.JPG)
 
-Shoremask file (geopackages or shapefiles) holds digitised polygons, which are clipping masks essentialy, which are used to remove unwanted backshore areas. In the above picture, the __red dashed line__ represents the boundary of the polygon, in this case, in Marengo (mar). It is one single clipping mask that will be applied to all surveys. The only required field is:
+Shoremask file (geopackages or shapefiles) holds digitised polygons, which are clipping masks essentially, which are used to remove unwanted backshore areas. In the above picture, the __red dashed line__ represents the boundary of the polygon, in this case, in Marengo (mar). It is one single clipping mask that will be applied to all surveys. The only required field is:
 
 * location (string): location code
 

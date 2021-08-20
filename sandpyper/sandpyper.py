@@ -139,7 +139,7 @@ class ProfileSet():
             tr_ids (str): The name of the field in the transect file that is used to store the transects ID.
             sampling_step (float): Distance along-transect to extract data points from. In meters.
             add_xy (bool): If True, adds extra columns with long and lat coordinates in the input CRS.
-            add_slope (bool): If True, computes slope raster in degrees (increased procesing time) and extract slope values across transects.
+            add_slope (bool): If True, computes slope raster in degrees (increased processing time) and extract slope values across transects.
             default_nan_values (int): Value used for NoData specification in the rasters used. In Pix4D, this is -10000 (default).
 
          Returns:
@@ -234,7 +234,7 @@ class ProfileSet():
 
 
     def kmeans_sa(self, ks, feature_set, thresh_k=5, random_state=10 ):
-        """Cluster data using a specified feature set with KMeans algorithm and a dictionary of optimal numebr of clusters to use for each survey (see get_sil_location and get_opt_k functions).
+        """Cluster data using a specified feature set with KMeans algorithm and a dictionary of optimal number of clusters to use for each survey (see get_sil_location and get_opt_k functions).
 
         Args:
             ks (dictionary): Number of clusters (k) or dictionary containing a k for each survey.
@@ -330,7 +330,7 @@ class ProfileDynamics():
             else:
                 if method == 'Percentiles':
                     if min(bins) < 0 or max(bins) > 100:
-                        raise ValueError("When using precentiles as break points, the provided list must be in the range [0, 100].")
+                        raise ValueError("When using percentiles as break points, the provided list must be in the range [0, 100].")
                     else:
                         print(f"Data will be partitioned using user-provided percentiles.")
                         bins_size=len(bins)
@@ -384,7 +384,7 @@ class ProfileDynamics():
 
         Args:
             loc_full (dict): Dictionary where keys are location codes ('mar') and values are full lengtht location names ('Marengo').
-            lod_mode (str): Values in meters (crs must be projected) used as distance band for neigthours definition in distance weigth matrix computation.
+            lod_mode (str): Values in meters (crs must be projected) used as distance band for neigthours definition in distance weight matrix computation.
             geometry_column (str): Name of the column storing the geometry information.
             date_field (int): Name of the column storing the survey date information.
             filter_class (list, str):  Name or list of names of classes used to filter data. For instance, setting this as 'sand' would compute elevation changes of sand only if 'sand' is a class previously computed.
@@ -481,13 +481,13 @@ class ProfileDynamics():
             Please refer to PySAL package documentation for more info.
 
         Args:
-            mode (str): If 'distance'(Default), compute spatial weigth matrix using a distance-band kernel, specified in distance_value parameter.
-                                            If 'knn', spatial weigth matrix uses a specified (k_value parameter) of k number closest points to compute weigths.
-                                            if 'idw', Inverse Distance Weigthing is used with the specified decay power (decay parameter) to compute weigth.
+            mode (str): If 'distance'(Default), compute spatial weight matrix using a distance-band kernel, specified in distance_value parameter.
+                                            If 'knn', spatial weight matrix uses a specified (k_value parameter) of k number closest points to compute weights.
+                                            if 'idw', Inverse Distance Weigthing is used with the specified decay power (decay parameter) to compute weight.
 
-            distance_value (int): values in meters (crs must be projected) used as distance band for neigthours definition in distance weigth matrix computation.
+            distance_value (int): values in meters (crs must be projected) used as distance band for neigthours definition in distance weight matrix computation.
             decay (int): power of decay to use with IDW.
-            k_value (int): number of closest points for neigthours definition in distance weigth matrix computation.
+            k_value (int): number of closest points for neigthours definition in distance weight matrix computation.
             geometry_column (str): field storing the geometry column. If in string form (as loaded from a csv), it will be converted to Point objects. Default='coordinates'.
 
         Returns:
@@ -588,7 +588,7 @@ class ProfileDynamics():
             markov_tag_field (str): Name of the column where markov tags are stored.
 
         Returns:
-            weights_dict (dict): Dictionary storing magnitude class (markov_tags) weigths, stored in the ProfileDynamics.weights_dict attribute.
+            weights_dict (dict): Dictionary storing magnitude class (markov_tags) weights, stored in the ProfileDynamics.weights_dict attribute.
         """
         joined_re = r"|".join(self.labels)
         self.df_labelled["magnitude_class"] = [re.findall(joined_re,tag)[0] for tag in self.df_labelled.loc[:,markov_tag_field]]
@@ -852,7 +852,7 @@ class ProfileDynamics():
             dt (list): List of time periods (dt) to plot, like ['dt_0', 'dt_4', 'dt_2'].
             from_date (str): Date of the pre-survey in raw format (yyyymmdd).
             to_date (str): Date of the pre-survey (yyyymmdd).
-            figsize (tuple): Width and hieght (in inches) of the figure.
+            figsize (tuple): Width and height (in inches) of the figure.
             palette (dict): Dictionary where keys are class names and values the assigned colors in matplotlib-understandable format, like {"sand": "r", "water": "b", "veg": "g", "no_sand": "k"}.
         """
         if dt != None:
@@ -943,7 +943,7 @@ class ProfileDynamics():
             location (str): Location code of of the transect to visualise.
             tr_id (int): Id of the transect ot visualise.
             lod (pd.DataFrame): If provided, filter dataset using survey-specific LoDs.
-            figsize (tuple): Width and hieght (in inches) of the figure.
+            figsize (tuple): Width and height (in inches) of the figure.
         """
 
         details=self.dh_details.query(f"location=='{location}'")
@@ -1006,7 +1006,7 @@ class ProfileDynamics():
         Args:
             loc_subset (str): Location code of of the transect to visualise.
             colors_dict (int): Id of the transect ot visualise.
-            figsize (tuple): Width and hieght (in inches) of the figure.
+            figsize (tuple): Width and height (in inches) of the figure.
             linewidth (float): Width of the lines.
             out_date_format (str): Format of the output date. Must be in the datetime.strptime format, like "%d/%m/%Y".
             xlabel (str): Label of the x axis.
@@ -1059,9 +1059,9 @@ class ProfileDynamics():
             img_type (str): '.png','.pdf', '.ps', '.svg'. Format of the saved figures.
             from_land (bool): If True (default), cross-shore distances are transformed into landward distances, where 0 is the end of beachface.
             from_origin (bool): If True (default), transect IDS are transformed in alongshore distance from origin (tr_id=0). It requires regularly spaced transects.
-            fig_size (tuple): Width and hieght (in inches) of the figure.
+            fig_size (tuple): Width and height (in inches) of the figure.
             font_scale (float): Scale of text. Default=1.
-            plots_spacing (flaot): Vertical spacing of the heatmap and alongshore change plots. Default = 0.
+            plots_spacing (float): Vertical spacing of the heatmap and alongshore change plots. Default = 0.
             bottom (bool): If True (default), rows are extended seaward too, up to y_heat_bottom_limit. If False, only distances from 0 to the first valid values will be added.
             y_heat_bottom_limit (int): Lower boundary distance (seaward) to extend all transects to.
             heat_yticklabels_freq (int): Plot a labels every n labels in the heatmap y axis.
@@ -1123,7 +1123,7 @@ class ProfileDynamics():
             dates_step (int): Plot one date label ever n in the y-axis.
             x_limits (tuple): A tuple containing x_min and x_max to apply to all the locations x axis (except those specified with x_diff, if any).
             x_binning (int): Plot one label ever n in the locations x-axis.
-            figure_size (tuple): Width and hieght (in inches) of the figure.
+            figure_size (tuple): Width and height (in inches) of the figure.
             font_scale (float): Scale of text. Default=1.
             dpi (int): Resolution in Dot Per Inch (DPI) to save the images.
             img_type (str): '.png','.pdf', '.ps', '.svg'. Format of the saved figures.
@@ -1168,8 +1168,8 @@ class ProfileDynamics():
         Args:
             relabel_dict (dict): Dictionary where keys are the magnitude of change classes and values a corresponding abbreviation, like {'Undefined_deposition': 'ue','Undefined_erosion': 'ue', 'Small_deposition': 'sd'}. This is useful in case of long names and abbreviations allows a much better visualisation.
             titles (list): List of names to assign to each submatrices, which define the behaviour of each matrices transitions. Default is ["Erosional", "Recovery", "Depositional", "Vulnerability"].
-            cmaps (list) : List of color ramps to assign to each matrices. It must be in the same order as specified in the titles parameter. Dafault is ["Reds", "Greens", "Blues", "PuRd"].
-            fig_size (tuple): Width and hieght (in inches) of the figure.
+            cmaps (list) : List of color ramps to assign to each matrices. It must be in the same order as specified in the titles parameter. Default is ["Reds", "Greens", "Blues", "PuRd"].
+            fig_size (tuple): Width and height (in inches) of the figure.
             heat_annot_size (int): Size of the annotations (probabilities) inside each matrices cells.
             font_scale (float): Scale of text. Default=1.
             dpi (int): Resolution in Dot Per Inch (DPI) to save the images.

@@ -611,7 +611,7 @@ def cross_ref(
         for i,row in counts.iterrows():
             print(f"{row['raster_type']} from {row['location']} = {row['raw_date']}\n")
 
-        print(f"\nNUMBER OF DATASETS TO PROCESS: {counts.raw_date.sum()}")
+        print(f"\number OF DATASETS TO PROCESS: {counts.raw_date.sum()}")
 
     return check_formatted
 
@@ -1155,7 +1155,7 @@ def extract_from_folder(
         mode (str): If 'dsm', extract from DSMs. If 'ortho', extracts from orthophotos.
         sampling_step (float): Distance along-transect to sample points at. In meters.
         add_xy (bool): If True, adds extra columns with long and lat coordinates in the input CRS.
-        add_slope (bool): If True, computes slope raster in degrees (increased procesing time) and extract slope values across transects.
+        add_slope (bool): If True, computes slope raster in degrees (increased processing time) and extract slope values across transects.
         default_nan_values (int): Value used for NoData in the raster format. In Pix4D, this is -10000 (Default).
 
     Returns:
@@ -1184,7 +1184,7 @@ def extract_from_folder(
 
     if bool(add_slope):
         warnings.warn(
-            "WARNING: add_terrain could increas processing time considerably for fine scale DSMs."
+            "WARNING: add_terrain could increase processing time considerably for fine scale DSMs."
         )
 
     for dsm in tqdm(list_files):
@@ -1243,7 +1243,7 @@ def extract_from_folder(
         counter += 1
 
     if counter == len(list_files):
-        print("Extraction succesfull")
+        print("Extraction successful")
     else:
         print(f"There is something wrong with this dataset: {list_files[counter]}")
 
@@ -1629,7 +1629,7 @@ def get_coastal_Markov(arr_markov, weights_dict, store_neg=True):
 
     Args:
         arr_markov (np.array): Numpy array of markov transition matrix.
-        weights_dict (dict): Dictionary with keys:dh classes, values: weigth (int). Especially useful for the e-BCDs magnitude trend (sign).
+        weights_dict (dict): Dictionary with keys:dh classes, values: weight (int). Especially useful for the e-BCDs magnitude trend (sign).
         store_neg (bool): If True (default), use the subtraction for diminishing trends.
 
     Returns:
@@ -1825,7 +1825,7 @@ def plot_sensitivity_rbcds_transects(df, location, x_ticks=[0,2,4,6,8],figsize=(
     """Plot both the number of valid transects retained (red) and the total sign changes (blue) as a function of the threshold used. This function creates a plot per min_points situation. The solid black line is the 95th percentile of the total valid transect retained while the dashed one is the 85th.
 
     Args:
-        df (pd.DataFrame): Sensitivity dataframe resulting from using the funciton sensitivity_tr_rbcd().
+        df (pd.DataFrame): Sensitivity dataframe resulting from using the function sensitivity_tr_rbcd().
         location (str): Location code of the locatin to plot.
         x_ticks (list): List of x-axis ticks (thresholds).
         figsize (tuple): Width and height (in inches) of the figure.
@@ -2041,7 +2041,7 @@ def get_opt_k(sil_df, sigma=1):
 
             if (
                 len(peak) > 1
-            ):  # if multiple plateu values are found, obtain the mean k of those values
+            ):  # if multiple plateau values are found, obtain the mean k of those values
 
                 peak = int(np.mean(peak[0])) + 2
                 # +2: the peaks of mina values are 0-based index. As k started at 2, adding 2 returns k instead of index
@@ -2941,7 +2941,7 @@ def plot_alongshore_change(
         add_orient (bool): if True, an additional lineplot is added to the volumetric plot containing orientation info. It needs pre-computed orientations (tr_orient parameter) (TO UPDAte). False is default.
         fig_size (tuple): Tuple of float to specify images size. Default is (7.3,3).
         font_scale (float): Scale of text. Default=1.
-        plots_spacing (flaot): Vertical spacing of the heatmap and alongshore change plots. Default = 0.
+        plots_spacing (float): Vertical spacing of the heatmap and alongshore change plots. Default = 0.
         bottom (bool): If True (default), rows are extended seaward too, up to y_heat_bottom_limit. If False, only distances from 0 to the first valid values will be added.
         y_heat_bottom_limit (int): Lower boundary distance (seaward) to extend all transects to.
         transect_spacing (float): Alongshore spacing of transects (m).
@@ -3613,7 +3613,7 @@ def images_to_dirs(images_folder, target_folder, op=None):
 
     os.chdir(starting_wd)  # returning to starting working dir
 
-    print(f"Succesfully created {len(ids)} ID-folders in {target_folder} .")
+    print(f"Successfully created {len(ids)} ID-folders in {target_folder} .")
 
 
 def s2_to_rgb(imin, scaler_range=(0, 255), re_size=False, dtype=False):
@@ -3705,7 +3705,7 @@ def grid_from_pts(pts_gdf, width, height, crs, offsets=(0, 0, 0, 0)):
     Args:
         pts_gdf (gpd.GeoDataFrame): The geodataframe storing points along a shoreline.
         width (int, float) The width of each single tile of the grid, given in the CRS unit (use projected CRS).
-        height (int,float): The heigth of each single tile of the grid, given in the CRS unit (use projected CRS).
+        height (int,float): The height of each single tile of the grid, given in the CRS unit (use projected CRS).
         crs (str): Coordinate Reference System in the dictionary format (example: {'init' :'epsg:4326'})
         offsets (tuple): Offsets in meters (needs projected CRS) from the bounds of the pts_gdf, in the form of (xmin, ymin, xmax, ymax). Default to (0,0,0,0).
     Returns:
@@ -3830,7 +3830,7 @@ def grid_from_shore(
     TO DO: CRS should also be a string for specific CRS. Probablt only need the first and last points endpoints of the shoreline, or can get box directly.
     Args:
         shore (geodataframe): The geodataframe storing the input line from where the grid will be created.
-        width, height (int,float): The width and heigth of each single tile of the grid, given in the CRS unit (use projected CRS).
+        width, height (int,float): The width and height of each single tile of the grid, given in the CRS unit (use projected CRS).
         location_code (str): The location code associated with the grid.
         adj_order (False, int): Contiguity order to subset grid cells adjacent to shoreline. If False, only cells
             directly touching the shoreline will be extracted (Default=1). Note: The Pysal Queen method is used to compute neighbors.
@@ -3954,7 +3954,7 @@ def check_overlay(line_geometry, img_path):
     Returns:
         bool (bool): True, if a valid match is found. False, if the line do not intersect the raster."""
 
-    # create a polygone with raster bounds
+    # create a polygon with raster bounds
     with ras.open(img_path, "r") as dataset:
 
         ul = dataset.xy(0, 0)
@@ -4106,8 +4106,8 @@ def shore_shift(transects, gt, sat, crs, baseline_pts, sat_from_baseline=False):
 
 def rawdate_from_timestamp_str(timestamp_str):
 
-    splitted = timestamp_str.split(" ")[0].split("-")
-    return splitted[0] + splitted[2] + splitted[1]
+    split = timestamp_str.split(" ")[0].split("-")
+    return split[0] + split[2] + split[1]
 
 
 def corr_baseline_distance(dist, slope, z_tide):
@@ -4291,7 +4291,7 @@ def toes_from_slopes(
     series, distance_field="distance", slope_field="slope", sigma=0, peak_height=30
 ):
     """Returns dune toe distance (from transect origin) by extracting peaks higher of a given value
-    from a Gaussian filtered slope profile. It can return multiple candidates when mutliple peaks are found.
+    from a Gaussian filtered slope profile. It can return multiple candidates when multiple peaks are found.
     These will be used to clip beachfaces, defined as going from the swash line to dune toes.
     Args:
         series (pd.Series): Slope profile.
@@ -4329,7 +4329,7 @@ def toes_candidates(
 ):
     """Dataframe implementation of the toes_from_slope function.
     Returns dune toe distance (from transect origin) by extracting peaks higher of a given value
-    from a Gaussian filtered slope profile. It can return multiple candidates when mutliple peaks are found.
+    from a Gaussian filtered slope profile. It can return multiple candidates when multiple peaks are found.
     These will be used to clip beachfaces, defined as going from the swash line to dune toes.
     Args:
         df (pd.DataFrame): Dataframe containing the slope profiles.
@@ -4412,7 +4412,7 @@ def tidal_correction(
 
     Args:
         shoreline (gpd.GeoDataFrame): The geodataframe storing points along a shoreline.
-        cs_shores (gpd.GeoDataFrame): The width and heigth of each single tile of the grid, given in the CRS unit (use projected CRS).
+        cs_shores (gpd.GeoDataFrame): The width and height of each single tile of the grid, given in the CRS unit (use projected CRS).
         gdf (gpd.GeoDataFrame): Coordinate Reference System in the dictionary format (example: {'init' :'epsg:4326'})
         baseline_folder (str): Path to the folder storing the baseline Geopackages (.gpkgs).
         crs_dict_string (dict): Dictionary storing location codes as key and crs information as values, in dictionary form.
@@ -4422,9 +4422,9 @@ def tidal_correction(
         slope_value (int,float,'mean','median','min','max'): If a numeric value is provided (assumed to be in degrees), use it to correct the shorelines. If one of 'mean','median','min','max', use this statistics instead. It also computes range, standard deviation and variance for analytical purposes, despite should not be used to correct shorelines.
         side (str, 'left', 'right', 'both'): Wether if retain only the left, right or both sides of the transects once created. Defaults to 'both'.
         tick_length (int, float): Across-shore length of each transect in the unit of measure of the location CRS.
-        subset_loc (list). List of string of location codes to limit the corection. Default to None.
+        subset_loc (list). List of string of location codes to limit the correction. Default to None.
         limit_vertex (int): Sets the minimum number of consecutive transect ids to create one segment of the corrected shoreline. Defaults to 1.
-        baseline_threshold ("infer", float, None): If a number is provided, it sets the minimum distance the original un-corrected and the tidal-corrected shorelines must be in order to consider the correction valid. If the distance between the original the tidal-corrected shorelines at one point is less than this value, then the original shoreline is retained. If it is above, then the tidal-corrected value is retained. This is done to avaoid to correct areas where an artificial shoreline   occurs (seawalls or harbours). If "infer", then the Otsu method is used to find this threshold value. This option works where artificial shorelines are present. If None, do not use this option. Default to "infer".
+        baseline_threshold ("infer", float, None): If a number is provided, it sets the minimum distance the original un-corrected and the tidal-corrected shorelines must be in order to consider the correction valid. If the distance between the original the tidal-corrected shorelines at one point is less than this value, then the original shoreline is retained. If it is above, then the tidal-corrected value is retained. This is done to avoid to correct areas where an artificial shoreline   occurs (seawalls or harbours). If "infer", then the Otsu method is used to find this threshold value. This option works where artificial shorelines are present. If None, do not use this option. Default to "infer".
         replace_slope_outliers (bool): If True (default), replace the values of the defined slope statistics (slope_value parameter) with its survey-level median.
         save_trs_details (bool): True to save a .CSV file with transect-specific information. It defaults to False.
         trs_details_folder (str): Folder where to save the transect details. Defaults to None.
@@ -5406,7 +5406,7 @@ def partial_tile_padding(
 
                         final_mosaic_tile.write(mosaic)
 
-                    print(f"Succesfully saved partial tile in-memory: {tile_name} .")
+                    print(f"Successfully saved partial tile in-memory: {tile_name} .")
                     if geotransform == True:
 
                         geot_series = pd.Series(
@@ -5477,7 +5477,7 @@ def tile_to_disk(
         else:
             dest.write(out_image, indexes=out_idx)
 
-    print(f"Succesfully saved tile: {tile_name} .")
+    print(f"Successfully saved tile: {tile_name} .")
     if geotransform == True:
 
         geot_series = pd.Series(
@@ -5501,7 +5501,7 @@ def tiles_from_grid(
 ):
     """
     Returns a dataframe with location, raw_date, filenames (paths) or geopackage index and CRS of each raster and its associated vector files.
-    If the directory containing the vector files has ony one file, it is assumed that this file stores vectors
+    If the directory containing the vector files has only one file, it is assumed that this file stores vectors
     with location and raw_date columns.
 
     Args:
@@ -5763,13 +5763,13 @@ def LISA_site_level(
         dh_df (pd.DataFrame, str): Pandas dataframe or local path of the timeseries files, as returned by the multitemporal extraction.
         crs_dict_string (dict): Dictionary storing location codes as key and crs information as values, in dictionary form.
         geometry_column (str): field storing the geometry column. If in string form (as loaded from a csv), it will be converted to Point objects. Default='coordinates'.
-        mode (str): If 'distance'(Default), compute spatial weigth matrix using a distance-band kernel, specified in distance_value parameter.
-                                        If 'knn', spatial weigth matrix uses a specified (k_value parameter) of k number closest points to compute weigths.
-                                        if 'idw', Inverse Distance Weigthing is used with the specified decay power (decay parameter) to compute weigth.
+        mode (str): If 'distance'(Default), compute spatial weight matrix using a distance-band kernel, specified in distance_value parameter.
+                                        If 'knn', spatial weight matrix uses a specified (k_value parameter) of k number closest points to compute weights.
+                                        if 'idw', Inverse Distance Weigthing is used with the specified decay power (decay parameter) to compute weight.
 
-        distance_value (int): values in meters (crs must be projected) used as distance band for neigthours definition in distance weigth matrix computation.
+        distance_value (int): values in meters (crs must be projected) used as distance band for neigthours definition in distance weight matrix computation.
         decay (int): power of decay to use with IDW.
-        k_value (int): number of closest points for neigthours definition in distance weigth matrix computation.
+        k_value (int): number of closest points for neigthours definition in distance weight matrix computation.
 
 
     Returns:
