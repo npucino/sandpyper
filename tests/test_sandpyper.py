@@ -222,7 +222,7 @@ class TestProfileSet(unittest.TestCase):
         dsms_dir_path = os.path.abspath("examples/test_data/dsm_1m/")
         orthos_dir_path = os.path.abspath("examples/test_data/orthos_1m")
 
-        transects_path = os.path.abspath("examples/test_data/transects/")
+        transects_path = os.path.abspath("examples/test_data/transects")
         lod_mode=os.path.abspath("examples/test_data/lod_transects/")
 
         label_corrections_path=os.path.abspath("examples/test_data/clean/label_corrections.gpkg")

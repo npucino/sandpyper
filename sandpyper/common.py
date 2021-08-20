@@ -527,7 +527,7 @@ def cross_ref(
                   1:"ortho"}
 
     # DF transects
-    list_transects = glob.glob(f"{dirNameTrans}\*.gpkg")
+    list_transects = glob.glob(rf"{dirNameTrans}/*.gpkg")
     locs_transects = pd.DataFrame(
         pd.Series(
             [getLoc(trs, list_loc_codes) for trs in list_transects], name="location"
@@ -549,8 +549,10 @@ def cross_ref(
 
     for i,path_in in enumerate(dirs):
 
-        list_rasters = glob.glob(f"{path_in}\*.ti*")
+        list_rasters = glob.glob(rf"{path_in}/*.ti*")
         raster_types=[filepath_raster_type(i) for i in list_rasters]
+
+        print(path_in)
 
         if len(set(raster_types)) != 1:
             raise ValueError(f"Mixed input types have been found in {ras_type_dict[i]} folder. Each folder has to contain either DSMs or orthos only.")
