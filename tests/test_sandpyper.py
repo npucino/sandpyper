@@ -16,7 +16,7 @@ from sandpyper.sandpyper import ProfileSet, ProfileDynamics
 from sandpyper.common import get_sil_location, get_opt_k, create_transects, sensitivity_tr_rbcd
 
 pd.options.mode.chained_assignment = None  # default='warn'
-np.random.seed(10)
+
 
 # create global variables used across the test analysis
 loc_codes=["mar","leo"]
@@ -227,12 +227,15 @@ class TestProfileSet(unittest.TestCase):
                         crs_dict_string=crs_dict_string,
                         check="all")
 
+
+
+        np.random.seed(42)
         cls.P.extract_profiles(mode='all',tr_ids='tr_id',sampling_step=1,add_xy=True,lod_mode=lod_mode)
 
 
         ############################# Iterative Silhouette Analysis with inflexion point search ######################
 
-
+        np.random.seed(10)
         cls.sil_df = get_sil_location(cls.P.profiles,
                                 ks=(2,15),
                                 feature_set=feature_set,
