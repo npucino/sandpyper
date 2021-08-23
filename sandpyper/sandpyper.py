@@ -138,12 +138,13 @@ class ProfileSet():
             mode (str): If 'dsm', extract from DSMs. If 'ortho', extracts from orthophotos. if "all", extract from both.
             tr_ids (str): The name of the field in the transect file that is used to store the transects ID.
             sampling_step (float): Distance along-transect to extract data points from. In meters.
+            lod_mode (): If a valid path to a folder storing the LoD transects is provided, extracts elevation data (error) along those transects. If a value is provided, use this value across all surveys. If set to zero, then no LoD will be used.
             add_xy (bool): If True, adds extra columns with long and lat coordinates in the input CRS.
             add_slope (bool): If True, computes slope raster in degrees (increased processing time) and extract slope values across transects.
             default_nan_values (int): Value used for NoData specification in the rasters used. In Pix4D, this is -10000 (default).
 
          Returns:
-            profiles (pd.DataFrame): adds an attribute (.profiles) to the ProfileSet object.
+            attributes (pd.DataFrame): adds an attribute (.profiles) to the ProfileSet object and if lod_mode is active adds another attribute (.lod) with the elevation change along LoD transects.
         """
 
         if mode=="dsm":
@@ -243,7 +244,7 @@ class ProfileSet():
             random_state (int, optional): Random seed used to make the randomisation deterministic.
 
          Returns:
-            label_k: new column in ProfileSet.profiles dataframe storing each point cluster label.
+            column (int): new column in ProfileSet.profiles dataframe storing each point cluster label.
         """
 
         labels_df=kmeans_sa(merged_df=self.profiles,
@@ -275,7 +276,7 @@ class ProfileSet():
             geometry_field: Field that stores the point geometry (default 'geometry').
 
          Returns:
-            label_k: new column in ProfileSet.profiles dataframe storing each point cluster label.
+            label_k (int): new column in ProfileSet.profiles dataframe storing each point cluster label.
         """
 
 
@@ -813,8 +814,7 @@ class ProfileDynamics():
             sigma_n (int): Number of standard deviation to use to exclude outliers (default=3).
 
         Returns:
-            location_volumetrics (pd.DataFrame): Dataframe containing change information at the location level (new attribute add to ProfileDynamics object)
-            transects_volumetrics (pd.DataFrame): Dataframe containing change information at the site level (new attribute add to ProfileDynamics object)
+            ProfileDynamics attributes: Two new attributes named location_volumetrics (pd.DataFrame) and transects_volumetrics (pd.DataFrame), which provide change information at the location and single transect scales respectively.
         """
         self.dh_df["date_pre_dt"]=[datetime.datetime.strptime(str(pre),'%Y%m%d') for pre in self.dh_df.date_pre]
         self.dh_df["date_post_dt"]=[datetime.datetime.strptime(str(post),'%Y%m%d') for post in self.dh_df.date_post]

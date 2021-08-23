@@ -146,7 +146,7 @@ def find_date_string(
     ],
     to_rawdate=True,
 ):
-    """It finds the date and returns True or a formatted version of it, from a filename of the type "Seaspray_22_Oct_2020_GeoTIFF_DSM_GDA94_MGA_zone_55.tiff".
+    """It finds the date in the filename and returns True if it is already in the Sandpyper format. If it is not formatted and a date is found, it returns a formatted version of it. For example, dates in raw filenames should be similar to "Seaspray_22_Oct_2020_GeoTIFF_DSM_GDA94_MGA_zone_55.tiff".
 
     Args:
         filename (str): filename to test, of the type "Seaspray_22_Oct_2020_GeoTIFF_DSM_GDA94_MGA_zone_55.tiff".
@@ -188,7 +188,7 @@ def filter_filename_list(filenames_list, fmt=[".tif", ".tiff"]):
 
 
 def round_special(num, thr):
-    """It rounds the number (a) to its closest fraction of threshold (thr). Useful to space ticks in plots."""
+    """It rounds the number (num) to its closest fraction of threshold (thr). Useful to space ticks in plots."""
     return round(float(num) / thr) * thr
 
 
@@ -469,9 +469,9 @@ def getCrs_from_raster_path(ras_path):
     with ras.open(r"{}".format(ras_path)) as raster:
         return raster.crs.to_epsg()
 
-def filepath_raster_type(ras_path):
-        """Returns 'dsm' if ras_path is of a DSM (1 single band) or 'ortho' if has multiple bands."""
-        with ras.open(r"{}".format(ras_path)) as raster:
+def filepath_raster_type(raster_path):
+        """Returns 'dsm' if the path provided (raster_path) is of a DSM (1 single band) or 'ortho' if has multiple bands."""
+        with ras.open(r"{}".format(raster_path)) as raster:
             if raster.count==1:
                 return "dsm"
             else:
@@ -682,8 +682,15 @@ def getPoint2(pt, bearing, dist):
 
 
 def split_transects(geom, side="left"):
-    """Helper function to split transects geometry normal to shoreline, retaining only their left (default) or right side."""
+    """Helper function to split a transect geometry along its centroid, retaining only their left (default) or right side.
 
+    args:
+        geom (geometry): geometry (shapely LineString) of the transect to split.
+        side (str): side to keep ('left' or 'right').
+
+    returns:
+        geometry: New geometry split.
+    """
     side_dict = {"left": 0, "right": 1}
     snapped = snap(geom, geom.centroid, 0.001)
     result = split(snapped, geom.centroid)
@@ -3683,7 +3690,7 @@ def shoreline_from_prediction(
         shape (tuple): Shape of the tiles (default= (64,64), minimum requirement for Unet).
 
     Returns:
-        contours_gdf (gpd.GeoDataFrame): Geodataframe containing the contours (shoreline) extracted from the prediction.
+        gpd.GeoDataFrame: Geodataframe containing the contours (shoreline) extracted from the prediction.
     """
     # get shoreline
     shore_arr = contours_to_multiline(
@@ -3828,8 +3835,8 @@ def grid_from_shore(
     plot_it=True,
 ):
     """
-    Create a georeference grid of equal polygones (tiles) along a line (shoreline) and select those tiles that contain at least partially the line.
-    TO DO: CRS should also be a string for specific CRS. Probablt only need the first and last points endpoints of the shoreline, or can get box directly.
+    Create a georeference grid of equal polygones (tiles) along a line (shoreline) and select those tiles that contain or are adjacent to the shoreline.
+
     Args:
         shore (geodataframe): The geodataframe storing the input line from where the grid will be created.
         width, height (int,float): The width and height of each single tile of the grid, given in the CRS unit (use projected CRS).
@@ -3842,8 +3849,9 @@ def grid_from_shore(
         offsets (tuple): Offsets in meters (needs projected CRS) from the bounds of the pts_gdf,
             in the form of (xmin, ymin, xmax, ymax). Default to (0,0,0,0).
         plot_it (bool): plot the shoreline, full grid and the tiles selected containing the lien (in red). Default to True.
+
     Returns:
-        GeoDataFrame of the grid of only tiles containing the line.
+        gpd.GeoDataFrame: Grid of tiles in the specified proximity of the shoreline.
     """
 
     xs = []
@@ -3999,7 +4007,7 @@ def check_overlay(line_geometry, img_path):
 
 
 def correct_multi_detections(shore_pts, transects):
-    """Corrects for multiple points detections on shorelnes transects.
+    """Corrects for multiple points detections on shorelines transects. Multi detections occur when the shoreline bends considerably and the transects intersect it more than once.
 
     Args:
         shore_pts (np.array): array to be transformed.
@@ -4113,7 +4121,16 @@ def rawdate_from_timestamp_str(timestamp_str):
 
 
 def corr_baseline_distance(dist, slope, z_tide):
-    """Returns the tidal corrected distance from baseline of one more (in a pd.Series) uncorrected distances from the baseline (dist), profile slope (slope) and tidal height (z_tide)."""
+    """Applies a simple geometric tidal correction of the points along a shoreline
+
+    Args:
+        dist (float, pd.Series): Uncorrected distance or pd.Series of distances from the baseline.
+        slope (float): Subaerial beach profile slope in percentage.
+        z_tide (float): Water level or tidal height.
+
+    Returns:
+        float, list: The corrected value or list of corrected values.
+    """
 
     if isinstance(dist, (int, float, complex)):
 
@@ -4161,9 +4178,9 @@ def error_from_gt(
         shore_date_field (str): Field where the survey dates are stored in the to-correct dataset.
         side (str): Whether to create transect on the right, left or both sides. Default to "both".
         baseline_mode (str): If "dynamic" (default), statistics will be computed from transects created from each groundtruth shoreline. If path to a .gpkg is provided, then use those arbitrary location specific baselines and transects will be fixed.
-
+        tidal_correct (str, None): If str, apply tidal correction.
     Returns:
-        shore_shift_df (pd.DataFrame): Dataframe containing the distances from groundtruth at each timestep.
+        pd.DataFrame: Dataframe containing the distances from groundtruth at each timestep.
     """
     crs = crs_dict_string[location]
 
@@ -5662,21 +5679,22 @@ def arr2geotiff(
     array,
     transform,
     location,
+    crs_dict_string,
     shape=(64, 64, 1),
     driver="GTiff",
     dtype=np.float32,
-    save=None,
-):
+    save=None):
     """Transform an array into a Geotiff given its Shapely transform and location code.
 
     Args:
         array (array): array to be transformed.
         transform (tuple): tuple with Shapely transform parameters.
+        location (str): Location code of the shoreline to convert.
+        crs_dict_string (dict):  Dictionary storing location codes as key and crs information as values, in dictionary form.
         shape (tuple): Tuple of size 3 of the shape of the array. Default to (64,64,1)
         driver ("GTiff"): Driver used by Fiona to save file.
         dtype (data type object): Default to numpy.float32.
-        save (None,path). If a full path is provided, save the file to a geotiff image (C:\my\new\image.tif).
-        If None (default), the geotiff is saved in the memory but not to the disk.
+        save (None,path). If a full path is provided, save the file to a geotiff image (C:\my\new\image.tif). If None (default), the geotiff is saved in the memory but not to the disk.
 
     Returns:
         mem_dataset (rasterio.io.MemoryFile): Geotiff image saved into memory or optionally saved to a new raster.

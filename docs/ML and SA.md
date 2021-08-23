@@ -123,7 +123,7 @@ Every polygon has its own row and represent the shoremask of each location.
 Working with only one geopackage or shapefile implies that only one CRS has to be used for all the locations. This is automatically taken into account in Sandpyper using the __crs_dict_string__ global setting.
 
 ### Watermasks
-<center><img src="images/watermasks_table_attributes.JPG" width="400"></center>
+![im](images/watermasks_table_attributes.JPG)
 
 Watermasks files (geopackages or shapefiles) are digitised over water areas and swash areas. It is one single file. The required fields are:
 
