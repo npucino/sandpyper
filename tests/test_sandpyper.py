@@ -354,13 +354,15 @@ class TestProfileSet(unittest.TestCase):
         self.assertTrue(self.check_no_sand_mar_postclean.pt_class.unique()=='no_sand')
         self.assertTrue(self.check_no_sand_leo_postclean.pt_class.unique()=='no_sand')
 
-        self.assertTrue(self.check_veg_mar_postclean.pt_class.unique()=='veg')
+
+
+        self.assertTrue(np.all(self.check_veg_mar_postclean.pt_class.unique()==np.array(['veg', 'water']))==True) # due to polygon corrections
         self.assertTrue(self.check_veg_leo_postclean.pt_class.unique()=='veg')
 
         self.assertTrue(self.check_water_mar_postclean.pt_class.unique()=='water')
-        self.assertTrue(self.check_water_leo_postclean.pt_class.unique()=='water')
+        self.assertTrue(np.all(self.check_water_leo_postclean.pt_class.unique()==np.array(['veg', 'water', 'sand']))==True)
 
-        self.assertTrue(self.check_sand_mar_postclean.pt_class.unique()=='sand')
+        self.assertTrue(np.all(self.check_sand_mar_postclean.pt_class.unique()==np.array(['water', 'sand']))==True)
         self.assertTrue(self.check_sand_leo_postclean.pt_class.unique()=='sand')
 
 
