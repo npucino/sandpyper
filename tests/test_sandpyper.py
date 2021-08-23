@@ -247,9 +247,20 @@ class TestProfileSet(unittest.TestCase):
 
         print(f"SHAPE OF THE PROFILES PRE CLEAN {cls.P.profiles}")
 
-        cls.check_pre_cleanit=(cls.P.profiles.label_k.iloc[171],cls.P.profiles.label_k.iloc[666],cls.P.profiles.label_k.iloc[0],cls.P.profiles.label_k.iloc[-1])
-        print(f" PRE CLEAN LABELS {cls.check_pre_cleanit}")
+        cls.check_no_sand_mar_preclean=cls.P.profiles.query("location == 'mar' and raw_date==20190205 and label_k in [0,5]")
+        cls.check_no_sand_leo_preclean=cls.P.profiles.query("location == 'leo' and raw_date==20190211 and label_k ==1")
 
+        cls.check_veg_mar_preclean=cls.P.profiles.query("location == 'mar' and raw_date==20180925 and label_k in [1,3]")
+        cls.check_veg_leo_preclean=cls.P.profiles.query("location == 'leo' and raw_date==20180713 and label_k in [1,5,9]")
+
+        cls.check_water_mar_preclean=cls.P.profiles.query("location == 'mar' and raw_date==20190516 and label_k in [4,7]")
+        cls.check_water_leo_preclean=cls.P.profiles.query("location == 'leo' and raw_date==20180920 and label_k in [0,2,6,7]")
+
+        cls.check_sand_mar_preclean=cls.P.profiles.query("location == 'mar' and raw_date==20180621 and label_k in [0,2]")
+        cls.check_sand_leo_preclean=cls.P.profiles.query("location == 'leo' and raw_date==20190328 and label_k == 3")
+
+        cls.check_watermask_mar_pre=cls.profiles.query("location == 'mar' and raw_date==20181113 and distance < 10").shape
+        cls.check_watermask_leo_pre=cls.profiles.query("location == 'leo' and raw_date==20180920 and distance < 10").shape
         ############################# Cleaning ######################
 
         cls.P.cleanit(l_dicts=l_dicts,
@@ -257,20 +268,26 @@ class TestProfileSet(unittest.TestCase):
           shoremasks_path=shoremasks_path,
           label_corrections_path=label_corrections_path)
 
-        print(f"SHAPE OF THE PROFILES POST CLEAN {cls.P.profiles}")
-
-
-
-        cls.check_post_cleanit=(cls.P.profiles.label_k.iloc[171],cls.P.profiles.label_k.iloc[666],cls.P.profiles.label_k.iloc[0],cls.P.profiles.label_k.iloc[-1])
-        print(f" POST CLEAN LABELS {cls.check_post_cleanit}")
+        cls.check_watermask_mar_post=cls.profiles.query("location == 'mar' and raw_date==20181113 and distance < 10").shape
+        cls.check_watermask_leo_post=cls.profiles.query("location == 'leo' and raw_date==20180920 and distance < 10").shape
 
     @classmethod
     def tearDownClass(cls):
         cls.P
         cls.sil_df
         cls.opt_k
-        cls.check_pre_cleanit
-        cls.check_post_cleanit
+        cls.check_no_sand_mar_preclean
+        cls.check_no_sand_leo_preclean
+        cls.check_water_mar_preclean
+        cls.check_water_leo_preclean
+        cls.check_sand_mar_preclean
+        cls.check_sand_leo_preclean
+        cls.check_veg_mar_preclean
+        cls.check_veg_leo_preclean
+        cls.check_watermask_mar_pre
+        cls.check_watermask_leo_pre
+        cls.check_watermask_leo_post
+        cls.check_watermask_mar_post
 
     def test_004_check_dataframe(self):
         """Test the check dataframe creation."""
@@ -315,9 +332,26 @@ class TestProfileSet(unittest.TestCase):
         self.assertEqual(self.opt_k['leo_20190328'], 7)
 
     def test_008_correction(self):
+
         self.assertIsInstance(self.P.profiles.label_k[0],  np.int32)
-        self.assertEqual(self.check_pre_cleanit, (7, 1, 8, 0))
-        self.assertEqual(self.check_post_cleanit, (9, 0, 8, 2))
+        self.assertEqual(self.check_watermask_mar_pre,(219, 14))
+        self.assertEqual(self.check_watermask_leo_pre,(300, 14))
+        self.assertEqual(self.check_watermask_leo_post,(24, 15))
+        self.assertEqual(self.check_watermask_mar_post,(219, 15))
+
+        self.assertTrue(self.check_no_sand_mar_preclean.pt_class.unique()=='no_sand')
+        self.assertTrue(self.check_no_sand_leo_preclean.pt_class.unique()=='no_sand')
+
+        self.assertTrue(self.check_veg_mar_preclean.pt_class.unique()=='veg')
+        self.assertTrue(self.check_veg_leo_preclean.pt_class.unique()=='veg')
+
+        self.assertTrue(self.check_water_mar_preclean.pt_class.unique()=='water')
+        self.assertTrue(self.check_water_leo_preclean.pt_class.unique()=='water')
+
+        self.assertTrue(self.check_sand_mar_preclean.pt_class.unique()=='sand')
+        self.assertTrue(self.check_sand_leo_preclean.pt_class.unique()=='sand')
+
+
 
 class TestProfileDynamics(unittest.TestCase):
     """Tests the ProfileDynamics pipeline."""
@@ -409,7 +443,7 @@ class TestProfileDynamics(unittest.TestCase):
 
         self.assertEqual(self.D2.hotspots.shape, (5112, 21))
         self.assertEqual(self.D2.hotspots.isna().sum().sum(),0)
-        self.assertAlmostEqual(self.D2.hotspots.lisa_I.sum(),1594.5027919977902)
+        self.assertAlmostEqual(self.D2.hotspots.lisa_I.sum(),1594.5027919977902, places=2)
         self.assertEqual(self.D2.hotspots.lisa_opt_dist.unique()[0],50)
         self.assertEqual(self.D2.hotspots.lisa_dist_mode.unique()[0],'k')
         self.assertEqual(self.D2.hotspots.decay.unique()[0],0)
@@ -435,12 +469,12 @@ class TestProfileDynamics(unittest.TestCase):
           [self.D2.location_ebcds.trend < 0 , self.D2.location_ebcds.sign == '-']], [ True, True], default=False)).flatten()))[0])
         # location_ss
         self.assertEqual(self.D2.location_ss.shape, (13, 2))
-        self.assertAlmostEqual(self.D2.location_ss.leo.sum(), 0.7210473593811956)
+        self.assertAlmostEqual(self.D2.location_ss.leo.sum(), 0.7210473593811956, places=2)
         self.assertEqual(self.D2.location_ss.isna().sum().sum(),0)
         self.assertEqual(self.D2.location_ss.loc['Extreme_deposition','leo'], 0.0)
         # transects_r-bcds
         self.assertEqual(self.D2.transects_rbcd.shape, (51, 6))
-        self.assertAlmostEqual(self.D2.transects_rbcd.residual.sum(), 1.2806354281813492)
+        self.assertAlmostEqual(self.D2.transects_rbcd.residual.sum(), 1.2806354281813492, places=2)
         self.assertEqual(self.D2.transects_rbcd.isna().sum().sum(),0)
         self.assertIsInstance(self.D2.transects_rbcd,  gpd.GeoDataFrame)
         self.assertEqual(self.D2.transects_rbcd.crs.to_epsg(),32754)
