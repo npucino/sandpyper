@@ -2,7 +2,7 @@
 
 ## Virtual network of elevation profiles
 
-A virtual network of digital transects is used and kept fixed for every site during the analysis. Transects can be any line, digitised in a GIS, of irregular shape, spacing and lengths. Alternatively, the function `create_transects()` allows an user to create alongshore uniformingly distributed transects, normal to an user-provided shoreline.
+A virtual network of digital transects is used and kept fixed for every site during the analysis. Transects can be any line, digitized in a GIS, of irregular shape, spacing and lengths. Alternatively, the function `create_transects()` allows an user to create alongshore uniformingly distributed transects, normal to an user-provided shoreline.
 This function can be useful in case a very long shoreline must be monitored in multiple sites.
 
 
@@ -32,7 +32,7 @@ LoD statistics are computed when the `ProfileDynamics.compute_multitemporal()` m
 
 To choose which metric to use as LoD, given that LoD can be interpreted as the expected error in the DoD (DSM of Difference, basically the subtraction of two DSMs representing the landscape in two consecutive times), it is necessary to evaluate the normality of the statistical distribution of errors (values of changing elevations in calibration areas which are supposed not to be changing). Despite the Root Mean
 Squared Error (rmse) being the most used error metric in the literature ([Carrivick, Smith and Quincey, 2016](https://play.google.com/store/books/details?id=tZCvDAAAQBAJ))
-, its validity is robust only when a normal distribution of absolute errors with no outliers is assumed, which is seldom occurring due to filtering and interpolation errors introduced by the digital photogrammetric procedure ([Höhle and Höhle, 2009](https://www.sciencedirect.com/science/article/abs/pii/S0924271609000276?via%3Dihub)). The normalised median absolute deviation (nmad) is reported to be a more robust estimator for elevation precision of photogrammetric products, in case the above mentioned assumptions are not met ([[Höhle and Höhle, 2009](https://www.sciencedirect.com/science/article/abs/pii/S0924271609000276?via%3Dihub)], [Wang, Shi and Liu, 2015](https://www.sciencedirect.com/science/article/abs/pii/S0303243414001767?via%3Dihub)).
+, its validity is robust only when a normal distribution of absolute errors with no outliers is assumed, which is seldom occurring due to filtering and interpolation errors introduced by the digital photogrammetric procedure ([Höhle and Höhle, 2009](https://www.sciencedirect.com/science/article/abs/pii/S0924271609000276?via%3Dihub)). The normalised median absolute deviation (nmad) is reported to be a more robust estimator for elevation precision of photogrammetric products, in case the above mentioned assumptions are not met ([Höhle and Höhle, 2009](https://www.sciencedirect.com/science/article/abs/pii/S0924271609000276?via%3Dihub); [Wang, Shi and Liu, 2015](https://www.sciencedirect.com/science/article/abs/pii/S0303243414001767?via%3Dihub)).
 
 
 ## LoD visual normality evaluation

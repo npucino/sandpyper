@@ -3,24 +3,31 @@ on:
     push:
         branches:
             - master
+            - v1
 jobs:
     deploy:
         runs-on: windows-latest
         steps:
             - uses: actions/checkout@v2
-            - uses: actions/setup-python@v2
+            - uses: actions/setup-python@v1
             - uses: s-weigand/setup-conda@v1
 
               with:
                   python-version: 3.7.9
             - name: Install dependencies
               run: |
+                  python -m pip install --upgrade pip
+                  pip install --no-cache-dir Cython
                   conda config --add channels conda-forge
                   conda config --set channel_priority strict
                   conda install --file requirements.txt
-            #- name: PKG-TEST
-            #  run: |
-                #  python -m unittest discover tests/
+                  conda install -c conda-forge ipywidgets
+                  conda install codespell
+            - name: Discover typos with codespell
+              run: codespell --skip="*.ipynb" -I codespell_ignore_words.txt --check-hidden
+            - name: PKG-TEST
+              run: |
+                  python -m unittest discover
             - run: pip install mkdocs==1.1.2 mkdocs-material mkdocstrings mkdocs-git-revision-date-plugin mkdocs-jupyter livereload python-markdown-math
 
             - run: mkdocs gh-deploy --force
