@@ -339,17 +339,17 @@ class TestProfileSet(unittest.TestCase):
         self.assertEqual(self.check_watermask_leo_post,(24, 15))
         self.assertEqual(self.check_watermask_mar_post,(219, 15))
 
-        self.assertTrue(self.check_no_sand_mar_preclean.pt_class.unique()=='no_sand')
-        self.assertTrue(self.check_no_sand_leo_preclean.pt_class.unique()=='no_sand')
+        self.assertTrue(self.check_no_sand_mar_postclean.pt_class.unique()=='no_sand')
+        self.assertTrue(self.check_no_sand_leo_postclean.pt_class.unique()=='no_sand')
 
-        self.assertTrue(self.check_veg_mar_preclean.pt_class.unique()=='veg')
-        self.assertTrue(self.check_veg_leo_preclean.pt_class.unique()=='veg')
+        self.assertTrue(self.check_veg_mar_postclean.pt_class.unique()=='veg')
+        self.assertTrue(self.check_veg_leo_postclean.pt_class.unique()=='veg')
 
-        self.assertTrue(self.check_water_mar_preclean.pt_class.unique()=='water')
-        self.assertTrue(self.check_water_leo_preclean.pt_class.unique()=='water')
+        self.assertTrue(self.check_water_mar_postclean.pt_class.unique()=='water')
+        self.assertTrue(self.check_water_leo_postclean.pt_class.unique()=='water')
 
-        self.assertTrue(self.check_sand_mar_preclean.pt_class.unique()=='sand')
-        self.assertTrue(self.check_sand_leo_preclean.pt_class.unique()=='sand')
+        self.assertTrue(self.check_sand_mar_postclean.pt_class.unique()=='sand')
+        self.assertTrue(self.check_sand_leo_postclean.pt_class.unique()=='sand')
 
 
 
