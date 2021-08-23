@@ -55,6 +55,6 @@ setup(
     test_suite='tests',
     tests_require=test_requirements,
     url='https://github.com/npucino/sandpyper',
-    version='0.1.1',
+    version='1.0.0',
     zip_safe=False,
 )
