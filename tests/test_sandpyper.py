@@ -259,8 +259,8 @@ class TestProfileSet(unittest.TestCase):
         cls.check_sand_mar_preclean=cls.P.profiles.query("location == 'mar' and raw_date==20180621 and label_k in [0,2]")
         cls.check_sand_leo_preclean=cls.P.profiles.query("location == 'leo' and raw_date==20190328 and label_k == 3")
 
-        cls.check_watermask_mar_pre=cls.profiles.query("location == 'mar' and raw_date==20181113 and distance < 10").shape
-        cls.check_watermask_leo_pre=cls.profiles.query("location == 'leo' and raw_date==20180920 and distance < 10").shape
+        cls.check_watermask_mar_pre=cls.P.profiles.query("location == 'mar' and raw_date==20181113 and distance < 10").shape
+        cls.check_watermask_leo_pre=cls.P.profiles.query("location == 'leo' and raw_date==20180920 and distance < 10").shape
         ############################# Cleaning ######################
 
         cls.P.cleanit(l_dicts=l_dicts,
@@ -268,8 +268,8 @@ class TestProfileSet(unittest.TestCase):
           shoremasks_path=shoremasks_path,
           label_corrections_path=label_corrections_path)
 
-        cls.check_watermask_mar_post=cls.profiles.query("location == 'mar' and raw_date==20181113 and distance < 10").shape
-        cls.check_watermask_leo_post=cls.profiles.query("location == 'leo' and raw_date==20180920 and distance < 10").shape
+        cls.check_watermask_mar_post=cls.P.profiles.query("location == 'mar' and raw_date==20181113 and distance < 10").shape
+        cls.check_watermask_leo_post=cls.P.profiles.query("location == 'leo' and raw_date==20180920 and distance < 10").shape
 
     @classmethod
     def tearDownClass(cls):
