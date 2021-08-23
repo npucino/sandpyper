@@ -271,6 +271,18 @@ class TestProfileSet(unittest.TestCase):
         cls.check_watermask_mar_post=cls.P.profiles.query("location == 'mar' and raw_date==20181113 and distance < 10").shape
         cls.check_watermask_leo_post=cls.P.profiles.query("location == 'leo' and raw_date==20180920 and distance < 10").shape
 
+        cls.check_no_sand_mar_postclean=cls.P.profiles.query("location == 'mar' and raw_date==20190205 and label_k in [0,5]")
+        cls.check_no_sand_leo_postclean=cls.P.profiles.query("location == 'leo' and raw_date==20190211 and label_k ==1")
+
+        cls.check_veg_mar_postclean=cls.P.profiles.query("location == 'mar' and raw_date==20180925 and label_k in [1,3]")
+        cls.check_veg_leo_postclean=cls.P.profiles.query("location == 'leo' and raw_date==20180713 and label_k in [1,5,9]")
+
+        cls.check_water_mar_postclean=cls.P.profiles.query("location == 'mar' and raw_date==20190516 and label_k in [4,7]")
+        cls.check_water_leo_postclean=cls.P.profiles.query("location == 'leo' and raw_date==20180920 and label_k in [0,2,6,7]")
+
+        cls.check_sand_mar_postclean=cls.P.profiles.query("location == 'mar' and raw_date==20180621 and label_k in [0,2]")
+        cls.check_sand_leo_postclean=cls.P.profiles.query("location == 'leo' and raw_date==20190328 and label_k == 3")
+
     @classmethod
     def tearDownClass(cls):
         cls.P
