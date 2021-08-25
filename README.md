@@ -1,4 +1,3 @@
-
 [![image](https://img.shields.io/pypi/v/sandpyper.svg)](https://pypi.python.org/pypi/sandpyper)
 [![Contributors][contributors-shield]][contributors-url]
 [![image](https://github.com/npucino/sandpyper/workflows/build/badge.svg)](https://github.com/npucino/sandpyper/actions/workflows/build.yml/badge.svg)
@@ -8,6 +7,7 @@
 [![Stargazers][stars-shield]][stars-url]
 [![Issues][issues-shield]][issues-url]
 [![License][license-shield]][license-url]
+[![joss](https://joss.theoj.org/papers/ff00f33cd9152b1834727ffb8be4122a/status.svg)](https://joss.theoj.org/papers/ff00f33cd9152b1834727ffb8be4122a)
 [![LinkedIn][linkedin-shield]][linkedin-url]
 
 
