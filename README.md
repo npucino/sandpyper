@@ -140,14 +140,14 @@ To get a local copy up and running follow these simple steps.
 
 ### Prerequisites
 * [Install Conda] in your local machine. We need it to create the ```sandpyper_env``` virtual environment.
-* then, if you do not have it already, install **Visual Studio C++ build tools** in your local machine, which is needed to install the [richdem](https://pypi.org/project/richdem/ "richdem pypi page") package. You can download it [here](https://visualstudio.microsoft.com/visual-cpp-build-tools/ "standalone VS c++ build tools").
+* then, if you do not have it already, install **Visual Studio C++ build tools** . You can download it [here](https://visualstudio.microsoft.com/visual-cpp-build-tools/ "standalone VS c++ build tools").
 * If you don't have it already, add ```conda-forge``` channel to your anaconda config file, by typing this in your Anaconda Prompt terminal (base environment):
   ```sh
   conda config --add channels conda-forge
   ```
-* Now, always in the (base) environment, create a new environment called ```sandpyper_env``` and install the required packages by typing:
+* Now, always in the (base) environment, create a new environment called ```sandpyper_env``` using ```python=3.8``` and install the required packages by typing:
   ```sh
-  conda create --name sandpyper_env geopandas=0.8.2 matplotlib=3.3.4 numpy=1.20.1 pandas=1.2.2 tqdm=4.56.2 pysal=2.1 rasterio=1.2.0 richdem=0.3.4 scikit-image=0.18.1 scikit-learn=0.24.1 scipy=1.6.0 seaborn=0.11.1 tqdm=4.56.2 pooch=1.4.0 fuzzywuzzy
+  conda create --name sandpyper_env python=3.8 geopandas=0.8.2 matplotlib=3.3.4 numpy=1.20.1 pandas=1.2.2 tqdm=4.56.2 pysal=2.1 rasterio=1.2.0 richdem=0.3.4 scikit-image=0.18.1 scikit-learn=0.24.1 scipy=1.6.0 seaborn=0.11.1 tqdm=4.56.2 pooch=1.4.0 fuzzywuzzy
   ```
 * If ```rasterio``` package cannot be installed due to __GDAL binding issues__, follow the instructions in [rasterio installation webpage](https://rasterio.readthedocs.io/en/latest/installation.html).
 
