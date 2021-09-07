@@ -42,7 +42,7 @@ jobs:
                   conda config --add channels conda-forge
                   conda config --set channel_priority strict
                   conda install --file requirements.txt
-                  pip install --user -r requirements_dev.txt
+                  conda install --file requirements_dev.txt
                   conda install -c conda-forge ipywidgets
 
             - name: PKG-TEST
