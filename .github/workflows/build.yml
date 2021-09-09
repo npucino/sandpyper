@@ -39,6 +39,7 @@ jobs:
               run: |
                   pip install --user --no-cache-dir Cython
                   python -m pip install --upgrade pip
+                  pip install grip
                   conda config --add channels conda-forge
                   conda config --set channel_priority strict
                   conda install --file requirements.txt
