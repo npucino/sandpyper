@@ -7,5 +7,3 @@ tox
 coverage
 Sphinx
 twine
-grip
-
