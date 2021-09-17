@@ -552,8 +552,6 @@ def cross_ref(
         list_rasters = glob.glob(rf"{path_in}/*.ti*")
         raster_types=[filepath_raster_type(i) for i in list_rasters]
 
-        print(path_in)
-
         if len(set(raster_types)) != 1:
             raise ValueError(f"Mixed input types have been found in {ras_type_dict[i]} folder. Each folder has to contain either DSMs or orthos only.")
 
