@@ -2233,9 +2233,9 @@ def cleanit(to_clean, l_dicts, cluster_field='label_k', fill_class='sand',
 
             # validate label correction polygons
             if crs_dict_string != None:
-                check_overlaps_poly_label(label_corrections,to_clean,crs_dict_string)
+                check_overlaps_poly_label(label_corrections,to_clean_classified,crs_dict_string)
             else:
-                check_overlaps_poly_label(label_corrections,to_clean,label_corrections.crs.to_epsg())
+                check_overlaps_poly_label(label_corrections,to_clean_classified,label_corrections.crs.to_epsg())
 
             processes.append("polygon finetuning")
             to_update_finetune=pd.DataFrame()
