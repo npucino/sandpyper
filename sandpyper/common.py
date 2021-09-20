@@ -5927,19 +5927,17 @@ def check_overlaps_poly_label(label_corrections, profiles,crs):
 
                                 pts=profiles.query(f"location=='{loc}' and raw_date=={raw_date}")
 
-                                if isinstance(pts,pd.DataFrame):
-
+                                if isinstance(pts.iloc[0]['coordinates'],Point):
+                                    pts_gdf=pts
+                                elif isinstance(pts.iloc[0]['coordinates'],str):
                                     pts['coordinates']=pts.coordinates.apply(coords_to_points)
                                     if isinstance(crs, dict):
                                         pts_gdf=gpd.GeoDataFrame(pts, geometry='coordinates', crs=crs[loc])
                                     elif isinstance(crs, int):
                                         crs_adhoc={'init': f'epsg:{crs}'}
                                         pts_gdf=gpd.GeoDataFrame(pts, geometry='coordinates', crs=crs_adhoc)
-
-                                elif isinstance(pts,gpd.GeoDataFrame):
-                                    pts_gdf=pts
                                 else:
-                                    raise ValueError(f"profiles must be either a Pandas DataFrame or Geopdandas GeoDataFrame. Found {type(profiles)} type instead.")
+                                    raise ValueError(f"profiles coordinates field must contain points coordinates either as Shapely Point geometry objects or as a string representing a Shapely Point geometry in well known text. Found {type(pts.iloc[0]['coordinates'])} type instead.")
 
                                 fully_contains = [intersection_gdf.geometry.contains(mask_geom)[0] for mask_geom in pts_gdf.geometry]
 
