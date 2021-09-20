@@ -5905,9 +5905,9 @@ def check_overlaps_poly_label(label_corrections, profiles,crs):
     """
     for loc in label_corrections.location.unique():
         for raw_date in label_corrections.query(f"location=='{loc}'").raw_date.unique():
-            for target_label_k in label_corrections.query(f"raw_date=={raw_date}").target_label_k.unique():
+            for target_label_k in label_corrections.query(f"location=='{loc}' and raw_date=={raw_date}").target_label_k.unique():
 
-                date_labelk_subset=label_corrections.query(f"raw_date=={raw_date} and target_label_k=={int(target_label_k)}")
+                date_labelk_subset=label_corrections.query(f"location=='{loc}' and raw_date=={raw_date} and target_label_k=={int(target_label_k)}")
 
                 # if more than one polygons target the same label k, check if they overlap
                 if len(date_labelk_subset)>1:
