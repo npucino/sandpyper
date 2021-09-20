@@ -291,7 +291,7 @@ class ProfileSet():
         self.profiles = cleanit(to_clean=self.profiles,l_dicts=l_dicts, cluster_field=cluster_field, fill_class=fill_class,
                     watermasks_path=watermasks_path, water_label=water_label,
                     shoremasks_path=shoremasks_path, label_corrections_path=label_corrections_path,
-                    default_crs=default_crs, crs_dict_string=self.crs_dict_string,
+                    crs_dict_string=self.crs_dict_string,
                    geometry_field=geometry_field)
 
 
