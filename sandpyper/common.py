@@ -5924,8 +5924,7 @@ def check_overlaps_poly_label(label_corrections, profiles,crs):
                                 # if overlap areas assign different classes, check if this area contains points.
                                 # if contains points, raise an error as it does not make sense and the polygons must be corrected
                                 # by the user
-
-                                pts=profiles.query(f"location=='{loc}' and raw_date=={raw_date}")
+                                pts=profiles.query(f"location=='{loc}' and raw_date=={raw_date} and label_k=={int(target_label_k)}")
 
                                 if isinstance(pts.iloc[0]['coordinates'],Point):
                                     pts_gdf=pts

@@ -120,15 +120,6 @@ l_dicts={'no_sand': no_sand_dict,
         'water': water_dict,
         'veg':veg_dict}
 
-#if os.getcwdb() != b'C:\\my_packages\\sandpyper\\tests': # if the script is running in github action as a workflow and not locally
-
-
-
-#else:
-
-
-
-
 
 
 class TestCreateProfiles(unittest.TestCase):
