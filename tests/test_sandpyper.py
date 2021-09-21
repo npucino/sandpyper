@@ -200,23 +200,19 @@ class TestProfileSet(unittest.TestCase):
     def setUpClass(cls):
         ############################# Profile extraction ######################
 
-
-
-        test_data_folder = r"examples\test_data"
-
         # the paths to the DSM, orthophotos and transect directories
-        dirNameDSM=Path(test_data_folder + r"\dsm_1m")
-        dirNameOrtho=Path(test_data_folder + r"\orthos_1m")
-        dirNameTrans=Path(test_data_folder + r"\transects")
+        dirNameDSM=Path("examples/test_data/dsm_1m/")
+        dirNameOrtho=Path("examples/test_data/orthos_1m"")
+        dirNameTrans=Path("examples/test_data/transects")
 
         # path to the LoD transects
 
-        lod_mode=Path(test_data_folder + r"\lod_transects")
+        lod_mode=Path("examples/test_data/lod_transects/")
 
 
-        label_corrections_path=Path(test_data_folder + r"\clean\label_corrections.gpkg")
-        watermasks_path=Path(test_data_folder + r"\clean\watermasks.gpkg")
-        shoremasks_path=Path(test_data_folder + r"\clean\shoremasks.gpkg")
+        label_corrections_path=Path("examples/test_data/clean/label_corrections.gpkg")
+        watermasks_path=Path("examples/test_data/clean/watermasks.gpkg")
+        shoremasks_path=Path("examples/test_data/clean/shoremasks.gpkg")
 
 
         cls.P = ProfileSet(dirNameDSM=dirNameDSM,
@@ -244,7 +240,6 @@ class TestProfileSet(unittest.TestCase):
 
         cls.P.kmeans_sa(cls.opt_k, feature_set=feature_set)
 
-        print(f"SHAPE OF THE PROFILES PRE CLEAN {cls.P.profiles}")
 
         cls.check_no_sand_mar_preclean=cls.P.profiles.query("location == 'mar' and raw_date==20190205 and label_k in [0,5]")
         cls.check_no_sand_leo_preclean=cls.P.profiles.query("location == 'leo' and raw_date==20190211 and label_k ==1")
