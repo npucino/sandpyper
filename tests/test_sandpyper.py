@@ -4,6 +4,7 @@
 
 
 import unittest
+from pathlib import Path
 import os
 import pickle
 import numpy as np
@@ -199,19 +200,28 @@ class TestProfileSet(unittest.TestCase):
     def setUpClass(cls):
         ############################# Profile extraction ######################
 
-        dsms_dir_path = os.path.abspath("examples/test_data/dsm_1m/")
-        orthos_dir_path = os.path.abspath("examples/test_data/orthos_1m")
 
-        transects_path = os.path.abspath("examples/test_data/transects")
-        lod_mode=os.path.abspath("examples/test_data/lod_transects/")
 
-        label_corrections_path=os.path.abspath("examples/test_data/clean/label_corrections.gpkg")
-        watermasks_path=os.path.abspath("examples/test_data/clean/watermasks.gpkg")
-        shoremasks_path=os.path.abspath("examples/test_data/clean/shoremasks.gpkg")
+        test_data_folder = r"examples\test_data"
 
-        cls.P = ProfileSet(dirNameDSM=dsms_dir_path,
-                        dirNameOrtho=orthos_dir_path,
-                        dirNameTrans=transects_path,
+        # the paths to the DSM, orthophotos and transect directories
+        dirNameDSM=Path(test_data_folder + r"\dsm_1m")
+        dirNameOrtho=Path(test_data_folder + r"\orthos_1m")
+        dirNameTrans=Path(test_data_folder + r"\transects")
+
+        # path to the LoD transects
+
+        lod_mode=Path(test_data_folder + r"\lod_transects")
+
+
+        label_corrections_path=Path(test_data_folder + r"\clean\label_corrections.gpkg")
+        watermasks_path=Path(test_data_folder + r"\clean\watermasks.gpkg")
+        shoremasks_path=Path(test_data_folder + r"\clean\shoremasks.gpkg")
+
+
+        cls.P = ProfileSet(dirNameDSM=dirNameDSM,
+                        dirNameOrtho=dirNameOrtho,
+                        dirNameTrans=dirNameTrans,
                         transects_spacing=transects_spacing,
                         loc_codes=loc_codes,
                         loc_search_dict=loc_search_dict,
