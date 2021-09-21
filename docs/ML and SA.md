@@ -148,4 +148,10 @@ The field __new_class__ specifies the class to be assigned by the polygon. It is
 
 Every polygon has its own row and represent the correction polygons for each survey in each location.
 
+>__IMPORTANT NOTE__: Label correction polygons can overlap because they are only operating on a survey basis (raw date and location) and only target those points within their boundaries that have the `label_k `attribute equals to the label correction polygon attribute `target_label_k`.
+However, if polygons targeting the same `label_k `overlap and in their overlap area they include points with their `target_label_k`, the `new_class` **MUST BE THE SAME**, otherwise it doesn't make sense as nobody knows that point in that shared area what new class should take!
+If in the overlapping areas of 2 polygons which __have the same `target_label_k`__ but __different `new_class`__ there are points having `label_k == target_label_k`, the cleanit method breaks.
+(Roadmap: automatic check implementation)
+
+
 With these class dictionaries and correction polygons, the user can now classify all the points with the `ProfileSet.cleanit()` method.
