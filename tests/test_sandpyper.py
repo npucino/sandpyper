@@ -220,13 +220,11 @@ class TestProfileSet(unittest.TestCase):
 
 
 
-        np.random.seed(42)
         cls.P.extract_profiles(mode='all',tr_ids='tr_id',sampling_step=1,add_xy=True,lod_mode=lod_mode)
 
 
         ############################# Iterative Silhouette Analysis with inflexion point search ######################
 
-        np.random.seed(10)
         cls.sil_df = get_sil_location(cls.P.profiles,
                                 ks=(2,15),
                                 feature_set=feature_set,
