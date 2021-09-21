@@ -257,11 +257,10 @@ class TestProfileSet(unittest.TestCase):
         cls.check_watermask_leo_pre=cls.P.profiles.query("location == 'leo' and raw_date==20180920 and distance < 10").shape
         ############################# Cleaning ######################
 
-        cls.P.cleanit(l_dicts,cluster_field='label_k', fill_class='sand',
-                watermasks_path=watermasks_path, water_label='water',
-                shoremasks_path=shoremasks_path, label_corrections_path=label_corrections_path,
-                crs_dict_string=cls.P.crs_dict_string,
-               geometry_field='coordinates')
+        cls.P.cleanit(l_dicts,
+                watermasks_path=watermasks_path,
+                shoremasks_path=shoremasks_path,
+                label_corrections_path=label_corrections_path)
 
         cls.check_watermask_mar_post=cls.P.profiles.query("location == 'mar' and raw_date==20181113 and distance < 10").shape
         cls.check_watermask_leo_post=cls.P.profiles.query("location == 'leo' and raw_date==20180920 and distance < 10").shape
