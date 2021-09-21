@@ -259,7 +259,7 @@ class ProfileSet():
     def cleanit(self, l_dicts, cluster_field='label_k', fill_class='sand',
                 watermasks_path=None, water_label='water',
                 shoremasks_path=None, label_corrections_path=None,
-                crs_dict_string=None,
+                crs_dict_string=cls.P.crs_dict_string,
                geometry_field='coordinates'):
         """Transforms labels k into meaningful classes (sand, water, vegetation ,..) and apply fine-tuning correction, shoremasking and watermasking cleaning procedures.
 
