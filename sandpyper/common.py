@@ -2338,7 +2338,7 @@ def cleanit(to_clean, l_dicts, cluster_field='label_k', fill_class='sand',
                     selection=subset_data[subset_data.geometry.intersects(subset_masks.geometry)]
                     if selection.shape[0]==0:
                         print(f"Reprojecting")
-                        selection=subset_data[subset_data.geometry.intersects(subset_masks.to_crs(subset_data.crs).geometry.any())]
+                        selection=subset_data[subset_data.geometry.intersects(subset_masks.to_crs(crs_dict_string[loc]).geometry.any())]
                     else:
                         pass
 
