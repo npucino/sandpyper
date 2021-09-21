@@ -202,7 +202,7 @@ class TestProfileSet(unittest.TestCase):
 
         # the paths to the DSM, orthophotos and transect directories
         dirNameDSM=Path("examples/test_data/dsm_1m/")
-        dirNameOrtho=Path("examples/test_data/orthos_1m"")
+        dirNameOrtho=Path("examples/test_data/orthos_1m")
         dirNameTrans=Path("examples/test_data/transects")
 
         # path to the LoD transects
