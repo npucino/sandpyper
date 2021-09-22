@@ -5897,7 +5897,7 @@ def LISA_site_level(
 
 def check_overlaps_poly_label(label_corrections, profiles,crs):
     """
-    Function to check wether overlapping areas of label correction polygons targeting the same label_k in the same surveys but assigning different new classes do not contain points that would be affected by those polygons.
+    Function to check whether overlapping areas of label correction polygons targeting the same label_k in the same surveys but assigning different new classes do not contain points that would be affected by those polygons.
     Args:
         label_corrections (gpd.GeoDataFrame): GeodataFrame of the label correction polygons.
         profiles (gpd.GeoDataFrame): Geodataframe of the extracted elevation profiles.
