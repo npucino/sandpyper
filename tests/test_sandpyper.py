@@ -225,7 +225,7 @@ class TestProfileSet(unittest.TestCase):
 
         cls.P.extract_profiles(mode='all',tr_ids='tr_id',sampling_step=1,add_xy=True,lod_mode=lod_mode)
 
-
+        print(f"PROFILES SHAPE: {cls.profiles.shape}")
         ############################# Iterative Silhouette Analysis with inflexion point search ######################
 
         cls.sil_df = get_sil_location(cls.P.profiles,
@@ -234,6 +234,7 @@ class TestProfileSet(unittest.TestCase):
                                random_state=10)
 
         cls.opt_k = get_opt_k(cls.sil_df, sigma=0 )
+        print(f"opt_k SHAPE: {cls.opt_k.shape}")
 
         cls.P.kmeans_sa(cls.opt_k, feature_set=feature_set)
 
