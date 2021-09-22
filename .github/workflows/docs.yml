@@ -3,7 +3,7 @@ on:
     push:
         branches:
             - master
-            - v1
+            - conda_only
 jobs:
     deploy:
         runs-on: windows-latest
