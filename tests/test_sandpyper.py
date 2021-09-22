@@ -225,7 +225,7 @@ class TestProfileSet(unittest.TestCase):
 
         cls.P.extract_profiles(mode='all',tr_ids='tr_id',sampling_step=1,add_xy=True,lod_mode=lod_mode)
 
-        print(f"PROFILES SHAPE: {cls.profiles.shape}")
+        print(f"PROFILES SHAPE: {cls.P.profiles.shape}")
         ############################# Iterative Silhouette Analysis with inflexion point search ######################
 
         cls.sil_df = get_sil_location(cls.P.profiles,
