@@ -19,8 +19,8 @@ jobs:
                 config:
                     - { os: windows-latest, py: "3.8" }
                     - { os: macOS-latest, py: "3.8" }
-                    - { os: ubuntu-latest, py: "3.8" }
-                    - { os: ubuntu-latest, py: "3.9" }
+                    #- { os: ubuntu-latest, py: "3.8" }
+                    #- { os: ubuntu-latest, py: "3.9" }
         env:
             SDKROOT: /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk
 
@@ -39,10 +39,11 @@ jobs:
               run: |
                   pip install --user --no-cache-dir Cython
                   python -m pip install --upgrade pip
+                  pip install grip
                   conda config --add channels conda-forge
                   conda config --set channel_priority strict
                   conda install --file requirements.txt
-                  pip install --user -r requirements_dev.txt
+                  conda install --file requirements_dev.txt
                   conda install -c conda-forge ipywidgets
 
             - name: PKG-TEST

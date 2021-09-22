@@ -4,6 +4,7 @@
 
 
 import unittest
+#from pathlib import Path
 import os
 import pickle
 import numpy as np
@@ -120,15 +121,6 @@ l_dicts={'no_sand': no_sand_dict,
         'water': water_dict,
         'veg':veg_dict}
 
-#if os.getcwdb() != b'C:\\my_packages\\sandpyper\\tests': # if the script is running in github action as a workflow and not locally
-
-
-
-#else:
-
-
-
-
 
 
 class TestCreateProfiles(unittest.TestCase):
@@ -230,11 +222,11 @@ class TestProfileSet(unittest.TestCase):
 
 
         np.random.seed(42)
+
         cls.P.extract_profiles(mode='all',tr_ids='tr_id',sampling_step=1,add_xy=True,lod_mode=lod_mode)
 
-
+        print(f"PROFILES SHAPE: {cls.P.profiles.shape}")
         ############################# Iterative Silhouette Analysis with inflexion point search ######################
-
         np.random.seed(10)
         cls.sil_df = get_sil_location(cls.P.profiles,
                                 ks=(2,15),
@@ -242,10 +234,10 @@ class TestProfileSet(unittest.TestCase):
                                random_state=10)
 
         cls.opt_k = get_opt_k(cls.sil_df, sigma=0 )
+        print(f"opt_k SHAPE: {len(cls.opt_k)}")
 
         cls.P.kmeans_sa(cls.opt_k, feature_set=feature_set)
 
-        print(f"SHAPE OF THE PROFILES PRE CLEAN {cls.P.profiles}")
 
         cls.check_no_sand_mar_preclean=cls.P.profiles.query("location == 'mar' and raw_date==20190205 and label_k in [0,5]")
         cls.check_no_sand_leo_preclean=cls.P.profiles.query("location == 'leo' and raw_date==20190211 and label_k ==1")
@@ -263,10 +255,10 @@ class TestProfileSet(unittest.TestCase):
         cls.check_watermask_leo_pre=cls.P.profiles.query("location == 'leo' and raw_date==20180920 and distance < 10").shape
         ############################# Cleaning ######################
 
-        cls.P.cleanit(l_dicts=l_dicts,
-          watermasks_path=watermasks_path,
-          shoremasks_path=shoremasks_path,
-          label_corrections_path=label_corrections_path)
+        cls.P.cleanit(l_dicts,
+                watermasks_path=watermasks_path,
+                shoremasks_path=shoremasks_path,
+                label_corrections_path=label_corrections_path)
 
         cls.check_watermask_mar_post=cls.P.profiles.query("location == 'mar' and raw_date==20181113 and distance < 10").shape
         cls.check_watermask_leo_post=cls.P.profiles.query("location == 'leo' and raw_date==20180920 and distance < 10").shape

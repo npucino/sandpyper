@@ -15,11 +15,13 @@ from shutil import move, copy
 import numpy as np
 import pandas as pd
 import geopandas as gpd
+from geopandas.tools import overlay
 import seaborn as sb
 from tqdm.notebook import tqdm_notebook as tqdm
 from fuzzywuzzy import fuzz
 import itertools
 from itertools import product, groupby
+from itertools import combinations as comb
 
 import math
 from math import tan, radians, sqrt
@@ -551,8 +553,6 @@ def cross_ref(
 
         list_rasters = glob.glob(rf"{path_in}/*.ti*")
         raster_types=[filepath_raster_type(i) for i in list_rasters]
-
-        print(path_in)
 
         if len(set(raster_types)) != 1:
             raise ValueError(f"Mixed input types have been found in {ras_type_dict[i]} folder. Each folder has to contain either DSMs or orthos only.")
@@ -2212,7 +2212,7 @@ def classify_labelk(labelled_dataset,l_dicts, cluster_field='label_k', fill_clas
 def cleanit(to_clean, l_dicts, cluster_field='label_k', fill_class='sand',
             watermasks_path=None, water_label='water',
             shoremasks_path=None, label_corrections_path=None,
-            default_crs={'init': 'epsg:32754'}, crs_dict_string=None,
+            crs_dict_string=None,
            geometry_field='coordinates'):
 
     print("Reclassifying dataset with the provided dictionaries." )
@@ -2230,6 +2230,13 @@ def cleanit(to_clean, l_dicts, cluster_field='label_k', fill_class='sand',
         if os.path.isfile(label_corrections_path):
             label_corrections=gpd.read_file(label_corrections_path)
             print(f"Label corrections provided in CRS: {label_corrections.crs}")
+
+            # validate label correction polygons
+            #if crs_dict_string != None:
+            #    check_overlaps_poly_label(label_corrections,to_clean_classified,crs_dict_string)
+            #else:
+            #    check_overlaps_poly_label(label_corrections,to_clean_classified,label_corrections.crs.to_epsg())
+
             processes.append("polygon finetuning")
             to_update_finetune=pd.DataFrame()
 
@@ -2330,6 +2337,7 @@ def cleanit(to_clean, l_dicts, cluster_field='label_k', fill_class='sand',
 
                     selection=subset_data[subset_data.geometry.intersects(subset_masks.geometry)]
                     if selection.shape[0]==0:
+                        print(f"Reprojecting")
                         selection=subset_data[subset_data.geometry.intersects(subset_masks.to_crs(crs_dict_string[loc]).geometry.any())]
                     else:
                         pass
@@ -5885,3 +5893,57 @@ def LISA_site_level(
             lisa_df = pd.concat([lisa_df, gdf_input], ignore_index=True)
 
     return lisa_df
+
+
+def check_overlaps_poly_label(label_corrections, profiles,crs):
+    """
+    Function to check whether overlapping areas of label correction polygons targeting the same label_k in the same surveys but assigning different new classes do not contain points that would be affected by those polygons.
+    Args:
+        label_corrections (gpd.GeoDataFrame): GeodataFrame of the label correction polygons.
+        profiles (gpd.GeoDataFrame): Geodataframe of the extracted elevation profiles.
+        crs (dict, int): Either an EPSG code (int) or a dictionary. If dictionary, it must store location codes as keys and crs information as values, in dictionary form (example: {'init' :'epsg:4326'}).
+
+    """
+    for loc in label_corrections.location.unique():
+        for raw_date in label_corrections.query(f"location=='{loc}'").raw_date.unique():
+            for target_label_k in label_corrections.query(f"location=='{loc}' and raw_date=={raw_date}").target_label_k.unique():
+
+                date_labelk_subset=label_corrections.query(f"location=='{loc}' and raw_date=={raw_date} and target_label_k=={int(target_label_k)}")
+
+                # if more than one polygons target the same label k, check if they overlap
+                if len(date_labelk_subset)>1:
+
+                    # check if there are any one of them that overlaps
+                    for i,z in comb(range(len(date_labelk_subset)),2):
+                        intersection_gdf = overlay(date_labelk_subset.iloc[[i]], date_labelk_subset.iloc[[z]], how='intersection')
+
+                        if not intersection_gdf.empty:
+
+                           # check if the overlapping polygons have assigns different new_classes
+                            if any(intersection_gdf.new_class_1 != intersection_gdf.new_class_2):
+
+                                # if overlap areas assign different classes, check if this area contains points with label_k equal to both polygons target_label_k..
+                                # if contains points, raise an error as it does not make sense and the polygons must be corrected
+                                # by the user
+
+                                pts=profiles.query(f"location=='{loc}' and raw_date=={raw_date} and label_k=={int(target_label_k)}")
+
+                                if isinstance(pts.iloc[0]['coordinates'],Point):
+                                    pts_gdf=pts
+                                elif isinstance(pts.iloc[0]['coordinates'],str):
+                                    pts['coordinates']=pts.coordinates.apply(coords_to_points)
+                                    if isinstance(crs, dict):
+                                        pts_gdf=gpd.GeoDataFrame(pts, geometry='coordinates', crs=crs[loc])
+                                    elif isinstance(crs, int):
+                                        crs_adhoc={'init': f'epsg:{crs}'}
+                                        pts_gdf=gpd.GeoDataFrame(pts, geometry='coordinates', crs=crs_adhoc)
+                                else:
+                                    raise ValueError(f"profiles coordinates field must contain points coordinates either as Shapely Point geometry objects or as a string representing a Shapely Point geometry in well known text. Found {type(pts.iloc[0]['coordinates'])} type instead.")
+
+                                fully_contains = [intersection_gdf.geometry.contains(mask_geom)[0] for mask_geom in pts_gdf.geometry]
+
+                                if True in fully_contains:
+                                    idx_true=[i for i, x in enumerate(fully_contains) if x]
+                                    raise ValueError(f"There are {len(intersection_gdf)} points in the overlap area of two label correction polygons (location: {loc}, raw_date: {raw_date}, target_label_k = {target_label_k}) which assign two different classes: {intersection_gdf.loc[:,'new_class_1'][0], intersection_gdf.loc[:,'new_class_2'][0]}. This doesn't make sense, please correct your label correction polygons. You can have overlapping polygons which act on the same target label k, but if they overlap points with such target_label_k, then they MUST assign the same new class.")
+
+    print("Check label correction polygons overlap inconsistencies terminated successfully")
