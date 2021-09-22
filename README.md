@@ -136,7 +136,7 @@ Each survey creates Digital Surface Models (DSMs) and orthophotos of considerabl
 <!-- GETTING STARTED -->
 ## Getting Started
 
-To get a local copy up and running follow these simple steps.
+Currently Sandpyper is tested on Windows and MacOS with Python 3.8. To get a local copy up and running follow these simple steps.
 
 ### Prerequisites
 * [Install Conda] in your local machine. We need it to create the ```sandpyper_env``` virtual environment.
