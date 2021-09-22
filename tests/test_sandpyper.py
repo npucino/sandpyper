@@ -234,7 +234,7 @@ class TestProfileSet(unittest.TestCase):
                                random_state=10)
 
         cls.opt_k = get_opt_k(cls.sil_df, sigma=0 )
-        print(f"opt_k SHAPE: {cls.opt_k.shape}")
+        print(f"opt_k SHAPE: {len(opt_k)}")
 
         cls.P.kmeans_sa(cls.opt_k, feature_set=feature_set)
 
