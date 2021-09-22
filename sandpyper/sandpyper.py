@@ -259,7 +259,7 @@ class ProfileSet():
     def cleanit(self, l_dicts, cluster_field='label_k', fill_class='sand',
                 watermasks_path=None, water_label='water',
                 shoremasks_path=None, label_corrections_path=None,
-                default_crs={'init': 'epsg:32754'}, crs_dict_string=None,
+                crs_dict_string=None,
                geometry_field='coordinates'):
         """Transforms labels k into meaningful classes (sand, water, vegetation ,..) and apply fine-tuning correction, shoremasking and watermasking cleaning procedures.
 
@@ -271,7 +271,6 @@ class ProfileSet():
             water_label: .
             shoremasks_path: Path to the shoremasking file.
             label_corrections_path: Path to the label correction file.
-            default_crs: CRS used to digitise correction polygons.
             crs_dict_string: Dictionary storing location codes as key and crs information as values, in dictionary form.
             geometry_field: Field that stores the point geometry (default 'geometry').
 
@@ -291,7 +290,7 @@ class ProfileSet():
         self.profiles = cleanit(to_clean=self.profiles,l_dicts=l_dicts, cluster_field=cluster_field, fill_class=fill_class,
                     watermasks_path=watermasks_path, water_label=water_label,
                     shoremasks_path=shoremasks_path, label_corrections_path=label_corrections_path,
-                    default_crs=default_crs, crs_dict_string=self.crs_dict_string,
+                    crs_dict_string=self.crs_dict_string,
                    geometry_field=geometry_field)
 
 

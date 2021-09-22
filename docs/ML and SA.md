@@ -135,6 +135,9 @@ Every polygon has its own row and represent the watermask for each survey in eac
 ### Label correction file
 ![im](images/label_corr_attributes.JPG)
 
+To obtain sand only subaerial beachface sediment dynamics, we need to eliminate all points across transects that capture non-sand or unreliable surfaces, such as vegetation, water (and swash) and anything else that is not sand. Sandpyper currently implements a Machine Learning (ML) __unsupervised clustering algorithm (KMeans)__ to help label every point as one of the classes of interest, such as sand, water (and swash), vegetation and no sand. However, what the algorithm sees is almost always not what our brain is trained to see. Therefore, sometimes you will find erroneous labels that are clearly mostly vegetation, falling into water, for example.
+In this case, you might want to rectify and correct the labels that KMeans returned, and this is facilitated by the __label correction files__.
+
 Label correction files (geopackages or shapefiles) are digitized over points which have cluster labels (assigned by KMeans algorithm) which we are not totally happy with. The attribute __target_label_k__ specifies which label k will be affected by the correction, leaving untouched all other points falling within the polygon but having different label k. This is useful to fine-tune the point classification, as it is covered in the notebook __2 - Profiles extraction, unsupervised sand labelling and cleaning__. If you want to apply the correction to all the points, regardless of the label k, just assign 999 to this field.
 The field __new_class__ specifies the class to be assigned by the polygon. It is one single file. The required fields are:
 
@@ -144,5 +147,11 @@ The field __new_class__ specifies the class to be assigned by the polygon. It is
 * new_class (string): class to assign to the points of specified label k within the polygon
 
 Every polygon has its own row and represent the correction polygons for each survey in each location.
+
+>__IMPORTANT NOTE__: Label correction polygons can overlap because they are only operating on a survey basis (raw date and location) and only target those points within their boundaries that have the `label_k `attribute equals to the label correction polygon attribute `target_label_k`.
+However, if polygons targeting the same `label_k `overlap and in their overlap area they include points with their `target_label_k`, the `new_class` **MUST BE THE SAME**, otherwise it doesn't make sense as nobody knows that point in that shared area what new class should take!
+If in the overlapping areas of 2 polygons which __have the same `target_label_k`__ but __different `new_class`__ there are points having `label_k == target_label_k`, the cleanit method breaks.
+(Roadmap: automatic check implementation)
+
 
 With these class dictionaries and correction polygons, the user can now classify all the points with the `ProfileSet.cleanit()` method.
