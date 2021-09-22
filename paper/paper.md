@@ -47,7 +47,7 @@ Furthermore, beach-specific challenges are (1) the water motion as waves wash in
 Some previous works that are somehow related to **Sandpyper** include [Pybeach](https://github.com/TomasBeuzen/pybeach)[@Beuzen2019], a tool to automate beach dune toe identification and the [Digital Shoreline Analysis System (DSAS)](https://www.usgs.gov/centers/whcmsc/science/digital-shoreline-analysis-system-dsas?qt-science_center_objects=0#qt-science_center_objects), a tool to analyse shoreline shifts over time. While Pybeach is no longer maintained, the popularity of DSAS within the coastal erosion studies is fueled by its simple to use interface and the availability of a plug-in for [ESRI ArcMap](https://www.esri.com/en-us/arcgis/about-arcgis/overview) geographical information system. However, despite **Sandpyper**'s planned expansion to study satellite-derived-shorelines with a method inspired by DSAS, DSAS core objective is the study of horizontal shoreline migrations over time, with no functionalities in terms of three-dimensional profile extraction, volumetric and altimetric analysis or behavioural modeling.
 To the best of the authors knowledge, this is the first Python package with the specific aim to integrate within an erosion monitoring project employing UAVs and SfM. Moreover, it is the only package which currently implements the BCDs.
 
-Currently v1.0.0 allows to:
+Currently v1.1.0 allows to:
 
 * automatically create user-defined georeferenced cross-shore transects (Figure 1a) along a line and extract elevation (from DSMs) and colour (from orthophotos) profiles.
 * facilitate unsupervised machine learning sand classification (Figure 1b) and profile masking.
