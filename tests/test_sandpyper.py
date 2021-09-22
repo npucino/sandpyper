@@ -4,7 +4,7 @@
 
 
 import unittest
-from pathlib import Path
+#from pathlib import Path
 import os
 import pickle
 import numpy as np
@@ -200,24 +200,19 @@ class TestProfileSet(unittest.TestCase):
     def setUpClass(cls):
         ############################# Profile extraction ######################
 
-        # the paths to the DSM, orthophotos and transect directories
-        dirNameDSM=Path("examples/test_data/dsm_1m/")
-        dirNameOrtho=Path("examples/test_data/orthos_1m")
-        dirNameTrans=Path("examples/test_data/transects")
+        dsms_dir_path = os.path.abspath("examples/test_data/dsm_1m/")
+        orthos_dir_path = os.path.abspath("examples/test_data/orthos_1m")
 
-        # path to the LoD transects
+        transects_path = os.path.abspath("examples/test_data/transects")
+        lod_mode=os.path.abspath("examples/test_data/lod_transects/")
 
-        lod_mode=Path("examples/test_data/lod_transects/")
+        label_corrections_path=os.path.abspath("examples/test_data/clean/label_corrections.gpkg")
+        watermasks_path=os.path.abspath("examples/test_data/clean/watermasks.gpkg")
+        shoremasks_path=os.path.abspath("examples/test_data/clean/shoremasks.gpkg")
 
-
-        label_corrections_path=Path("examples/test_data/clean/label_corrections.gpkg")
-        watermasks_path=Path("examples/test_data/clean/watermasks.gpkg")
-        shoremasks_path=Path("examples/test_data/clean/shoremasks.gpkg")
-
-
-        cls.P = ProfileSet(dirNameDSM=dirNameDSM,
-                        dirNameOrtho=dirNameOrtho,
-                        dirNameTrans=dirNameTrans,
+        cls.P = ProfileSet(dirNameDSM=dsms_dir_path,
+                        dirNameOrtho=orthos_dir_path,
+                        dirNameTrans=transects_path,
                         transects_spacing=transects_spacing,
                         loc_codes=loc_codes,
                         loc_search_dict=loc_search_dict,
@@ -225,6 +220,8 @@ class TestProfileSet(unittest.TestCase):
                         check="all")
 
 
+
+        np.random.seed(42)
 
         cls.P.extract_profiles(mode='all',tr_ids='tr_id',sampling_step=1,add_xy=True,lod_mode=lod_mode)
 
