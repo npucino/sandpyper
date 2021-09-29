@@ -161,7 +161,7 @@ Currently Sandpyper is tested on Windows and MacOS with Python 3.8. To get a loc
    ```
 2. Install Jupyter Notebooks:
    ```sh
-   conda install jupyter notebook
+   conda install jupyter
    ```
 3. Once you open a Jupyter Notebook with the sandpyper_env, import it to test it works.
    ```sh
