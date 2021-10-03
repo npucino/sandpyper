@@ -151,6 +151,8 @@ Currently Sandpyper is tested on Windows and MacOS with Python 3.8. To get a loc
   ```
 * If ```rasterio``` package cannot be installed due to __GDAL binding issues__, follow the instructions in [rasterio installation webpage](https://rasterio.readthedocs.io/en/latest/installation.html).
 
+* If you want to test the package using the provided notebooks, __download the test data (test_data.rar) [HERE](https://github.com/npucino/sandpyper/blob/master/test_data.rar)__
+
 ### Installation
 
 1. ```sh
@@ -172,6 +174,7 @@ Currently Sandpyper is tested on Windows and MacOS with Python 3.8. To get a loc
 ## Usage
 
 To see <em>Sandpyper</em> in action, follow the Jupyter Notebooks provided [here](https://github.com/npucino/sandpyper/tree/master/examples).<br>
+Download the test data file (test_data.rar) __[HERE](https://github.com/npucino/sandpyper/blob/master/test_data.rar)__.<br>
 For the API reference, see the [Documentation](https://npucino.github.io/sandpyper/).
 
 <!-- ROADMAP -->
