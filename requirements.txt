@@ -3,7 +3,7 @@ pysal
 rasterio
 richdem
 scikit-image
-scikit-learn==0.24.1
+scikit-learn=0.24
 seaborn
 tqdm
 fuzzywuzzy
