@@ -29,7 +29,7 @@ loc_specs={'mar':{'thresh':6,
        'min_points':6}}
 
 loc_search_dict = {'leo': ['St', 'Leonards', 'leonards', 'leo'], 'mar': ['Marengo', 'marengo', 'mar'] }
-crs_dict_epsg = {'mar': 32754, 'leo':32755 }
+crs_dict_string = {'mar': 32754, 'leo':32755 }
 
 labels=["Undefined", "Small", "Medium", "High", "Extreme"]
 
@@ -146,7 +146,7 @@ class TestCreateProfiles(unittest.TestCase):
                            sampling_step=20,
                            tick_length=50,
                            location='leo',
-                           crs=crs_dict_epsg['leo'],
+                           crs=crs_dict_string['leo'],
                            side='both'
                           )
         self.assertEqual(transects_leo.shape, (59, 3))
@@ -160,7 +160,7 @@ class TestCreateProfiles(unittest.TestCase):
                        sampling_step=20,
                        tick_length=50,
                        location='mar',
-                       crs=crs_dict_epsg['mar'],
+                       crs=crs_dict_string['mar'],
                        side='both'
                       )
 
@@ -174,7 +174,7 @@ class TestCreateProfiles(unittest.TestCase):
             create_transects(self.leo_shoreline,
                            sampling_step=0,
                            tick_length=100,
-                           location='leo' ,crs=crs_dict_epsg['leo'],
+                           location='leo' ,crs=crs_dict_string['leo'],
                            side='both'
                           )
 
@@ -182,13 +182,13 @@ class TestCreateProfiles(unittest.TestCase):
         right=create_transects(self.mar_shoreline,
                            sampling_step=150,
                            tick_length=50,
-                           location='mar' ,crs=crs_dict_epsg['mar'],
+                           location='mar' ,crs=crs_dict_string['mar'],
                            side='right'
                           )
         left=create_transects(self.mar_shoreline,
                                    sampling_step=150,
                                    tick_length=50,
-                                   location='mar' ,crs=crs_dict_epsg['mar'],
+                                   location='mar' ,crs=crs_dict_string['mar'],
                                    side='left'
                                   )
         self.assertTrue(right.touches(left).all())
@@ -216,7 +216,7 @@ class TestProfileSet(unittest.TestCase):
                         transects_spacing=transects_spacing,
                         loc_codes=loc_codes,
                         loc_search_dict=loc_search_dict,
-                        crs_dict_epsg=crs_dict_epsg,
+                        crs_dict_string=crs_dict_string,
                         check="all")
 
 

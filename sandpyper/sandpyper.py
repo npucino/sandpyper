@@ -70,7 +70,7 @@ class ProfileSet():
                  transects_spacing,
                  loc_codes,
                  loc_search_dict,
-                 crs_dict_epsg,
+                 crs_dict_string,
                 check='all'):
         """This class sets up the monitoring global parameters, input files directories and creates a check dataframe to confirm all CRSs and files are matched up correctly.
 
@@ -81,7 +81,7 @@ class ProfileSet():
             transects_spacing (float): The alonghsore spacing between transects.
             loc_codes (list): List of strings of location codes.
             loc_search_dict (dict): A dictionary where keys are the location codes and values are lists containing the expected full location string, including the location code itself (["wbl","Warrnambool", "warrnambool","warrny"]).
-            crs_dict_epsg (dict): Dictionary storing location codes as key and crs information as EPSG code (int).
+            crs_dict_string (dict): Dictionary storing location codes as key and crs information as EPSG code (int).
             check (str, optional): If 'all', the check dataframe will contain both DSMs and orthophotos information. If one of 'dsm' or 'ortho', only check the desired data type.
 
         Returns:
@@ -96,7 +96,7 @@ class ProfileSet():
 
         self.loc_codes=loc_codes
         self.loc_search_dict=loc_search_dict
-        self.crs_dict_epsg=crs_dict_epsg
+        self.crs_dict_string=crs_dict_string
 
         if check=="dsm":
             path_in=self.dirNameDSM
@@ -262,7 +262,7 @@ class ProfileSet():
     def cleanit(self, l_dicts, cluster_field='label_k', fill_class='sand',
                 watermasks_path=None, water_label='water',
                 shoremasks_path=None, label_corrections_path=None,
-                crs_dict_epsg=None,
+                crs_dict_string=None,
                geometry_field='coordinates'):
         """Transforms labels k into meaningful classes (sand, water, vegetation ,..) and apply fine-tuning correction, shoremasking and watermasking cleaning procedures.
 
@@ -274,7 +274,7 @@ class ProfileSet():
             water_label: .
             shoremasks_path: Path to the shoremasking file.
             label_corrections_path: Path to the label correction file.
-            crs_dict_epsg: Dictionary storing location codes as key and crs information as EPSG code (int).
+            crs_dict_string: Dictionary storing location codes as key and crs information as EPSG code (int).
             geometry_field: Field that stores the point geometry (default 'geometry').
 
          Returns:
@@ -293,7 +293,7 @@ class ProfileSet():
         self.profiles = cleanit(to_clean=self.profiles,l_dicts=l_dicts, cluster_field=cluster_field, fill_class=fill_class,
                     watermasks_path=watermasks_path, water_label=water_label,
                     shoremasks_path=shoremasks_path, label_corrections_path=label_corrections_path,
-                    crs_dict_epsg=self.crs_dict_epsg,
+                    crs_dict_string=self.crs_dict_string,
                    geometry_field=geometry_field)
 
 
@@ -504,7 +504,7 @@ class ProfileDynamics():
                                     geometry_column=geometry_column,
                                     decay=decay,
                                     k_value=k_value,
-                                    crs_dict_epsg=self.ProfileSet.crs_dict_epsg)
+                                    crs_dict_string=self.ProfileSet.crs_dict_string)
 
 
     def discretise(self, lod=None, absolute = True, field="dh", appendix = ("_deposition","_erosion"), print_summary=False):
@@ -804,7 +804,7 @@ class ProfileDynamics():
                   reliable_action=reliable_action,
                   labels_order=self.tags_order,
                   loc_codes=self.ProfileSet.loc_codes,
-                  crs_dict_epsg=self.ProfileSet.crs_dict_epsg)
+                  crs_dict_string=self.ProfileSet.crs_dict_string)
 
 
     def compute_volumetrics(self, lod, outliers=False, sigma_n=3):
