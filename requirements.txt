@@ -1,4 +1,4 @@
-geopandas=0.8
+geopandas==0.8.2
 pysal
 rasterio
 richdem
