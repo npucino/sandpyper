@@ -29,7 +29,7 @@ loc_specs={'mar':{'thresh':6,
        'min_points':6}}
 
 loc_search_dict = {'leo': ['St', 'Leonards', 'leonards', 'leo'], 'mar': ['Marengo', 'marengo', 'mar'] }
-crs_dict_epsg = {'mar': 32754}, 'leo':32755 }
+crs_dict_epsg = {'mar': 32754, 'leo':32755 }
 
 labels=["Undefined", "Small", "Medium", "High", "Extreme"]
 
