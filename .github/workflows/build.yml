@@ -2,11 +2,9 @@ on:
     push:
         branches:
             - master
-            - conda_only
     pull_request:
         branches:
             - master
-            - conda_only
 
 name: build
 jobs:

@@ -15,6 +15,7 @@ from shutil import move, copy
 import numpy as np
 import pandas as pd
 import geopandas as gpd
+from pyproj import CRS
 from geopandas.tools import overlay
 import seaborn as sb
 from tqdm.notebook import tqdm_notebook as tqdm
@@ -59,11 +60,17 @@ import richdem as rd
 from statsmodels.api import qqplot
 
 from pysal.lib import weights
-import pysal.explore.esda.moran as moran
-from pysal.explore.esda.util import fdr
+#import pysal.explore.esda.moran as moran
+#from pysal.explore.esda.util import fdr
+from esda import moran
+from esda.util import fdr
 
-from pysal.explore.giddy.markov import Markov
-from pysal.lib.weights import DistanceBand, Queen, higher_order
+#from pysal.explore.giddy.markov import Markov
+from giddy.markov import Markov
+
+#from pysal.lib.weights import DistanceBand, Queen, higher_order
+from libpysal.weights import  DistanceBand, Queen, higher_order
+
 from pysal.viz.mapclassify import (EqualInterval,
                                    FisherJenks,
                                    HeadTailBreaks,
@@ -1477,7 +1484,7 @@ def plot_lod_normality_check(multitemp_data, lod_df, details_table, locations,al
             ax1.grid(axis='y')
             ax1.grid(b=None,axis='x')
 
-def get_rbcd_transect(df_labelled, loc_specs, reliable_action, dirNameTrans, labels_order, loc_codes, crs_dict_string):
+def get_rbcd_transect(df_labelled, loc_specs, reliable_action, dirNameTrans, labels_order, loc_codes, crs_dict_epsg):
     """It computes the r-BCDs at the transect level, based on the timeseries of elevation change magnituteds across the beachface dataset (markov_tag dataframe).
 
     Args:
@@ -1487,7 +1494,7 @@ def get_rbcd_transect(df_labelled, loc_specs, reliable_action, dirNameTrans, lab
         dirNameTrans (str): Path of the directory containing the transects (geopackages, .gpkg).
         labels_order (list): Order of labels (magnitude of change) to be preserved.
         loc_codes (list): List of strings containing location codes.
-        crs_dict_string (dict): Dictionary storing location codes as key and crs information as values, in dictionary form.
+        crs_dict_epsg (dict): Dictionary storing location codes as key and crs information as EPSG code (int).
 
     Returns:
        rbcd_transects (gpd.GeoDataFrame): A GeoDataFrames containing the steady-state distribution of each transect.
@@ -1625,7 +1632,7 @@ def get_rbcd_transect(df_labelled, loc_specs, reliable_action, dirNameTrans, lab
                 ).geometry
 
         ss_transects_idx_loc = gpd.GeoDataFrame(
-                        merged_erodepo, geometry="geometry", crs=crs_dict_string[loc]
+                        merged_erodepo, geometry="geometry", crs=CRS.from_epsg(crs_dict_epsg[loc])
                     )
         ss_transects_idx=pd.concat([ss_transects_idx_loc,ss_transects_idx], ignore_index=True)
 
@@ -1816,7 +1823,7 @@ def sensitivity_tr_rbcd(ProfileDynamics,
                       dirNameTrans=ProfileDynamics.ProfileSet.dirNameTrans,
                       labels_order=ProfileDynamics.tags_order,
                       loc_codes=ProfileDynamics.ProfileSet.loc_codes,
-                      crs_dict_string=ProfileDynamics.ProfileSet.crs_dict_string)
+                      crs_dict_epsg=ProfileDynamics.ProfileSet.crs_dict_epsg)
 
                 ss_transects_idx['thresh']=i[1]
                 ss_transects_idx['min_pts']=i[0]
@@ -2212,7 +2219,7 @@ def classify_labelk(labelled_dataset,l_dicts, cluster_field='label_k', fill_clas
 def cleanit(to_clean, l_dicts, cluster_field='label_k', fill_class='sand',
             watermasks_path=None, water_label='water',
             shoremasks_path=None, label_corrections_path=None,
-            crs_dict_string=None,
+            crs_dict_epsg=None,
            geometry_field='coordinates'):
 
     print("Reclassifying dataset with the provided dictionaries." )
@@ -2232,8 +2239,8 @@ def cleanit(to_clean, l_dicts, cluster_field='label_k', fill_class='sand',
             print(f"Label corrections provided in CRS: {label_corrections.crs}")
 
             # validate label correction polygons
-            #if crs_dict_string != None:
-            #    check_overlaps_poly_label(label_corrections,to_clean_classified,crs_dict_string)
+            #if crs_dict_epsg != None:
+            #    check_overlaps_poly_label(label_corrections,to_clean_classified,crs_dict_epsg)
             #else:
             #    check_overlaps_poly_label(label_corrections,to_clean_classified,label_corrections.crs.to_epsg())
 
@@ -2264,7 +2271,7 @@ def cleanit(to_clean, l_dicts, cluster_field='label_k', fill_class='sand',
                         selection=data_in[data_in.coordinates.intersects(row.geometry)]
 
                         if selection.shape[0]==0:
-                            selection=data_in[data_in.to_crs(crs_dict_string[loc]).coordinates.intersects(row.geometry)]
+                            selection=data_in[data_in.to_crs(CRS.from_epsg(crs_dict_epsg[loc])).coordinates.intersects(row.geometry)]
                         else:
                             pass
                         selection["finetuned_label"]=new_class
@@ -2338,7 +2345,7 @@ def cleanit(to_clean, l_dicts, cluster_field='label_k', fill_class='sand',
                     selection=subset_data[subset_data.geometry.intersects(subset_masks.geometry)]
                     if selection.shape[0]==0:
                         print(f"Reprojecting")
-                        selection=subset_data[subset_data.geometry.intersects(subset_masks.to_crs(crs_dict_string[loc]).geometry.any())]
+                        selection=subset_data[subset_data.geometry.intersects(subset_masks.to_crs(CRS.from_epsg(crs_dict_epsg[loc])).geometry.any())]
                     else:
                         pass
 
@@ -2407,7 +2414,7 @@ def cleanit(to_clean, l_dicts, cluster_field='label_k', fill_class='sand',
                 if in_shore.shape[0]>=1:
                     pass
                 else:
-                    in_shore=loc_selection[loc_selection.geometry.intersects(shore.to_crs(crs_dict_string[loc]).geometry.any())]
+                    in_shore=loc_selection[loc_selection.geometry.intersects(shore.to_crs(CRS.from_epsg(crs_dict_epsg[loc])).geometry.any())]
 
                 print(f"Removing {loc_selection.shape[0] - in_shore.shape[0]} pts falling outside provided shore polygones.")
                 inshore_cleaned=pd.concat([in_shore,inshore_cleaned], ignore_index=True)
@@ -4158,7 +4165,7 @@ def corr_baseline_distance(dist, slope, z_tide):
 def error_from_gt(
     shorelines,
     groundtruths,
-    crs_dict_string,
+    crs_dict_epsg,
     location,
     sampling_step,
     tick_length,
@@ -4176,7 +4183,7 @@ def error_from_gt(
     Args:
         shorelines (gpd.GeoDataFrame): GeoDataFrame of shorelines to test.
         groundtruths (gpd.GeoDataFrame): GeoDataFrame of shorelines to test.
-        crs_dict_string (dict): Dictionary storing location codes as key and crs information as values, in dictionary form.
+        crs_dict_epsg (dict): Dictionary storing location codes as key and crs information as EPSG code (int).
         location (str): Strings of location code ("apo").
         sampling_step (int, float): Alongshore distanace to separate each evaluation transect.
         tick_length (int, float): Length of transects.
@@ -4190,7 +4197,7 @@ def error_from_gt(
     Returns:
         pd.DataFrame: Dataframe containing the distances from groundtruth at each timestep.
     """
-    crs = crs_dict_string[location]
+    crs = CRS.from_epsg(crs_dict_epsg[loc])
 
     if os.path.isfile(baseline_mode):
         print("Fixed baseline mode selected.")
@@ -4416,7 +4423,7 @@ def tidal_correction(
     cs_shores,
     gdf,
     baseline_folder,
-    crs_dict_string,
+    crs_dict_epsg,
     limit_correction,
     mode,
     alongshore_resolution,
@@ -4442,7 +4449,7 @@ def tidal_correction(
         cs_shores (gpd.GeoDataFrame): The width and height of each single tile of the grid, given in the CRS unit (use projected CRS).
         gdf (gpd.GeoDataFrame): Coordinate Reference System in the dictionary format (example: {'init' :'epsg:4326'})
         baseline_folder (str): Path to the folder storing the baseline Geopackages (.gpkgs).
-        crs_dict_string (dict): Dictionary storing location codes as key and crs information as values, in dictionary form.
+        crs_dict_epsg (dict): Dictionary storing location codes as key and crs information as EPSG code (int).
         limit_correction (bool): If True, only use beachface slopes to compute the statistic for tidal correction. When False, retain the full transects to compute the slope statistics to correct shorelines. When a slope value is provided, it automatically sets to False. Defaults to True.
         mode (str): If 'sat', use satellite shorelines as seaward edge to classify beachfaces. If 'gt', use groundthruth shorelines instead.
         alongshore_resolution (str, float): The alongshore spacing between transects, in the unit of measure of the location CRS. If 'infer', use the gdf file to detect the spacing with 10cm precision. If the transects spacing is less than 10cm, set the spacing manually. Note: It also smoothes the original line if this value is greater of the original line vertex spacing.
@@ -4522,7 +4529,7 @@ def tidal_correction(
         gt_shores = cs_shores.query(
             f"location=='{location}' & raw_date in @list_dates"
         )  # get groudtruths shores
-        crs = crs_dict_string[location]  # get crs of location
+        crs = CRS.from_epsg(crs_dict_epsg[loc])  # get crs of location
 
         if shores_to_corr.crs != crs:
             shores_to_corr = shores_to_corr.to_crs(crs)
@@ -5067,7 +5074,7 @@ def save_slope_corr_files(
     baseline_folder,
     slope_profiles_folder,
     loc_codes,
-    crs_dict_string,
+    crs_dict_epsg,
     shoreline,
     across_shore_resolution,
     alongshore_resolution,
@@ -5168,7 +5175,7 @@ def save_slope_corr_files(
         print(f"Working on {location} .")
         slope_file_name = f"slopeprofiles_{location}_{alongshore_resolution}_{tick_length}_{across_shore_resolution_txt}.csv"
 
-        crs = crs_dict_string[location]  # get crs of location
+        crs = CRS.from_epsg(crs_dict_epsg[loc])  # get crs of location
 
         baseline_location_path = [
             os.path.join(baseline_folder, baseline)
@@ -5520,7 +5527,7 @@ def tiles_from_grid(
     img_path,
     output_path,
     list_loc_codes,
-    crs_dict_string,
+    crs_dict_epsg,
     mode="rgb",
     sel_bands=None,
     driver="PNG",
@@ -5551,7 +5558,7 @@ def tiles_from_grid(
     """
 
     loc = getLoc(img_path, list_loc_codes)
-    crs = crs_dict_string[loc]
+    crs = CRS.from_epsg(crs_dict_epsg[loc])
 
     if driver == "PNG":
         ext = "png"
@@ -5613,7 +5620,7 @@ def tiles_from_grid(
             width_idx = 2
 
         # creates gereferenced bounding box of the image
-        geom_im = gpd.GeoSeries(box(*dataset.bounds), crs=crs_dict_string[loc])
+        geom_im = gpd.GeoSeries(box(*dataset.bounds), crs=CRS.from_epsg(crs_dict_epsg[loc]))
 
         # evaluates which tiles are fully within the raster bounds
         fully_contains = [
@@ -5687,7 +5694,7 @@ def arr2geotiff(
     array,
     transform,
     location,
-    crs_dict_string,
+    crs_dict_epsg,
     shape=(64, 64, 1),
     driver="GTiff",
     dtype=np.float32,
@@ -5698,7 +5705,7 @@ def arr2geotiff(
         array (array): array to be transformed.
         transform (tuple): tuple with Shapely transform parameters.
         location (str): Location code of the shoreline to convert.
-        crs_dict_string (dict):  Dictionary storing location codes as key and crs information as values, in dictionary form.
+        crs_dict_epsg (dict):  Dictionary storing location codes as key and crs information as EPSG code (int).
         shape (tuple): Tuple of size 3 of the shape of the array. Default to (64,64,1)
         driver ("GTiff"): Driver used by Fiona to save file.
         dtype (data type object): Default to numpy.float32.
@@ -5717,7 +5724,7 @@ def arr2geotiff(
             count=array.shape[2],
             dtype=dtype,
             transform=transform,
-            crs=crs_dict_string[location],
+            crs=CRS.from_epsg(crs_dict_epsg[loc])
         )
 
         mem_dataset.write(array.reshape((shape[0], shape[1])), indexes=shape[2])
@@ -5732,7 +5739,7 @@ def arr2geotiff(
                 count=array.shape[2],
                 dtype=dtype,
                 transform=transform,
-                crs=crs_dict_string[location],
+                crs=CRS.from_epsg(crs_dict_epsg[loc])
             ) as dest:
                 if driver == "PNG":
                     dest.write(mem_dataset.astype(ras.uint16), indexes=1)
@@ -5778,7 +5785,7 @@ def shoreline_from_prediction(
 
 def LISA_site_level(
     dh_df,
-    crs_dict_string,
+    crs_dict_epsg,
     mode,
     distance_value=None,
     decay=None,
@@ -5789,7 +5796,7 @@ def LISA_site_level(
 
     Args:
         dh_df (pd.DataFrame, str): Pandas dataframe or local path of the timeseries files, as returned by the multitemporal extraction.
-        crs_dict_string (dict): Dictionary storing location codes as key and crs information as values, in dictionary form.
+        crs_dict_epsg (dict): Dictionary storing location codes as key and crs information as EPSG code (int).
         geometry_column (str): field storing the geometry column. If in string form (as loaded from a csv), it will be converted to Point objects. Default='coordinates'.
         mode (str): If 'distance'(Default), compute spatial weight matrix using a distance-band kernel, specified in distance_value parameter.
                                         If 'knn', spatial weight matrix uses a specified (k_value parameter) of k number closest points to compute weights.
@@ -5833,7 +5840,7 @@ def LISA_site_level(
         df_in = df.query(f"location=='{loc}'")  # subset a location
 
         # create a GeoDataFrame with the right CRS
-        gdf = gpd.GeoDataFrame(df_in, geometry=geometry_column, crs=crs_dict_string[loc])
+        gdf = gpd.GeoDataFrame(df_in, geometry=geometry_column, crs=CRS.from_epsg(crs_dict_epsg[loc]))
 
         dts = gdf.dt.unique()  # obtain list of periods
 

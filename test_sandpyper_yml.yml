@@ -1,0 +1,24 @@
+name: sandpyper_env_yml
+channels:
+  - conda-forge
+  - conda
+  - defaults
+dependencies:  
+    - python=3.8
+    - pip
+    - geopandas
+    #- matplotlib=3.3
+    #- numpy=1.20
+    #- pandas=1.2
+    - tqdm
+    - pysal
+    - rasterio
+    - richdem
+    - scikit-image=0.18
+    - scikit-learn=0.24
+    #- scipy=1.6
+    - seaborn
+    #- pooch=1.4
+    - fuzzywuzzy
+    - pip:
+        - sandpyper
