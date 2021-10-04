@@ -60,16 +60,16 @@ import richdem as rd
 from statsmodels.api import qqplot
 
 from pysal.lib import weights
-#import pysal.explore.esda.moran as moran
-#from pysal.explore.esda.util import fdr
-from esda import moran
-from esda.util import fdr
+import pysal.explore.esda.moran as moran
+from pysal.explore.esda.util import fdr
+#from esda import moran
+#from esda.util import fdr
 
-#from pysal.explore.giddy.markov import Markov
-from giddy.markov import Markov
+from pysal.explore.giddy.markov import Markov
+#from giddy.markov import Markov
 
-#from pysal.lib.weights import DistanceBand, Queen, higher_order
-from libpysal.weights import  DistanceBand, Queen, higher_order
+from pysal.lib.weights import DistanceBand, Queen, higher_order
+#from libpysal.weights import  DistanceBand, Queen, higher_order
 
 from pysal.viz.mapclassify import (EqualInterval,
                                    FisherJenks,
@@ -1494,7 +1494,7 @@ def get_rbcd_transect(df_labelled, loc_specs, reliable_action, dirNameTrans, lab
         dirNameTrans (str): Path of the directory containing the transects (geopackages, .gpkg).
         labels_order (list): Order of labels (magnitude of change) to be preserved.
         loc_codes (list): List of strings containing location codes.
-        crs_dict_epsg (dict): Dictionary storing location codes as key and crs information as EPSG code (int).
+        crs_dict_epsg (dict): Dictionary storing location codes as key and crs information as values, in dictionary form.
 
     Returns:
        rbcd_transects (gpd.GeoDataFrame): A GeoDataFrames containing the steady-state distribution of each transect.
