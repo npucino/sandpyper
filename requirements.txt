@@ -2,6 +2,7 @@ geopandas==0.8.2
 pysal
 rasterio
 richdem
+scikit-image==0.18.1
 scikit-learn=0.24
 seaborn
 tqdm
