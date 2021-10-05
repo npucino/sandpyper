@@ -11,8 +11,8 @@ import seaborn as sb
 import matplotlib.pyplot as plt
 from itertools import product as prod
 
-from giddy.markov import Markov
-#from pysal.explore.giddy.markov import Markov
+#from giddy.markov import Markov
+from pysal.explore.giddy.markov import Markov
 
 from pysal.viz.mapclassify import (EqualInterval,
                                    FisherJenks,

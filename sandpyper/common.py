@@ -61,16 +61,16 @@ from statsmodels.api import qqplot
 
 from pysal.lib import weights
 
-#import pysal.explore.esda.moran as moran
-#from pysal.explore.esda.util import fdr
-from esda import moran
-from esda.util import fdr
+import pysal.explore.esda.moran as moran
+from pysal.explore.esda.util import fdr
+#from esda import moran
+#from esda.util import fdr
 
-#from pysal.explore.giddy.markov import Markov
-from giddy.markov import Markov
+from pysal.explore.giddy.markov import Markov
+#from giddy.markov import Markov
 
-#from pysal.lib.weights import DistanceBand, Queen, higher_order
-from libpysal.weights import  DistanceBand, Queen, higher_order
+from pysal.lib.weights import DistanceBand, Queen, higher_order
+#from libpysal.weights import  DistanceBand, Queen, higher_order
 
 from pysal.viz.mapclassify import (EqualInterval,
                                    FisherJenks,
@@ -1633,7 +1633,7 @@ def get_rbcd_transect(df_labelled, loc_specs, reliable_action, dirNameTrans, lab
                 ).geometry
 
         ss_transects_idx_loc = gpd.GeoDataFrame(
-                        merged_erodepo, geometry="geometry", crs=CRS.from_epsg(CRS.from_epsg(crs_dict_string[loc]))
+                        merged_erodepo, geometry="geometry", crs=CRS.from_epsg(crs_dict_string[loc]  )
                     )
         ss_transects_idx=pd.concat([ss_transects_idx_loc,ss_transects_idx], ignore_index=True)
 
@@ -2272,7 +2272,7 @@ def cleanit(to_clean, l_dicts, cluster_field='label_k', fill_class='sand',
                         selection=data_in[data_in.coordinates.intersects(row.geometry)]
 
                         if selection.shape[0]==0:
-                            selection=data_in[data_in.to_crs(CRS.from_epsg(crs_dict_string[loc])).coordinates.intersects(row.geometry)]
+                            selection=data_in[data_in.to_crs(crs_dict_string[loc]  ).coordinates.intersects(row.geometry)]
                         else:
                             pass
                         selection["finetuned_label"]=new_class
@@ -2346,7 +2346,7 @@ def cleanit(to_clean, l_dicts, cluster_field='label_k', fill_class='sand',
                     selection=subset_data[subset_data.geometry.intersects(subset_masks.geometry)]
                     if selection.shape[0]==0:
                         print(f"Reprojecting")
-                        selection=subset_data[subset_data.geometry.intersects(subset_masks.to_crs(CRS.from_epsg(crs_dict_string[loc])).geometry.any())]
+                        selection=subset_data[subset_data.geometry.intersects(subset_masks.to_crs(crs_dict_string[loc]  ).geometry.any())]
                     else:
                         pass
 
@@ -2415,7 +2415,7 @@ def cleanit(to_clean, l_dicts, cluster_field='label_k', fill_class='sand',
                 if in_shore.shape[0]>=1:
                     pass
                 else:
-                    in_shore=loc_selection[loc_selection.geometry.intersects(shore.to_crs(CRS.from_epsg(crs_dict_string[loc])).geometry.any())]
+                    in_shore=loc_selection[loc_selection.geometry.intersects(shore.to_crs(crs_dict_string[loc]  ).geometry.any())]
 
                 print(f"Removing {loc_selection.shape[0] - in_shore.shape[0]} pts falling outside provided shore polygones.")
                 inshore_cleaned=pd.concat([in_shore,inshore_cleaned], ignore_index=True)
@@ -4198,7 +4198,7 @@ def error_from_gt(
     Returns:
         pd.DataFrame: Dataframe containing the distances from groundtruth at each timestep.
     """
-    crs = CRS.from_epsg(crs_dict_string[loc])
+    crs = crs_dict_string[loc]
 
     if os.path.isfile(baseline_mode):
         print("Fixed baseline mode selected.")
@@ -4530,7 +4530,7 @@ def tidal_correction(
         gt_shores = cs_shores.query(
             f"location=='{location}' & raw_date in @list_dates"
         )  # get groudtruths shores
-        crs = CRS.from_epsg(crs_dict_string[loc])  # get crs of location
+        crs = crs_dict_string[loc]    # get crs of location
 
         if shores_to_corr.crs != crs:
             shores_to_corr = shores_to_corr.to_crs(crs)
@@ -5176,7 +5176,7 @@ def save_slope_corr_files(
         print(f"Working on {location} .")
         slope_file_name = f"slopeprofiles_{location}_{alongshore_resolution}_{tick_length}_{across_shore_resolution_txt}.csv"
 
-        crs = CRS.from_epsg(crs_dict_string[loc])  # get crs of location
+        crs = crs_dict_string[loc]    # get crs of location
 
         baseline_location_path = [
             os.path.join(baseline_folder, baseline)
@@ -5559,7 +5559,7 @@ def tiles_from_grid(
     """
 
     loc = getLoc(img_path, list_loc_codes)
-    crs = CRS.from_epsg(crs_dict_string[loc])
+    crs = crs_dict_string[loc]
 
     if driver == "PNG":
         ext = "png"
@@ -5621,7 +5621,7 @@ def tiles_from_grid(
             width_idx = 2
 
         # creates gereferenced bounding box of the image
-        geom_im = gpd.GeoSeries(box(*dataset.bounds), crs=CRS.from_epsg(crs_dict_string[loc]))
+        geom_im = gpd.GeoSeries(box(*dataset.bounds), crs=crs_dict_string[loc]  )
 
         # evaluates which tiles are fully within the raster bounds
         fully_contains = [
@@ -5725,7 +5725,7 @@ def arr2geotiff(
             count=array.shape[2],
             dtype=dtype,
             transform=transform,
-            crs=CRS.from_epsg(crs_dict_string[loc])
+            crs=crs_dict_string[loc]
         )
 
         mem_dataset.write(array.reshape((shape[0], shape[1])), indexes=shape[2])
@@ -5740,7 +5740,7 @@ def arr2geotiff(
                 count=array.shape[2],
                 dtype=dtype,
                 transform=transform,
-                crs=CRS.from_epsg(crs_dict_string[loc])
+                crs=crs_dict_string[loc]
             ) as dest:
                 if driver == "PNG":
                     dest.write(mem_dataset.astype(ras.uint16), indexes=1)
@@ -5841,7 +5841,7 @@ def LISA_site_level(
         df_in = df.query(f"location=='{loc}'")  # subset a location
 
         # create a GeoDataFrame with the right CRS
-        gdf = gpd.GeoDataFrame(df_in, geometry=geometry_column, crs=CRS.from_epsg(crs_dict_string[loc]))
+        gdf = gpd.GeoDataFrame(df_in, geometry=geometry_column, crs=crs_dict_string[loc]  )
 
         dts = gdf.dt.unique()  # obtain list of periods
 
