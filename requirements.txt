@@ -1,7 +1,7 @@
 geopandas==0.8.2
 pysal==2.1
 rasterio==1.2.0
-richdem
+richdem==0.3.4
 scikit-image==0.18.1
 scikit-learn==0.24.1
 seaborn
