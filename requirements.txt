@@ -1,11 +1,9 @@
-python=3.8
-pip
-geopandas=0.8
-tqdm
+geopandas==0.8.2
 pysal==2.1
-rasterio
+rasterio==1.2.0
 richdem
-scikit-image=0.18
-scikit-learn=0.24
+scikit-image==0.18.1
+scikit-learn==0.24.1
 seaborn
+tqdm
 fuzzywuzzy
