@@ -9,10 +9,6 @@ import os
 import pickle
 import numpy as np
 import geopandas as gpd
-
-from pyproj import CRS
-
-
 import pandas as pd
 import shapely
 import sandpyper
@@ -32,7 +28,7 @@ loc_specs={'mar':{'thresh':6,
        'min_points':6}}
 
 loc_search_dict = {'leo': ['St', 'Leonards', 'leonards', 'leo'], 'mar': ['Marengo', 'marengo', 'mar'] }
-crs_dict_string = {'mar': 32754, 'leo':32755}
+crs_dict_string = {'mar': {'init': 'epsg:32754'}, 'leo':{'init': 'epsg:32755'} }
 
 labels=["Undefined", "Small", "Medium", "High", "Extreme"]
 
@@ -149,7 +145,7 @@ class TestCreateProfiles(unittest.TestCase):
                            sampling_step=20,
                            tick_length=50,
                            location='leo',
-                           crs=CRS.from_epsg(crs_dict_string['leo']),
+                           crs=crs_dict_string['leo'],
                            side='both'
                           )
         self.assertEqual(transects_leo.shape, (59, 3))
@@ -163,7 +159,7 @@ class TestCreateProfiles(unittest.TestCase):
                        sampling_step=20,
                        tick_length=50,
                        location='mar',
-                       crs=CRS.from_epsg(crs_dict_string['mar']),
+                       crs=crs_dict_string['mar'],
                        side='both'
                       )
 
@@ -177,7 +173,7 @@ class TestCreateProfiles(unittest.TestCase):
             create_transects(self.leo_shoreline,
                            sampling_step=0,
                            tick_length=100,
-                           location='leo' ,crs=CRS.from_epsg(crs_dict_string['leo']),
+                           location='leo' ,crs=crs_dict_string['leo'],
                            side='both'
                           )
 
@@ -185,13 +181,13 @@ class TestCreateProfiles(unittest.TestCase):
         right=create_transects(self.mar_shoreline,
                            sampling_step=150,
                            tick_length=50,
-                           location='mar' ,crs=CRS.from_epsg(crs_dict_string['mar']),
+                           location='mar' ,crs=crs_dict_string['mar'],
                            side='right'
                           )
         left=create_transects(self.mar_shoreline,
                                    sampling_step=150,
                                    tick_length=50,
-                                   location='mar' ,crs=CRS.from_epsg(crs_dict_string['mar']),
+                                   location='mar' ,crs=crs_dict_string['mar'],
                                    side='left'
                                   )
         self.assertTrue(right.touches(left).all())
