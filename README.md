@@ -136,7 +136,7 @@ Each survey creates Digital Surface Models (DSMs) and orthophotos of considerabl
 <!-- GETTING STARTED -->
 ## Getting Started
 
-Currently Sandpyper is tested on Windows and MacOS with Python 3.8. To get a local copy up and running follow these simple steps.
+Currently Sandpyper is tested on Windows, MacOS and Ubuntu with Python 3.8 and 3.9. To get a local copy up and running follow these simple steps.
 
 ### Prerequisites
 * [Install Conda] in your local machine. We need it to create the ```sandpyper_env``` virtual environment.
@@ -145,9 +145,9 @@ Currently Sandpyper is tested on Windows and MacOS with Python 3.8. To get a loc
   ```sh
   conda config --add channels conda-forge
   ```
-* Now, always in the (base) environment, create a new environment called ```sandpyper_env``` using ```python=3.8``` and install the required packages by typing:
+* Now, always in the (base) environment, create a new environment called ```sandpyper_env``` using ```python=3.9``` and install the required packages by typing:
   ```sh
-  conda create --name sandpyper_env python=3.8 geopandas=0.8.2 matplotlib=3.3.4 numpy=1.20.1 pandas=1.2.2 tqdm=4.56.2 pysal=2.1 rasterio=1.2.0 richdem=0.3.4 scikit-image=0.18.1 scikit-learn=0.24.1 scipy=1.6.0 seaborn=0.11.1 tqdm=4.56.2 pooch=1.4.0 fuzzywuzzy
+  conda create --name sandpyper_env python=3.9 geopandas=0.8.2 matplotlib=3.3.4 numpy=1.20.1 pandas=1.2.2 tqdm=4.56.2 pysal=2.1 rasterio=1.2.0 richdem=0.3.4 scikit-image=0.18.1 scikit-learn=0.24.1 scipy=1.6.0 seaborn=0.11.1 tqdm=4.56.2 pooch=1.4.0 fuzzywuzzy
   ```
 * If ```rasterio``` package cannot be installed due to __GDAL binding issues__, follow the instructions in [rasterio installation webpage](https://rasterio.readthedocs.io/en/latest/installation.html).
 
@@ -181,6 +181,7 @@ For the API reference, see the [Documentation](https://npucino.github.io/sandpyp
 ## Roadmap
 <ol>
     <li> Update CRS definition to new CRS object standard in order to upgrade Geopandas version.</li>
+    <li> Relax all requirements to make it future-proof and available in Anaconda.org. </li>
     <li> Add raster support for Dems of Differences (DoDs) and LoDs.</li>
     <li> Add shoreline analysis from space.</li>
     <li> Add [leafmap](https://github.com/giswqs/leafmap) to better (interactive) plotting.</li>
