@@ -2346,7 +2346,7 @@ def cleanit(to_clean, l_dicts, cluster_field='label_k', fill_class='sand',
                     selection=subset_data[subset_data.geometry.intersects(subset_masks.geometry)]
                     if selection.shape[0]==0:
                         print(f"Reprojecting")
-                        selection=subset_data[subset_data.geometry.intersects(subset_masks.to_crs(crs_dict_string[loc]  ).geometry.any())]
+                        selection=subset_data[subset_data.geometry.intersects(subset_masks.to_crs(crs_dict_string[loc]).geometry.any())]
                     else:
                         pass
 
@@ -2415,7 +2415,7 @@ def cleanit(to_clean, l_dicts, cluster_field='label_k', fill_class='sand',
                 if in_shore.shape[0]>=1:
                     pass
                 else:
-                    in_shore=loc_selection[loc_selection.geometry.intersects(shore.to_crs(crs_dict_string[loc]  ).geometry.any())]
+                    in_shore=loc_selection[loc_selection.geometry.intersects(shore.to_crs(crs_dict_string[loc]).geometry.any())]
 
                 print(f"Removing {loc_selection.shape[0] - in_shore.shape[0]} pts falling outside provided shore polygones.")
                 inshore_cleaned=pd.concat([in_shore,inshore_cleaned], ignore_index=True)
