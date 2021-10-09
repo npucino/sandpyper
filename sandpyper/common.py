@@ -1633,7 +1633,7 @@ def get_rbcd_transect(df_labelled, loc_specs, reliable_action, dirNameTrans, lab
                 ).geometry
 
         ss_transects_idx_loc = gpd.GeoDataFrame(
-                        merged_erodepo, geometry="geometry", crs=CRS.from_epsg(crs_dict_string[loc]  )
+                        merged_erodepo, geometry="geometry", crs=crs_dict_string[loc]  )
                     )
         ss_transects_idx=pd.concat([ss_transects_idx_loc,ss_transects_idx], ignore_index=True)
 
