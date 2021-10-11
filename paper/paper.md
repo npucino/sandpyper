@@ -47,13 +47,13 @@ Furthermore, beach-specific challenges are (1) the water motion as waves wash in
 Some previous works that are somehow related to **Sandpyper** include [Pybeach](https://github.com/TomasBeuzen/pybeach)[@Beuzen2019], a tool to automate beach dune toe identification and the [Digital Shoreline Analysis System (DSAS)](https://www.usgs.gov/centers/whcmsc/science/digital-shoreline-analysis-system-dsas?qt-science_center_objects=0#qt-science_center_objects), a tool to analyse shoreline shifts over time. While Pybeach is no longer maintained, the popularity of DSAS within the coastal erosion studies is fueled by its simple to use interface and the availability of a plug-in for [ESRI ArcMap](https://www.esri.com/en-us/arcgis/about-arcgis/overview) GIS. However, despite **Sandpyper**'s planned expansion to study satellite-derived-shorelines with a method inspired by DSAS, DSAS core objective is the study of horizontal shoreline migrations over time, with no functionalities in terms of three-dimensional profile extraction, volumetric and altimetric analysis or behavioural modeling.
 To the best of the authors knowledge, this is the first Python package with the specific aim to integrate within an erosion monitoring project employing UAVs and SfM. Moreover, it is the only package which currently implements the Beachface Cluster Dynamics indices (BCDs) computation, which are purposefully designed novel metrics to leverage the very high spatiotemporal resolutions and three-dimensionality of UAV SfM topographic data for quantifying subaerial beach morphodynamics [@Pucino2021-ox].
 
-Sandpyper currently provides the the ability to:
+**Sandpyper** currently provides the the ability to:
 
-* automatically create user-defined georeferenced cross-shore transects (\autoref{fig:fig1} Figure 1a) along a line and extract elevation (from DSMs) and colour (from orthophotos) profiles.
-* facilitate unsupervised machine learning sand classification (\autoref{fig:fig1} Figure 1b) and profile masking.
-* compute altimetric and volumetric timeseries analysis and plotting the results, at the transect (\autoref{fig:fig1} Figure 1c) and site scales (\autoref{fig:fig1} Figure 1d).
-* use spatial autocorrelation measures to discard spatial outliers and obtain statistically significant Hotspots/Coldspots areas of beach change at the site scale (\autoref{fig:fig2} Figure 2a).
-* compute first-order transition probabilities of magnitude of change classes to derive BCDs (\autoref{fig:fig2} Figure 2c).
+* automatically create user-defined georeferenced cross-shore transects (\autoref{fig:fig1}A) along a line and extract elevation (from DSMs) and colour (from orthophotos) profiles.
+* facilitate unsupervised machine learning sand classification (\autoref{fig:fig1}B) and profile masking.
+* compute altimetric and volumetric timeseries analysis and plotting the results, at the transect (\autoref{fig:fig1}C) and site scales (\autoref{fig:fig1}D).
+* use spatial autocorrelation measures to discard spatial outliers and obtain statistically significant Hotspots/Coldspots areas of beach change at the site scale (\autoref{fig:fig2}A).
+* compute first-order transition probabilities of magnitude of change classes (\autoref{fig:fig2}B) to derive BCDs (\autoref{fig:fig2}C).
 
 Moreover, **Sandpyper** is being currently developed to include raster-based volumetric and behavioural analysis and satellite-derived shorelines analysis. Some features already in **Sandpyper** are:
 
