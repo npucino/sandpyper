@@ -53,7 +53,7 @@ Sandpyper currently provides the the ability to:
 * facilitate unsupervised machine learning sand classification (\autoref{fig:fig1} Figure 1b) and profile masking.
 * compute altimetric and volumetric timeseries analysis and plotting the results, at the transect (\autoref{fig:fig1} Figure 1c) and site scales (\autoref{fig:fig1} Figure 1d).
 * use spatial autocorrelation measures to discard spatial outliers and obtain statistically significant Hotspots/Coldspots areas of beach change at the site scale (\autoref{fig:fig2} Figure 2a).
-* compute first-order transition probabilities of magnitude of change classes to derive Beachface Cluster Dynamics indices (\autoref{fig:fig2} Figure 2c; [@Pucino2021-ox]).
+* compute first-order transition probabilities of magnitude of change classes to derive BCDs (\autoref{fig:fig2} Figure 2c).
 
 Moreover, **Sandpyper** is being currently developed to include raster-based volumetric and behavioural analysis and satellite-derived shorelines analysis. Some features already in **Sandpyper** are:
 
@@ -75,12 +75,11 @@ Various tutorials and documentation are available for using **Sandpyper**, inclu
 # Figures
 
 ## Figure 1
-![**Example of the volumetric change computation pipeline.** (A) A sample virtual transects network. (B) Sand and no-sand classified points, facilitated with iterative Silhouette and KMeans analysis. (C) Alongshore transect-scale altimetric (top) and volumetric (bottom) change. (D) Site-level Mean Elevation Change (MEC) timeseries.\label{fig:fig1}](joss_fig1.png)
-**Example of the volumetric change computation pipeline.** (A) A sample virtual transects network. (B) Sand and no-sand classified points, facilitated with iterative Silhouette and KMeans analysis. (C) Alongshore transect-scale altimetric (top) and volumetric (bottom) change. (D) Site-level Mean Elevation Change (MEC) timeseries.
+![Example of the volumetric change computation pipeline. (A) A sample virtual transects network. (B) Sand and no-sand classified points, facilitated with iterative Silhouette and KMeans analysis. (C) Alongshore transect-scale altimetric (top) and volumetric (bottom) change. (D) Site-level Mean Elevation Change (MEC) timeseries.\label{fig:fig1}](joss_fig1.png)
 
 ## Figure 2
-![**Example of derivation of e-BCD indices.** (A) statistical significant clusters of elevation changes (hot-coldspots) timeseries. (B) First-order transition probabilities matrices. (C) e-BCDs plot derived.\label{fig:fig2}](joss_fig2.png)
-**Example of derivation of e-BCD indices.** (A) statistical significant clusters of elevation changes (hot-coldspots) timeseries. (B) First-order transition probabilities matrices. (C) e-BCDs plot derived.
+![Example of derivation of e-BCD indices. (A) statistical significant clusters of elevation changes (hot-coldspots) timeseries. (B) First-order transition probabilities matrices. (C) e-BCDs plot derived.\label{fig:fig2}](joss_fig2.png)
+
 
 # Acknowledgements
 
