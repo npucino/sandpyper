@@ -8,6 +8,8 @@
 [![Issues][issues-shield]][issues-url]
 [![License][license-shield]][license-url]
 [![joss](https://joss.theoj.org/papers/ff00f33cd9152b1834727ffb8be4122a/status.svg)](https://joss.theoj.org/papers/ff00f33cd9152b1834727ffb8be4122a)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.5565487.svg)](https://doi.org/10.5281/zenodo.5565487)
+
 [![LinkedIn][linkedin-shield]][linkedin-url]
 
 
