@@ -1,0 +1,22 @@
+{
+    "creators": [
+        {
+            "orcid": "0000-0001-6260-6647",
+            "affiliation": "Deakin University",
+            "name": "Nicolas Pucino"
+        },
+        {
+            "orcid": "0000-0002-4878-7717",
+            "affiliation": "The University of Melbourne",
+            "name": " David M. Kennedy"
+        },
+        {
+            "orcid": "0000-0002-7832-4801",
+            "affiliation": "Deakin University",
+            "name": " Daniel Ierodiaconou"
+        }
+    ],
+
+    "license": "MIT"
+
+}
