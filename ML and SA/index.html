@@ -1,0 +1,952 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="canonical" href="https://npucino.github.io/sandpyper/ML%20and%20SA/">
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-7.2.3">
+    
+    
+      
+        <title>Data cleaning - Sandpyper</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.f7f47774.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.3f5d1f46.min.css">
+        
+      
+    
+    
+    
+      
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700%7CRoboto+Mono&display=fallback">
+        <style>:root{--md-text-font-family:"Roboto";--md-code-font-family:"Roboto Mono"}</style>
+      
+    
+    
+    
+      <link rel="stylesheet" href="../assets/_mkdocstrings.css">
+    
+    
+      
+
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="preference" data-md-color-primary="" data-md-color-accent="">
+  
+    
+    <script>function __prefix(e){return new URL("..",location).pathname+"."+e}function __get(e,t=localStorage){return JSON.parse(t.getItem(__prefix(e)))}</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#methods-for-sand-labelling-and-classification" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="Sandpyper" class="md-header__button md-logo" aria-label="Sandpyper" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Sandpyper
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Data cleaning
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+      </label>
+      
+<div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" aria-label="Clear" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        
+<a href="https://github.com//npucino//sandpyper/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Sandpyper" class="md-nav__button md-logo" aria-label="Sandpyper" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"/></svg>
+
+    </a>
+    Sandpyper
+  </label>
+  
+    <div class="md-nav__source">
+      
+<a href="https://github.com//npucino//sandpyper/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        Home
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../installation/" class="md-nav__link">
+        Installation
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../usage/" class="md-nav__link">
+        Usage
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/" class="md-nav__link">
+        Contributing
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../faq/" class="md-nav__link">
+        FAQ
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://github.com//npucino//sandpyper//issues" class="md-nav__link">
+        Report Issues
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_7" type="checkbox" id="__nav_7" checked>
+      
+      <label class="md-nav__link" for="__nav_7">
+        Methods
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Methods" data-md-level="1">
+        <label class="md-nav__title" for="__nav_7">
+          <span class="md-nav__icon md-icon"></span>
+          Methods
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Introduction/" class="md-nav__link">
+        Introduction
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../extraction%20and%20lod/" class="md-nav__link">
+        Elevation analysis
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Data cleaning
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        Data cleaning
+      </a>
+      
+        
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#unsupervised-clustering-with-kmeans" class="md-nav__link">
+    Unsupervised clustering with KMeans
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#silhouette-analysis-sa" class="md-nav__link">
+    Silhouette Analysis (SA)
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#inflexion-point-search" class="md-nav__link">
+    Inflexion point search
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#visual-identification-of-point-classes-in-a-gis" class="md-nav__link">
+    Visual identification of point classes in a GIS
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#correction-polygons" class="md-nav__link">
+    Correction polygons
+  </a>
+  
+    <nav class="md-nav" aria-label="Correction polygons">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#shoremasks-file" class="md-nav__link">
+    Shoremasks file
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#watermasks" class="md-nav__link">
+    Watermasks
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#label-correction-file" class="md-nav__link">
+    Label correction file
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../hotspot_methods/" class="md-nav__link">
+        Hotspot analysis
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../bcds_method/" class="md-nav__link">
+        BCDs
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../volumetrics_method/" class="md-nav__link">
+        Volumetrics
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_8" data-md-state="indeterminate" type="checkbox" id="__nav_8" checked>
+      
+      <label class="md-nav__link" for="__nav_8">
+        API Reference
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="API Reference" data-md-level="1">
+        <label class="md-nav__title" for="__nav_8">
+          <span class="md-nav__icon md-icon"></span>
+          API Reference
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../sandpyper/" class="md-nav__link">
+        sandpyper module
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../common/" class="md-nav__link">
+        common module
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_9" data-md-state="indeterminate" type="checkbox" id="__nav_9" checked>
+      
+      <label class="md-nav__link" for="__nav_9">
+        Notebooks
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Notebooks" data-md-level="1">
+        <label class="md-nav__title" for="__nav_9">
+          <span class="md-nav__icon md-icon"></span>
+          Notebooks
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../notebooks/1%20-%20Introduction%20and%20data%20preparation/" class="md-nav__link">
+        Introduction and data preparation
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../notebooks/2%20-%20Profiles%20extraction%2C%20unsupervised%20sand%20labelling%20and%20cleaning/" class="md-nav__link">
+        Profile extraction, LoD and data cleaning
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../notebooks/3%20-%20Profile%20dynamics/" class="md-nav__link">
+        Multiscale sediment dynamics
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../notebooks/Space%20analysis%20-%20teaser/" class="md-nav__link">
+        Space analysis   teaser
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#unsupervised-clustering-with-kmeans" class="md-nav__link">
+    Unsupervised clustering with KMeans
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#silhouette-analysis-sa" class="md-nav__link">
+    Silhouette Analysis (SA)
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#inflexion-point-search" class="md-nav__link">
+    Inflexion point search
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#visual-identification-of-point-classes-in-a-gis" class="md-nav__link">
+    Visual identification of point classes in a GIS
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#correction-polygons" class="md-nav__link">
+    Correction polygons
+  </a>
+  
+    <nav class="md-nav" aria-label="Correction polygons">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#shoremasks-file" class="md-nav__link">
+    Shoremasks file
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#watermasks" class="md-nav__link">
+    Watermasks
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#label-correction-file" class="md-nav__link">
+    Label correction file
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content" data-md-component="content">
+            <article class="md-content__inner md-typeset">
+              
+
+
+
+                
+                  <a href="https://github.com/npucino/sandpyper/edit/master/docs/ML and SA.md" title="Edit this page" class="md-content__button md-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25z"/></svg>
+                  </a>
+                
+                
+                <h1 id="methods-for-sand-labelling-and-classification">Methods for sand labelling and classification<a class="headerlink" href="#methods-for-sand-labelling-and-classification" title="Permanent link">&para;</a></h1>
+<p><img alt="im" src="../images/transects_classes.png" /></p>
+<p>As the Structure from Motion pipeline assumes tie-points to be fixed during multi-view stereo-pairing, the swash zone created obvious artifacts that would interfere with an accurate representation of the beach topography. Its extent and location is highly dynamic, due to the combined effect of tidal and water level variations, planimetric beach adjustments and variable survey times.<br />
+Also, dune vegetation, beach wracks and anything that was neither sand nor a fixed feature (like rock walls or fences) on the beach needed to be removed to exclusively obtain sand-specific volumetric changes and accurate profiles evolution.
+For this reason, Sandpyper uses a machine learning algorithm to semi-automatically classify sand and non-sand points (objects, seaweed wracks, vegetation), facilitating the cleaning of big datasets.</p>
+<p>In order to classify sand and no-sand points sampled across transects, Sandpyper facilitates the use of Silhouette Analysis (SA) method to propose a sub-optimal <strong>number of clusters k</strong> to be used by the unsupervised KMeans clustering algorithm. Following the unsupervised procedure, Sandpyper helps in further cleaning the dataset by providing it with correction polygons (in case the user wants to fine-tune the KMeans assigned labels), watermasks (to further mask out water and swash) and shoremasks (to clip the area of study to not too far landward from the foredune, if existent).</p>
+<p>A typical Sandpyper pipeline consists of:</p>
+<ol>
+<li>Automated iterative Silhouette Analysis with inflexion point search at the site level, implemented with <code>get_sil_location()</code> function</li>
+<li>Inflexion points search, implemented with <code>get_opt_k()</code> function</li>
+<li>Run KMeans with the identified sub-optimal k, implemented with the <code>ProfileSet.kmeans_sa()</code> method.</li>
+<li>Visual assessment of KMeans generated labels and creation of class dictionaries and correction polygons in a GIS</li>
+<li>Semi-automated classification and cleaning, implemented with <code>ProfileSet.cleanit()</code> method.</li>
+</ol>
+<h2 id="unsupervised-clustering-with-kmeans">Unsupervised clustering with KMeans<a class="headerlink" href="#unsupervised-clustering-with-kmeans" title="Permanent link">&para;</a></h2>
+<p>KMeans is one of the most used, versatile and readily available clustering algorithms in data mining (<a href="http://dx.doi.org/10.1007/s10115-007-0114-2">Wu et al., 2007</a>) and
+showed its value on partitioning SfM-MVS derived coastal point clouds (<a href="http://dx.doi.org/10.1007/s10115-007-0114-2">Callow et al., 2018</a>).
+For a general overview of clustering algorithms with specific attention on KMeans algorithm,
+please refer to <a href="https://www.sciencedirect.com/science/article/abs/pii/S0167865509002323?via%3Dihub">Jain (2010)</a>.</p>
+<p>Sandpyper implements Elkan's KMeans algorithm (<a href="https://www.aaai.org/Papers/ICML/2003/ICML03-022.pdf">Elkan, 2003</a>) with triangle inequality acceleration via <a href="https://scikit-learn.org/stable/modules/generated/sklearn.cluster.KMeans.html">sklearn</a> package, with the following parameters:
+1. initial cluster centers selected with k-means++
+2. 300 maximum iterations per run
+3. inertial tolerance of 0.0001
+4. precomputed distances if n_samples * n_clusters &lt; 12 million</p>
+<p>Have a look at this short and easy video about the intuition of KMeans.<br>
+<img alt="im" src="../images/kmeans.JPG" />
+<a href="https://www.youtube.com/watch?v=4b5d3muPQmA">Watch here</a></p>
+<h2 id="silhouette-analysis-sa">Silhouette Analysis (SA)<a class="headerlink" href="#silhouette-analysis-sa" title="Permanent link">&para;</a></h2>
+<p>The Silhouette Analysis (SA) method is a simple graphical and analytical method to measure how tight and compact the clusters are (overall), while also indicating how well each observation fits (silhouette coefficient) within the assigned partition or cluster (<a href="https://www.sciencedirect.com/science/article/pii/0377042787901257?via%3Dihub">Rousseeuw, 1987</a>).</p>
+<p>For instance, let’s consider <span class="arithmatex">\(N=11\)</span> observations partitioned into <span class="arithmatex">\(k=3\)</span> clusters <span class="arithmatex">\(A,B,C\)</span> and observation  <span class="arithmatex">\(i_A\)</span> assigned to cluster <span class="arithmatex">\(A\)</span>. In the following diagram, the feature space has been limited to 2 features for illustration purposes.</p>
+<p><img alt="im" src="../images/sa_diagr.png" /></p>
+<p>SA in the example can be summarized in the following steps:
+1. <span class="arithmatex">\({\overline{d}}_{iA}\)</span>: Compute the mean dissimilarity of <span class="arithmatex">\(i\)</span> to the other elements within <span class="arithmatex">\(A\)</span>.
+2. <span class="arithmatex">\({\overline{d}}_{i\neq A}\)</span>: Compute the mean dissimilarity of <span class="arithmatex">\(i\)</span> to the other elements of any remaining clusters different than <span class="arithmatex">\(A\)</span>.
+3. <span class="arithmatex">\(\min{\left(\ {\overline{d}}_{i\neq A}\right)}\)</span>: Find  <span class="arithmatex">\(i\)</span> other cluster (neighbour) by finding the minimum <span class="arithmatex">\({\overline{d}}_{i\neq A}\)</span></p>
+<p>In the example, <span class="arithmatex">\(\min{\left(\ {\overline{d}}_{i\neq A}\right)}={\overline{d}}_{iC}\)</span>, in fact it is easily seen that the average lengths of all segments connecting <span class="arithmatex">\(i\)</span> to the elements in cluster <span class="arithmatex">\(C\)</span> is smaller than that of <span class="arithmatex">\(i\)</span> to cluster <span class="arithmatex">\(B\)</span>.
+The neighbor <span class="arithmatex">\(C\)</span> could be considered  as a potential candidate for a misinterpreted partitioning from the clustering algorithm (KMeans, in our case). Thus, the silhouette coefficient <span class="arithmatex">\(s\)</span> of <span class="arithmatex">\(i\)</span>  in <span class="arithmatex">\(A\)</span> (<span class="arithmatex">\(s_{iA}\)</span>) can now be computed as:</p>
+<p><img alt="im" src="../images/graph_equation_sa.JPG" /></p>
+<p>It follows that:
+1. The silhouette coefficient of any observation can be computed and ranges from -1 to 1.
+2. When of positive sign, the closest <span class="arithmatex">\(s_i\)</span> is to 1, the better fit in its current cluster
+3. When of negative sign, the closest  <span class="arithmatex">\(s_i\)</span> is to -1, the better fit in its neighbor cluster
+4. When  <span class="arithmatex">\(s=0\)</span>, then  <span class="arithmatex">\(i\)</span> could be equally placed in the current cluster or in its neighbor.
+With this on mind, it is now possible to compute the overall clustering performance as:</p>
+<div class="arithmatex">\[
+S_N=\frac{1}{N}\sum_{i=1}^{N}s_i
+\]</div>
+<p>which is simply the mean of all the  <span class="arithmatex">\(s_i\)</span> in the dataset.</p>
+<p>With the <code>get_sil_location()</code> function we basically run the KMeans algorithm multiple times, each time with the <code>k</code> parameter (number of clusters) increased by 1, SA run again and mean global  <span class="arithmatex">\(s\)</span> for each <code>k</code> is computed. With this information, we can look for the best candidate <code>k</code> using inflexion point search.</p>
+<h2 id="inflexion-point-search">Inflexion point search<a class="headerlink" href="#inflexion-point-search" title="Permanent link">&para;</a></h2>
+<p><img alt="im" src="../images/inflexion_search_sa.JPG" /></p>
+<p>Once SA has been run iteratively and the SA coefficient has been stored, Sandpyper searches for the inflexion points to propose a <strong>sub-optimal k</strong> number where an additional cluster does not degrade the overall clustering performance.
+Sandpyper uses a Gaussian smoothed regression of  <code>k</code> against mean silhouette scores to identify first order relative minima as possible inflexion points.
+When multiple relative minima are found, the smaller k will be the sub-optimal one.
+When no relative minima are found, it searches for peaks in the second order derivative of such regression line.
+If multiple peaks are found, the mean k, computed so far, will be used as optimal.</p>
+<p>Once the sub-optimal k for each survey has been found, the user is ready to finally run the KMeans algorithm with the sub-optimal k using the <code>ProfileSet.kmeans_sa()</code> method.</p>
+<h2 id="visual-identification-of-point-classes-in-a-gis">Visual identification of point classes in a GIS<a class="headerlink" href="#visual-identification-of-point-classes-in-a-gis" title="Permanent link">&para;</a></h2>
+<p><img alt="im" src="../images/gis_labels.JPG" /></p>
+<p>As the unsupervised procedure outlined above retunes labels in the form of a number (cluster ID), and not a human interpretable class (like sand, road, wrack, water), we need to visually check which labels are what class, and take notes of these associations in the form of class dictionaries.</p>
+<p>Here is a simple procedure the users can follow to achieve this step:</p>
+<ol>
+<li>
+<p>export the ProfileSet.profiles attribute (after having run all the SA + Kmeans procedure) to a csv file by running <code>ProfileSet.profiles.to_csv(r"path/to/a/directory/points_to_classify.csv", index=False)</code></p>
+</li>
+<li>
+<p>open Qgis, add these points as a Delimited Text Layer, file format is CSV and the geometry definition is stored as a Well known text (WKT) format in the coordinates column. Remember to set the right CRS for your points and add it as a point layer to the GIS.</p>
+</li>
+<li>use the filter option to select one location and one survey date (column raw_date) at a time, display the points using a categorized symbology with the label_k field to clearly distinguish different label_k.</li>
+<li>open the corresponding orthophoto and put it below the points</li>
+<li>now check where each label_k falls and take note in one dictionary per class, using the below format:</li>
+</ol>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span>
+<span class="normal">5</span>
+<span class="normal">6</span>
+<span class="normal">7</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="n">sand_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;leo_20180606&#39;</span><span class="p">:[</span><span class="mi">5</span><span class="p">],</span>
+            <span class="s1">&#39;leo_20180713&#39;</span><span class="p">:[</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">],</span>
+            <span class="s1">&#39;mar_20180920&#39;</span><span class="p">:[]}</span>
+
+<span class="n">water_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;leo_20180606&#39;</span><span class="p">:[</span><span class="mi">4</span><span class="p">],</span>
+            <span class="s1">&#39;leo_20180713&#39;</span><span class="p">:[</span><span class="mi">2</span><span class="p">,</span><span class="mi">6</span><span class="p">],</span>
+            <span class="s1">&#39;mar_20180920&#39;</span><span class="p">:[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">]}</span>
+</code></pre></div>
+</td></tr></table>
+<blockquote>
+<p>NOTE: to identify the survey, note the 'LocationCode_yyyymmdd' format for the keys of these class dictionaries.</p>
+</blockquote>
+<h2 id="correction-polygons">Correction polygons<a class="headerlink" href="#correction-polygons" title="Permanent link">&para;</a></h2>
+<h3 id="shoremasks-file">Shoremasks file<a class="headerlink" href="#shoremasks-file" title="Permanent link">&para;</a></h3>
+<p><img alt="im" src="../images/shoremasks_table_attributes.JPG" /></p>
+<p>Shoremask file (geopackages or shapefiles) holds digitized polygons, which are clipping masks essentially, which are used to remove unwanted backshore areas. In the above picture, the <strong>red dashed line</strong> represents the boundary of the polygon, in this case, in Marengo (mar). It is one single clipping mask that will be applied to all surveys. The only required field is:</p>
+<ul>
+<li>location (string): location code</li>
+</ul>
+<p>Every polygon has its own row and represent the shoremask of each location.<br />
+Working with only one geopackage or shapefile implies that only one CRS has to be used for all the locations. This is automatically taken into account in Sandpyper using the <strong>crs_dict_string</strong> global setting.</p>
+<h3 id="watermasks">Watermasks<a class="headerlink" href="#watermasks" title="Permanent link">&para;</a></h3>
+<p><img alt="im" src="../images/watermasks_table_attributes.JPG" /></p>
+<p>Watermasks files (geopackages or shapefiles) are digitised over water areas and swash areas. It is one single file. The required fields are:</p>
+<ul>
+<li>location (string): location code</li>
+<li>raw_date (integer): survey date to apply this mask in raw for (yyyymmdd)</li>
+</ul>
+<p>Every polygon has its own row and represent the watermask for each survey in each location.</p>
+<h3 id="label-correction-file">Label correction file<a class="headerlink" href="#label-correction-file" title="Permanent link">&para;</a></h3>
+<p><img alt="im" src="../images/label_corr_attributes.JPG" /></p>
+<p>To obtain sand only subaerial beachface sediment dynamics, we need to eliminate all points across transects that capture non-sand or unreliable surfaces, such as vegetation, water (and swash) and anything else that is not sand. Sandpyper currently implements a Machine Learning (ML) <strong>unsupervised clustering algorithm (KMeans)</strong> to help label every point as one of the classes of interest, such as sand, water (and swash), vegetation and no sand. However, what the algorithm sees is almost always not what our brain is trained to see. Therefore, sometimes you will find erroneous labels that are clearly mostly vegetation, falling into water, for example.
+In this case, you might want to rectify and correct the labels that KMeans returned, and this is facilitated by the <strong>label correction files</strong>.</p>
+<p>Label correction files (geopackages or shapefiles) are digitized over points which have cluster labels (assigned by KMeans algorithm) which we are not totally happy with. The attribute <strong>target_label_k</strong> specifies which label k will be affected by the correction, leaving untouched all other points falling within the polygon but having different label k. This is useful to fine-tune the point classification, as it is covered in the notebook <strong>2 - Profiles extraction, unsupervised sand labelling and cleaning</strong>. If you want to apply the correction to all the points, regardless of the label k, just assign 999 to this field.
+The field <strong>new_class</strong> specifies the class to be assigned by the polygon. It is one single file. The required fields are:</p>
+<ul>
+<li>location (string): location code</li>
+<li>raw_date (integer): survey date to apply this mask in raw for (yyyymmdd)</li>
+<li>target_label_k (integer): label k to apply the correction of this polygon. 999 to apply to all points within it, regardless of their label k</li>
+<li>new_class (string): class to assign to the points of specified label k within the polygon</li>
+</ul>
+<p>Every polygon has its own row and represent the correction polygons for each survey in each location.</p>
+<blockquote>
+<p><strong>IMPORTANT NOTE</strong>: Label correction polygons can overlap because they are only operating on a survey basis (raw date and location) and only target those points within their boundaries that have the <code>label_k</code>attribute equals to the label correction polygon attribute <code>target_label_k</code>.
+However, if polygons targeting the same <code>label_k</code>overlap and in their overlap area they include points with their <code>target_label_k</code>, the <code>new_class</code> <strong>MUST BE THE SAME</strong>, otherwise it doesn't make sense as nobody knows that point in that shared area what new class should take!
+If in the overlapping areas of 2 polygons which <strong>have the same <code>target_label_k</code></strong> but <strong>different <code>new_class</code></strong> there are points having <code>label_k == target_label_k</code>, the cleanit method breaks.
+(Roadmap: automatic check implementation)</p>
+</blockquote>
+<p>With these class dictionaries and correction polygons, the user can now classify all the points with the <code>ProfileSet.cleanit()</code> method.</p>
+                
+                  
+                    
+
+<hr>
+<div class="md-source-date">
+  <small>
+    
+      Last update: 2021-10-13
+    
+  </small>
+</div>
+                  
+                
+              
+
+              
+                
+
+
+              
+            </article>
+          </div>
+        </div>
+        
+      </main>
+      
+        
+<footer class="md-footer">
+  
+    <nav class="md-footer__inner md-grid" aria-label="Footer">
+      
+        
+        <a href="../extraction%20and%20lod/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Elevation analysis" rel="prev">
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+          </div>
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              Elevation analysis
+            </div>
+          </div>
+        </a>
+      
+      
+        
+        <a href="../hotspot_methods/" class="md-footer__link md-footer__link--next" aria-label="Next: Hotspot analysis" rel="next">
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              Hotspot analysis
+            </div>
+          </div>
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4z"/></svg>
+          </div>
+        </a>
+      
+    </nav>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-footer-copyright">
+        
+        Made with
+        <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+          Material for MkDocs
+        </a>
+        
+      </div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.instant", "search.highlight", "navigation.expand"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../assets/javascripts/workers/search.709b4209.min.js", "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.29db7785.min.js"></script>
+      
+        <script src="../javascripts/extra.js"></script>
+      
+        <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+    
+  </body>
+</html>
