@@ -1274,7 +1274,7 @@ def extract_from_folder(
     if mode == "dsm":
         nan_out = np.count_nonzero(np.isnan(np.array(gdf.z).astype("f")))
         nan_raster = np.count_nonzero(gdf.z == nan_values)
-        gdf.z.replace(-10000, np.nan, inplace=True)
+        gdf.z.replace(nan_values, np.nan, inplace=True)
 
     elif mode == "ortho":
         nan_out = np.count_nonzero(
